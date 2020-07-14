@@ -1,0 +1,128 @@
+/*@import "_bootstrap.min.scss";*/
+@import "_font_lato.scss";
+@import "_icon.scss";
+@import "_antd.scss";
+@import "_dp.scss";
+
+
+.number {
+    text-align: right;
+}
+.btnClear{
+    font-size: 1rem !important;
+}
+.height-100 {
+    height: 100%;
+}
+.width-100 {
+    width: 100%;
+}
+.tab-panes {
+    margin-bottom: 8px;
+    border-bottom: 1px solid #d9d9d9;
+
+    .tab-group {
+        top: 1px;
+        position: relative;
+
+        .button-default {
+            margin: 0;
+            padding: 8px 10px !important;
+            font-weight: 100;
+            font-size: 14px;
+            background-color: #f9f9f9;
+            box-shadow: 0 0 0 0;
+            min-width: 100px;
+            margin-right: 2px;
+            border: 1px solid #d9d9d9;
+            border-bottom: 0;
+            border-radius: 6px 6px 0 0;
+            float: left;
+            cursor: pointer;
+
+            &.button-primary {
+                background: #fff;
+                border-color: #2db7f5;
+                color: #57c5f7;
+                padding-bottom: 9px !important;
+            }
+        }
+    }
+}
+input:disabled {
+    border-bottom: none !important;
+}
+.t-r-card {
+    margin-top: -1.3rem;
+    margin-bottom: -1.3rem;
+
+    .t-r-header {
+        padding: 0.45rem 1.25rem;
+    }
+
+    .t-r-body {
+        padding: 0;
+
+        .t-r-count {
+            margin-bottom: 0;
+        }
+    }
+}
+.r-pie svg {
+    overflow: visible !important;
+}
+.div-p {
+    position: relative;
+}
+.div-c-b {
+    position: absolute;
+    bottom: 10%;
+    margin: auto;
+    left: 0;
+    right: 0;
+}
+.div-c-m{
+    position: absolute;
+    top: 50%;
+    right: 50%;
+}
+.bor-r-blue{
+    border-right: 1px solid #bdbdbd;
+}
+.borGrey-l-t-r{
+    border-left: 2px solid #b1bace;
+    border-top: 2px solid #b1bace;
+    border-right: 2px solid #b1bace;
+}
+.borGrey{
+    border: 2px solid #b1bace;
+}
+.borGrey-t-b{
+    border-top: 1px solid #b1bace;
+    border-bottom: 1px solid #b1bace;
+}
+.colorBlue{
+    background-color: #7283a7;
+}
+.backgroundGrey{
+    background-color: #b1bace;
+}
+.borderGrey {
+    border: 1px solid #b1bace;
+}
+.backgroundGreyDark{
+    background-color: #7283a7;
+}
+.nonWrap{
+    white-space: nowrap;
+    overflow: hidden;
+}
+.fontSize14{
+    font-size: 14px;
+}
+.primary-color {
+    background-color: #4285F4!important;
+}
+tr.ant-table-expanded-row, tr.ant-table-expanded-row:hover{
+    background-color: #e6f7ff;
+}
