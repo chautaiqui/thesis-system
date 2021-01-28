@@ -1,5 +1,6 @@
 {
-  "name": "cms",
+  "name": "AdsplayCP",
+  "author": "Shion",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
