@@ -59,11 +59,10 @@ const List = props => {
     _dispatch({ type: 'UPDATING' });
     console.log(isCreating)
     try {
-      // const resp = await postData[fn](user.api_token, editData);
-      // const { success, result, error } = resp;
-      // console.log(result)
-      // if (!success) _dispatch({ type: 'UPDATE_ERROR', error: error })
-      // else _dispatch({ type: 'UPDATE_SUCCESS', item: result });
+      const resp = await postData[fn](user.api_token, editData, isCreating);
+      const { success, result, error } = resp;
+      if (!success) _dispatch({ type: 'UPDATE_ERROR', error: error })
+      else _dispatch({ type: 'UPDATE_SUCCESS', item: result });
     } catch (e) {
       _dispatch({ type: 'UPDATE_ERROR', error: e });
     }
@@ -74,8 +73,9 @@ const List = props => {
       case 'fetching':
       case 'stall':
         return;
-      case 'post_success':
+      case 'update_success':
         setPopup(false)
+        fetch()
       case 'init': 
         fetch();
         return;
@@ -88,7 +88,6 @@ const List = props => {
 
   useEffect(() => {
     if (!editData) return;
-    // console.log(editData, isCreating);
     put(isCreating);
   }, [editData, put]);
   
