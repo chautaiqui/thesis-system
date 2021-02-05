@@ -22,7 +22,7 @@ const postRequest = async (fn, body) => {
   }
 }
 
-const getResquest = async (fn, api_token, meta) => {
+const getRequest = async (fn, api_token, meta) => {
   // meta = {
   //   offset: 1,
   //   limit: 10
@@ -53,7 +53,7 @@ const getResquest = async (fn, api_token, meta) => {
     return { success: false, error: e };
   }
 }
-const postResquest = async(fn, api_token, data) => {
+const postRequestItem = async(fn, api_token, data) => {
   try {
     let _h = new Headers()
     _h.append('authorization',api_token);
@@ -74,9 +74,8 @@ const postResquest = async(fn, api_token, data) => {
       error: e
     }
   }
-  
 }
-const putResquest = async(fn, api_token, data) => {
+const putRequest = async(fn, api_token, data) => {
   try {
     let _h = new Headers()
     _h.append('authorization',api_token);
@@ -131,9 +130,9 @@ const fetchData = {
   }),
   users: () => {},
   transaction: () => {},
-  flights: (api_token, meta) => getResquest('flights', api_token, meta),
-  permissions: (api_token, meta) => getResquest('permissions', api_token, meta),
-  roles: (api_token, meta) => getResquest('roles', api_token, meta)
+  flights: (api_token, meta) => getRequest('flights', api_token, meta),
+  permissions: (api_token, meta) => getRequest('permissions', api_token, meta),
+  roles: (api_token, meta) => getRequest('roles', api_token, meta)
 }
 
 const postData = {
@@ -149,7 +148,7 @@ const postData = {
   }),
   users: () => {},
   transaction: () => {},
-  roles: (api_token, data) => putResquest('roles', api_token, data)
+  roles: (api_token, data, isCreating) => isCreating ? postRequestItem('roles', api_token, data) : putRequest('roles', api_token, data)
 }
 
 export { signin, fetchData, postData };

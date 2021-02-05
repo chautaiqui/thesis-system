@@ -36,7 +36,7 @@ const List = props => {
     contentEdit, onOpen, onOk
   } = props;
   const [ popup, setPopup ] = useState(false);
-  // const [options, setOptions] = useState({});
+  const [ isCreating, setIsCreating] = useState(false);
   const [ _state, _dispatch ] = useReducer(reducer, initialState);
   const [ user ] = useContext(User.context);
 
@@ -55,14 +55,15 @@ const List = props => {
     }
   }, [user.api_token, fn, _state]);
 
-  const put = useCallback(async () => {
+  const put = useCallback(async (isCreating) => {
     _dispatch({ type: 'UPDATING' });
+    console.log(isCreating)
     try {
-      const resp = await postData[fn](user.api_token, editData);
-      const { success, result, error } = resp;
-      console.log(result)
-      if (!success) _dispatch({ type: 'UPDATE_ERROR', error: error })
-      else _dispatch({ type: 'UPDATE_SUCCESS', item: result });
+      // const resp = await postData[fn](user.api_token, editData);
+      // const { success, result, error } = resp;
+      // console.log(result)
+      // if (!success) _dispatch({ type: 'UPDATE_ERROR', error: error })
+      // else _dispatch({ type: 'UPDATE_SUCCESS', item: result });
     } catch (e) {
       _dispatch({ type: 'UPDATE_ERROR', error: e });
     }
@@ -87,10 +88,12 @@ const List = props => {
 
   useEffect(() => {
     if (!editData) return;
-    put();
+    // console.log(editData, isCreating);
+    put(isCreating);
   }, [editData, put]);
   
-  const openPopup = (values) => {
+  const openPopup = (values, num) => {
+    setIsCreating(num === -1 ? true : false)
     onOpen(values);
     setPopup(true);
   }
@@ -134,7 +137,7 @@ const List = props => {
       key='table'
       columns={[...tColumns, {
         title: 'Action',
-        render: record => {return <button onClick={contentEdit ? () => openPopup(record) : () => {}}>Update</button>}
+        render: record => {return <button onClick={contentEdit ? () => openPopup(record, 1) : () => {}}>Update</button>}
         // render: record => {return <button >Update</button>}
       }]}
       dataSource={data}
