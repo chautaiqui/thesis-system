@@ -13,62 +13,73 @@ const reducer = (state, action) => {
     case 'FETCH_FETCHING':
       return { ...state, behavior: 'fetching' };
     case 'FETCH_SUCCESS':
-      return { ...state, list: action.list, behavior: 'stall' };
+      return { ...state, data: action.dataResponse.data, meta: action.dataResponse.meta, behavior: 'stall' };
     case 'FETCH_ERROR':
       messageError(action.error);
-      return { ...state, list: [], behavior: 'stall' };
-    case 'POSTING':
-      return { ...state, behavior: 'posting' };
-    case 'POST_SUCCESS':
-      return { ...state, behavior: 'post_success' };
-    case 'POST_ERROR':
+      return { ...state, data: [], meta: {}, behavior: 'stall' };
+    case 'UPDATING':
+      return { ...state, behavior: 'updating' };
+    case 'UPDATE_SUCCESS':
+      return { ...state, behavior: 'update_success' };
+    case 'UPDATE_ERROR':
       messageError(action.error);
     case 'STALL':
       return { ...state, behavior: 'stall' };
+    case 'PAGINATION CHANGE': 
+      return { ...state, meta: action.dataResponse, behavior: 'pagination_change' };
     default: return state;
   }
 }
-
+const initialState = { data: [], meta: {}, behavior: 'init' };
 const List = props => {
   const { fn, tColumns, editData, 
     contentEdit, onOpen, onOk
   } = props;
   const [ popup, setPopup ] = useState(false);
-  const [ _state, _dispatch ] = useReducer(reducer, { list: [], behavior: 'init' });
+  const [ isCreating, setIsCreating] = useState(false);
+  const [ _state, _dispatch ] = useReducer(reducer, initialState);
   const [ user ] = useContext(User.context);
 
   const fetch = useCallback(async () => {
     _dispatch({ type: 'FETCH_FETCHING' });
     try {
-      const resp = await fetchData[fn]({ token: user.idToken });
+      const resp = await fetchData[fn](user.api_token, _state.meta);
       const { success, result, error } = resp;
       if (!success) _dispatch({ type: 'FETCH_ERROR', error: error })
-      else _dispatch({ type: 'FETCH_SUCCESS', list: result })
+      else {
+        if (result.meta === undefined) {Object.assign(result, {meta: {}})}
+        _dispatch({ type: 'FETCH_SUCCESS', dataResponse: result }) 
+      }
     } catch (e) {
       _dispatch({ type: 'FETCH_ERROR', error: e });
     }
-  }, [user.idToken, fn]);
+  }, [user.api_token, fn, _state]);
 
-  const post = useCallback(async () => {
-    _dispatch({ type: 'POSTING' });
+  const put = useCallback(async (isCreating) => {
+    _dispatch({ type: 'UPDATING' });
+    console.log(isCreating)
     try {
-      const resp = await postData[fn]({ token: user.idToken, ...editData });
+      const resp = await postData[fn](user.api_token, editData, isCreating);
       const { success, result, error } = resp;
-      if (!success) _dispatch({ type: 'POST_ERROR', error: error })
-      else _dispatch({ type: 'POST_SUCCESS', item: result });
+      if (!success) _dispatch({ type: 'UPDATE_ERROR', error: error })
+      else _dispatch({ type: 'UPDATE_SUCCESS', item: result });
     } catch (e) {
-      _dispatch({ type: 'POST_ERROR', error: e });
+      _dispatch({ type: 'UPDATE_ERROR', error: e });
     }
-  }, [user.idToken, fn, editData]);
-
+  }, [user.api_token, fn, editData]);
+  
   useEffect(() => {
     switch (_state.behavior) {
       case 'fetching':
       case 'stall':
         return;
-      case 'post_success':
+      case 'update_success':
         setPopup(false)
+        fetch()
       case 'init': 
+        fetch();
+        return;
+      case 'pagination_change':
         fetch();
         return;
       default: return () => _dispatch({ type: 'STALL' });
@@ -77,14 +88,23 @@ const List = props => {
 
   useEffect(() => {
     if (!editData) return;
-    post();
-  }, [editData, post]);
-
-  const openPopup = (values, index) => {
-    onOpen(values, index);
+    put(isCreating);
+  }, [editData, put]);
+  
+  const openPopup = (values, num) => {
+    setIsCreating(num === -1 ? true : false)
+    onOpen(values);
     setPopup(true);
   }
 
+  var { data, meta, behavior} = _state;
+  const pagi = Object.keys(meta).length === 0 ? {} : {
+    defaultPageSize: _state,
+    pageSize: meta.limit,
+    pageSizeOptions: [10, 20, 30],
+    total: meta.total,
+    disabled: _state.behavior === 'fetching',
+  }
   return ([
     contentEdit && (
       <Button
@@ -114,15 +134,37 @@ const List = props => {
     ),
     <Table
       key='table'
-      columns={tColumns}
-      dataSource={_state.list}
+      columns={[...tColumns, {
+        title: 'Action',
+        render: record => {return <button onClick={contentEdit ? () => openPopup(record, 1) : () => {}}>Update</button>}
+        // render: record => {return <button >Update</button>}
+      }]}
+      dataSource={data}
       rowKey='id'
       loading={_state.behavior === 'fetching'}
-      onRow={row => ({
-        onClick: contentEdit ? () => openPopup(row) : () => {},
-      })}
-    >
-    </Table>
+      // onRow={row => ({
+      //   onClick: contentEdit ? () => openPopup(row) : () => {},
+      // })}
+      pagination={ 
+         pagi
+      }
+      onChange={
+        Object.keys(meta).length === 0 ? () => {} :
+        (pagination) => {
+          // setOptions({offset: pagination.current, limit: pagination.pageSize})
+          // this.changeState(pagination.current, pagination.pageSize);
+          let newMeta = Object.assign(meta, {
+            offset: pagination.current,
+            limit: pagination.pageSize
+          });
+          _dispatch({ type: 'PAGINATION CHANGE', dataResponse: meta });
+        }
+      }
+      expandable={{
+        expandedRowRender: record => (
+          <p style={{ margin: 0 }}>{JSON.stringify(record)}</p>  
+        )}}
+    > </Table>
   ]);
 }
 

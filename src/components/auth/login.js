@@ -10,6 +10,9 @@ import Button from 'antd/lib/button';
 import { messageError } from '@components/commons';
 import { signin } from '@api';
 
+// TODO: 
+// 1. real api a.adsplay.net
+// 2. signin fpt email
 const Login = props => {
   const { onLogin } = props;
   const [ check, setCheck ] = useState(false);
@@ -17,35 +20,36 @@ const Login = props => {
 
   // check current token
   useEffect(() => {
-    const { phone, token } = localStorage;
+    const { email, api_token } = localStorage;
     const checkUser = async () => {
-      if (!phone || !token) return setCheck(true);
       try {
-        const _r = await signin.withToken(token);
+        const _r = await signin.withToken(email, api_token);
         if (!_r.success) {
-          localStorage.removeItem('phone');
-          localStorage.removeItem('token');
+          localStorage.removeItem('email');
+          localStorage.removeItem('api_token');
           setCheck(true);
         }
-        onLogin(_r.result);
+        onLogin(_r.result.data, email, api_token);
       } catch (e) {
         console.log('checkToken', e);
-        delete localStorage.token;
+        delete localStorage.api_token;
         setCheck(true);
       }
     }
     if (!check) {
-      if (phone && token) checkUser();
+      if (email && api_token) checkUser();
       else setCheck(true);
     }
   }, [check, onLogin]);
 
   const onFinish = async values => {
     try {
-      const { phone, password } = values;
-      const _r = await signin.withPw(phone, password);
+      const { email, password } = values;
+      const _r = await signin.withPw(email, password);
       if (!_r.success) return messageError(_r.error);
-      onLogin(_r.result);
+      const _r2 = await signin.withToken(email, _r.result.api_token);
+      if (!_r2.success) return messageError(_r2.error);
+      onLogin(_r2.result.data, email, _r.result.api_token);
     } catch (e) {
       messageError(e);
     }
@@ -75,23 +79,23 @@ const Login = props => {
                 form={form}
                 onFinish={onFinish}
                 onFinishFailed={onFinishFailed}
-                initialValues={{ phone: '+84' }}
+                // initialValues={{ email: '+84' }}
               >
                 <Form.Item
-                  name='phone'
-                  rules={[{ required: true, message: 'Phone required' }]}
+                  name='email'
+                  rules={[{ required: true, message: 'Email required' }]}
                   validateTrigger='onSubmit'
                 >
                   <Input
-                    onChange={function(e) { //for this
-                      if (!e || !e.target) {
-                        return e;
-                      }
-                      let { value } = e.target;
-                      value = value.replace(/[^\d]/g, '');
+                    // onChange={function(e) { //for this
+                    //   if (!e || !e.target) {
+                    //     return e;
+                    //   }
+                    //   let { value } = e.target;
+                    //   value = value.replace(/[^\d]/g, '');
 
-                      form.setFieldsValue({ phone: value ? `+${value}` : '' });
-                    }}
+                    //   form.setFieldsValue({ email: value ? `+${value}` : '' });
+                    // }}
                   />
                 </Form.Item>
                 <Form.Item

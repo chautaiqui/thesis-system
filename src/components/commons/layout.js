@@ -18,7 +18,6 @@ const AdminLayout = props => {
   const { children } = props;
   const [ isShow, setIsShow ] = useState(true);
   const [ user, dispatchUser ] = useContext(User.context);
-  const roles = Array.isArray(user.roles) ? user.roles.slice(0) : [];
 
   const onLogout = () => dispatchUser({type: 'LOGOUT'});
 
@@ -81,7 +80,7 @@ const AdminLayout = props => {
                 key={menuItemGroupKey}
                 title={menuItemGroup.label}
               >
-                {menuItemGroup.children.filter(p => roles.indexOf(p.roles) > -1).map(menuItem => 
+                {menuItemGroup.children.filter(p => user.isAdmin || user.permissions.indexOf(p.permissions) > -1).map(menuItem => 
                   <Menu.Item
                     key={menuItem.path}
                   >
