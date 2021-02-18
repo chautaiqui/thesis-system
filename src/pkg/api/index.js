@@ -3,7 +3,6 @@ import Login from "../../components/auth/login";
 const _promise = obj => new Promise(resolve => setTimeout(() => resolve(obj), 1000));
 
 const apiDomain = 'https://a.adsplay.xyz';
-const tempApiDomain = 'http://localhost:3000/';
 const postRequest = async (fn, body) => {
   try {
     let _h = new Headers();
@@ -21,26 +20,28 @@ const postRequest = async (fn, body) => {
     return { success: false, error: e };
   }
 }
-
-const getRequest = async (fn, api_token, meta) => {
-  // meta = {
-  //   offset: 1,
-  //   limit: 10
-  // }
+const getRequest = async (fn, api_token, meta = {}) => {
   try {
     let _h = new Headers()
     _h.append('authorization',api_token);
+    delete meta.qui;
+    delete meta.fields;
+    delete meta.total;  
     var queryString = '';
-    if (Object.keys(meta).length !== 0) {
-      var options = {
-        offset: meta.offset,
-        limit: meta.limit
-      }
-      for (let x in options ) {
-        queryString += `${x}=${options[x]}&`;
-      }
+    let temp;
+    for (let x in meta ) {
+      // if (x === 'order') {
+      //   // if (typeof meta[x] === 'object') {
+      //   // temp = meta[x].reduce((a,b) => {return a + "%7C" + b}, '').slice(3)
+      //   if (!Array.isArray(meta[x])) continue;
+      //   temp = meta[x].join('|');
+      // }
+      // else { 
+        temp = meta[x]
+      // }
+      queryString += `&${x}=${encodeURIComponent(temp)}`;
     }
-    var url = `${apiDomain}/api/${fn}?${queryString}`;
+    var url = `${apiDomain}/api/${fn}?${queryString.slice(1)}`;
     let re = await fetch(url, {
         method: 'GET',
         headers: _h
@@ -48,12 +49,15 @@ const getRequest = async (fn, api_token, meta) => {
     if(!re.ok) return {success: false, error: 'Api error'}
     let _re = await re.json();
     if(_re.status !== 200) return {success: false, error: _re.message || 'Api ok but smt error'}
+    try {
+      _re.meta = Object.assign({}, _re.meta, { order: _re.meta.order.join('|') });
+    } catch(e) {}
     return {success: true, result: _re} // result {data, meta}
   } catch (e) {
     return { success: false, error: e };
   }
 }
-const _getRequest = async (fn, api_token, meta) => {
+const _getRequest = async (fn, api_token, meta) => {    
   try {
     let _h = new Headers()
     _h.append('authorization',api_token);
@@ -81,11 +85,10 @@ const _getRequest = async (fn, api_token, meta) => {
 }
 const postRequestItem = async(fn, api_token, data) => {
   try {
-    console.log('postitem')
     let _h = new Headers()
-    // _h.append('authorization',api_token);
+    _h.append('authorization',api_token);
     _h.append('Content-Type', 'application/json');
-    var url = `http://localhost:3000/user/`;
+    var url = `${apiDomain}/api/${fn}`;
     let re = await fetch(url, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -93,8 +96,8 @@ const postRequestItem = async(fn, api_token, data) => {
     })
     if(!re.ok) return {success: false, error: 'Api error'}
     let _re = await re.json();
-    console.log(_re)
     // if(_re.status !== 200) return {success: false, error: _re.message || 'Api ok but smt error'}
+    if (_re.status === 500) return {success: false, error: 'The name has already been taken.'}
     return {success: true, result: _re}
   } catch (e) {
     return {
@@ -103,14 +106,14 @@ const postRequestItem = async(fn, api_token, data) => {
     }
   }
 }
-const putRequest = async(fn, api_token, data) => {
+const putRequest = async(fn, api_token, data, id) => {
+  if (!id) return { success: false, error: '' };
   try {
-    console.log("put item")
     let _h = new Headers()
-    // _h.append('authorization',api_token);
+    _h.append('authorization',api_token);
     _h.append('Content-Type', 'application/json');
-    // var url = `${tempApiDomain}/${fn}/${data.id}`;
-    var url = `http://localhost:3000/user/${data.id}`;
+    var url = `${apiDomain}/api/${fn}/${id}`;
+    console.log(url)
     let re = await fetch(url, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -123,7 +126,6 @@ const putRequest = async(fn, api_token, data) => {
   } catch (e) {
     return { success: false, error: e };
   }
-  
 }
 
 const signin = {
@@ -179,10 +181,28 @@ const postData = {
   }),
   users: () => {},
   transaction: () => {},
-  // roles: (api_token, data, isCreating) => isCreating ? postRequestItem('roles', api_token, data) : putRequest('roles', api_token, data),
-  user: (api_token, data, isCreating) => isCreating? postRequestItem('user', api_token, data) : putRequest('user', api_token, data)
+  flights: (api_token, data) => postRequestItem('flights', api_token, data),
+  roles: (api_token, data) => postRequestItem('roles', api_token, data),
+  user: (api_token, data) => postRequestItem('user', api_token, data)
 }
 
-export { signin, fetchData, postData };
+const putData = {
+  plans: () => _promise({
+    success: true,
+    result: {
+      id: 1,
+      name: 'a',
+      diamond: 1,
+      price: 1,
+      enabled: true
+    }
+  }),
+  users: () => {},
+  transaction: () => {},
+  flights: (api_token, data) => putRequest('flights', api_token, data, data.id),
+  roles: (api_token, data) => putRequest('roles', api_token, data, data.id),
+  user: (api_token, data) => putRequest('user', api_token, data, data.id)
+}
+export { signin, fetchData, postData, putData };
 
 
