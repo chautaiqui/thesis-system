@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import {
   BrowserRouter as Router,
   Switch,
-  Route
+  Route,
 } from 'react-router-dom';
 
 import Layout from '@components/commons/layout';
@@ -13,7 +13,6 @@ import { User } from '@pkg/reducers';
 // 1. filter by permissions
 const RouterContainer = () => {
   const [ _user ] = useContext(User.context);
-  
   return (
     <Router>
       <Layout>
@@ -22,10 +21,14 @@ const RouterContainer = () => {
             <Home />
           </Route>
           {routerPages.filter(p =>_user.isAdmin || _user.permissions.indexOf(p.permissions) > -1).map(p => (
+            // <Route path={`${p.path}/:param`} key={`${p.path}/:param`}>
             <Route path={p.path} key={p.path}>
               <p.component />
             </Route>
           ))}
+          <Route path='*'>
+            <NotFound />
+          </Route>
         </Switch>
       </Layout>
     </Router>
@@ -41,6 +44,13 @@ function Home() {
   return (
     <div>
       <h2>Home</h2>
+    </div>
+  );
+}
+function NotFound() {
+  return (
+    <div>
+      <h2>NotFound</h2>
     </div>
   );
 }

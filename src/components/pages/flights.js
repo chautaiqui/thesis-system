@@ -20,7 +20,6 @@ const Flights = () => {
     const onFinishFailed = errorInfo => {
       console.log('Failed:', errorInfo);
     };
-  
     return ( 
       <List
         contentEdit={
@@ -94,21 +93,29 @@ const Flights = () => {
                 title: 'Id',
                 dataIndex: 'id',
                 key: 'id',
+                sorter: true
             },
             {
                 title: 'Name',
                 dataIndex: 'name',
                 key: 'name',
+                sorter: true,
+                filters: [
+                  { text: 'Male', value: 'male' },
+                  { text: 'Female', value: 'female' },
+                ]
             },
             {
                 title: 'Total bookings',
                 dataIndex: 'total_bookings',
                 key: 'total_bookings',
+                sorter: true
             },
             {
                 title: 'Daily bookings',
                 dataIndex: 'daily_bookings',
                 key: 'daily_bookings',
+                sorter: true
             },
             {
                 title: 'Price',

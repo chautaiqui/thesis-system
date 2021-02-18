@@ -20,7 +20,6 @@ const Roles = () => {
     const onFinishFailed = errorInfo => {
       console.log('Failed:', errorInfo);
     };
-  
     return ( 
       <List
         contentEdit={
@@ -45,7 +44,6 @@ const Roles = () => {
                   {...utility.formItemLayout}
                   name='guard_name'
                   label='Guard name'
-                  rules={[{ required: true, message: 'Required' }]}
                 >
                   <Input />
                 </Form.Item>
@@ -86,6 +84,8 @@ const Roles = () => {
                 title: 'Id',
                 dataIndex: 'id',
                 key: 'id',
+                defaultSortOrder: 'descend',
+                sorter: (a, b) => a.id - b.id,
             },
             {
                 title: 'Name',
