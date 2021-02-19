@@ -8,7 +8,7 @@ import {
 import Layout from '@components/commons/layout';
 import { routerPages } from '@components/pages';
 import { User } from '@pkg/reducers';
-
+import { CustomFilter } from '../../components/commons/CustomFilter';
 // TODO 
 // 1. filter by permissions
 const RouterContainer = () => {
@@ -42,9 +42,10 @@ export default RouterContainer;
 
 function Home() {
   return (
-    <div>
-      <h2>Home</h2>
-    </div>
+    // <div>
+    //   <h2>Home</h2>
+    // </div>
+    <CustomFilter />
   );
 }
 function NotFound() {

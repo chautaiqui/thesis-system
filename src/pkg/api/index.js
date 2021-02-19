@@ -30,16 +30,8 @@ const getRequest = async (fn, api_token, meta = {}) => {
     var queryString = '';
     let temp;
     for (let x in meta ) {
-      // if (x === 'order') {
-      //   // if (typeof meta[x] === 'object') {
-      //   // temp = meta[x].reduce((a,b) => {return a + "%7C" + b}, '').slice(3)
-      //   if (!Array.isArray(meta[x])) continue;
-      //   temp = meta[x].join('|');
-      // }
-      // else { 
-        temp = meta[x]
-      // }
-      queryString += `&${x}=${encodeURIComponent(temp)}`;
+      if (!x || !meta[x]) continue;
+      queryString += `&${x}=${encodeURIComponent(meta[x])}`;
     }
     var url = `${apiDomain}/api/${fn}?${queryString.slice(1)}`;
     let re = await fetch(url, {
@@ -49,9 +41,6 @@ const getRequest = async (fn, api_token, meta = {}) => {
     if(!re.ok) return {success: false, error: 'Api error'}
     let _re = await re.json();
     if(_re.status !== 200) return {success: false, error: _re.message || 'Api ok but smt error'}
-    try {
-      _re.meta = Object.assign({}, _re.meta, { order: _re.meta.order.join('|') });
-    } catch(e) {}
     return {success: true, result: _re} // result {data, meta}
   } catch (e) {
     return { success: false, error: e };

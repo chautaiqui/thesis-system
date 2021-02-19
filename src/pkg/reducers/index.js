@@ -1,4 +1,5 @@
 import React, { useReducer, createContext } from 'react';
+import { useHistory } from 'react-router-dom';
 
 const UserContext = createContext();
 const UserProvider = ({ children }) => {
@@ -29,4 +30,28 @@ const UserProvider = ({ children }) => {
 export const User = {
   context: UserContext,
   provider: Component => props => <UserProvider><Component {...props} /></UserProvider>
+}
+
+export const PageReducer = (state, action) => {
+  // const history = useHistory();
+  console.log(action)
+  switch (action.type) {
+    case 'init_search_field':
+      return { ...state, searchFields: extractSearch(action.data) }
+    case 'update_search_field': 
+      // window.history.replace(query)
+      return { ...state, searchFields: action.data };
+    default:
+      return state;
+  } 
+}
+
+function extractSearch(search) {
+	let query = {};
+  query = search.slice(1).split('&').reduce((r, i) => !!i ? Object.assign({}, r, { [i.split('=')[0]]: decodeURIComponent(i.split('=')[1]) }) : r, {});
+  if (!query.offset || query.offset < 0 ) query.offset = 1 
+  if (!query.limit || [10, 20, 30].includes(query.limit)) query.limit = 20
+  let re = /(\w)+\|(asc|desc)/;
+  if (!re.test(query.order)) query.order = 'id|desc';
+	return query;
 }
