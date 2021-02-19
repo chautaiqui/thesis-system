@@ -5,217 +5,178 @@ import { User } from '@pkg/reducers';
 import Table from 'antd/lib/table';
 import Button from 'antd/lib/button';
 import Modal from 'antd/lib/modal';
-import { Tag } from 'antd';
+import { Tag, Input, Space} from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
+
 import  { useLocation, useHistory  } from 'react-router-dom';
 import { messageError } from './';
 
 const reducer = (state, action) => {
-  switch (action.type) {
-    case 'FETCH_FETCHING':
-      return { ...state, behavior: 'fetching' };
-    case 'FETCH_SUCCESS':
-      return { ...state, data: action.dataResponse.data, meta: action.dataResponse.meta || {}, behavior: 'stall' };
-    case 'FETCH_ERROR':
-      messageError(action.error);
-      return { ...state, data: [], meta: {}, behavior: 'stall' };
-    case 'UPDATING':
-      return { ...state, behavior: 'updating' };
-    case 'UPDATE_SUCCESS':
-      return { ...state, behavior: 'update_success' };
-    case 'UPDATE_ERROR':
-      messageError(action.error);
-    case 'STALL':
-      return { ...state, behavior: 'stall' };
-    case 'PAGINATION_CHANGE': 
-      return { ...state, meta: action.dataResponse, behavior: 'pagination_change' };
-    default: return state;
-  }
+switch (action.type) {
+	case 'FETCH_FETCHING':
+	return { ...state, behavior: 'fetching' };
+	case 'FETCH_SUCCESS':
+	return { ...state, data: action.dataResponse.data, total: action.total, behavior: 'stall' };
+	case 'FETCH_ERROR':
+	messageError(action.error);
+	return { ...state, data: [], behavior: 'stall' };
+	case 'UPDATING':
+	return { ...state, behavior: 'updating' };
+	case 'UPDATE_SUCCESS':
+	return { ...state, behavior: 'update_success' };
+	case 'UPDATE_ERROR':
+	messageError(action.error);
+	return { ...state, behavior: 'stall' };
+	case 'STALL':
+	return { ...state, behavior: 'stall' };
+	default: return state;
 }
-const initialState = { data: [], meta: {}, behavior: 'init' };
-
-function extractSearch(search, history) {
-  let query;
-  if (search ==='') query = {}
-  else {
-    query = search.slice(1).split('&').reduce((r, i) => Object.assign({}, r, { [i.split('=')[0]]: decodeURIComponent(i.split('=')[1]) }), {});
-    if (query.offset < 0 ) query.offset = 1 
-    if (query.limit !== 10 || query.limit !== 20 || query.limit !== 30 || query.limit) query.limit = 20
-    let re = /(\w)+\|(ascdesc)/;
-    if (!re.test(query.order)) query.order = 'id|asc';
-  }
-  
-  let queryString=''
-  for (let x in query ) {
-    if (query[x]) queryString += `${!queryString.length ? '?' : '&'}${x}=${query[x]}`;
-  }
-  console.log(queryString)
-  // history.push(queryString);
-  return query;
 }
+const initialState = { data: [], behavior: 'init' };
 
 const List = props => {
-  const { fn, tColumns, editData, 
-    contentEdit, onOpen, onOk 
-  } = props;
-  const [ popup, setPopup ] = useState(false);
-  const [ _state, _dispatch ] = useReducer(reducer, initialState);
-  const [ user ] = useContext(User.context);
-  
-  const { search } = useLocation();
-  let history = useHistory();
-  
-  const fetch = useCallback(async () => {
-    _dispatch({ type: 'FETCH_FETCHING' });
-    try {
-      const resp = await fetchData[fn](user.api_token, _state.meta);
-      const { success, result, error } = resp;
-      if (!success) _dispatch({ type: 'FETCH_ERROR', error: error })
-      else {
-        // if (result.meta === undefined) {Object.assign(result, {meta: {}})}
-        _dispatch({ type: 'FETCH_SUCCESS', dataResponse: result }) 
-      }
-    } catch (e) {
-      _dispatch({ type: 'FETCH_ERROR', error: e });
-    }
-  }, [user.api_token, fn, _state]);
+	const { fn, tColumns, editData, 
+		contentEdit, onOpen, onOk,
+		searchFields, updateSF = () => {},
+		tableProps
+	} = props;
+	const [ popup, setPopup ] = useState(false);
+	const [ _state, _dispatch ] = useReducer(reducer, initialState);
+	const [ user ] = useContext(User.context);
 
-  const put = useCallback(async () => {
-    _dispatch({ type: 'UPDATING' });
-    try {
-      const _fn = editData.id ? putData[fn] : postData[fn];
-      const resp = await _fn(user.api_token, editData);
-      const { success, result, error } = resp;
-      if (!success) _dispatch({ type: 'UPDATE_ERROR', error: error })
-      else _dispatch({ type: 'UPDATE_SUCCESS', item: result });
-    } catch (e) {
-      _dispatch({ type: 'UPDATE_ERROR', error: e });
-    }
-  }, [user.api_token, fn, editData]);
-  
-  useEffect(() => {
-    switch (_state.behavior) {
-      case 'fetching':
-      case 'stall':
-        return;
-      case 'update_success':
-        setPopup(false)
-        fetch()
-      case 'init': 
-        // param here
-        let query = extractSearch(search, history);
-        _dispatch({ type: 'PAGINATION_CHANGE', dataResponse: query });
-        // fetch();
-        return;
-      case 'pagination_change':
-        fetch();
-        return;
-      default: return () => _dispatch({ type: 'STALL' });
-    }
-  }, [_state.behavior, fetch]);
+	// const { search } = useLocation();
+	const history = useHistory();
+	const fetch = useCallback(async () => {
+		_dispatch({ type: 'FETCH_FETCHING' });
+		try {
+			const resp = await fetchData[fn](user.api_token, searchFields);
+			const { success, result, error } = resp;
+			if (!success) return _dispatch({ type: 'FETCH_ERROR', error: error })
+			result.meta = Object.assign({}, result.meta, { order: result.meta.order.join('|') });
+			// if (result.meta === undefined) {Object.assign(result, {meta: {}})}
+			let query = '';
+			for (let x in searchFields) {
+				query += `&${x}=${searchFields[x]}`
+			}
+			history.replace({search: query.slice(1)});
+			_dispatch({ type: 'FETCH_SUCCESS', dataResponse: result, total: result.meta.total }) 
+		} catch (e) {
+			_dispatch({ type: 'FETCH_ERROR', error: e });
+		}
+	}, [user.api_token, fn, searchFields]);
 
-  useEffect(() => {
-    if (!editData) return;
-    // console.log(editData);
-    // create ko co id, update co id
-    put();
-  }, [editData, put]);
-  
-  useEffect(() => {
-    console.log('change location search')
-  }, [search])
+	const put = useCallback(async () => {
+		_dispatch({ type: 'UPDATING' });
+		try {
+		const _fn = editData.id ? putData[fn] : postData[fn];
+		const resp = await _fn(user.api_token, editData);
+		const { success, result, error } = resp;
+		if (!success) _dispatch({ type: 'UPDATE_ERROR', error: error })
+		else _dispatch({ type: 'UPDATE_SUCCESS', item: result });
+		} catch (e) {
+		_dispatch({ type: 'UPDATE_ERROR', error: e });
+		}
+	}, [user.api_token, fn, editData]);
 
-  const openPopup = (values, num) => {
-    onOpen(values);
-    setPopup(true);
-  }
+	useEffect(() => {
+		switch (_state.behavior) {
+		case 'fetching':
+		case 'stall':
+			return;
+		case 'update_success':
+			setPopup(false)
+			fetch()
+			return
+		case 'init': 
+			// param here
+			// _dispatch({ type: 'PAGINATION_CHANGE', dataResponse: searchFields });
+			fetch();
+			return;
+		// case 'pagination_change':
+		// 	fetch();
+		// 	return;
+		default: return () => _dispatch({ type: 'STALL' });
+		}
+	}, [_state.behavior, fetch]);
 
-  var { data, meta = {}, behavior } = _state;
-  // console.log(behavior, meta)
-  const pagi = {
-    current: meta.offset || undefined,
-    pageSize: meta.limit || 20,
-    pageSizeOptions: [10, 20, 30],
-    total: meta.total || data.length,
-    disabled: _state.behavior === 'fetching',
-    position: ['topRight' , 'bottomRight']
-  }
-  return ([
-    <div key='a1'>
-      <Tag>Tag 1</Tag>
-      <Tag>Tag 2</Tag>
-    </div>,
-    contentEdit && (
-      <Button
-        key='button'
-        style={{ marginBottom: 25 }}
-        onClick={() => openPopup({}, -1)}
-      >
-        Create
-      </Button>
-    ),
-    contentEdit && (
-      <Modal
-        centered
-        closable={false}
-        maskClosable={false}
-        confirmLoading={_state.behavior === 'posting'}
-        title='Update'
-        key='modal'
-        width='80%' 
-        visible={popup}
-        onOk={onOk}
-        onCancel={() => setPopup(false)}
-        cancelButtonProps={{ disabled: _state.behavior === 'posting' }}
-      >
-        {contentEdit}
-      </Modal>
-    ),
-    <Table
-      key='table'
-      columns={[...tColumns, {
-        title: 'Action',
-        render: record => {return <button onClick={contentEdit ? () => openPopup(record, 1) : () => {}}>Update</button>}
-        // render: record => {return <button >Update</button>}
-      }]}
-      dataSource={data}
-      rowKey='id'
-      loading={_state.behavior === 'fetching'}
-      // onRow={row => ({
-      //   onClick: contentEdit ? () => openPopup(row) : () => {},
-      // })}
-      pagination={ 
-         pagi
-      }
-      onChange={
-        Object.keys(meta).length === 0 ? () => {} :
-        (pagination,f,s) => {
-          console.log(f,s)
-          if (!s) console.log('k co sort')
-          let _or = 'asc';
-          if (s.order) _or = s.order.slice(0, s.order.length-3)
-          let ord = `${s.field}|${_or}`
-          let newMeta = Object.assign(meta, {
-            offset: pagination.current,
-            limit: pagination.pageSize,
-            order: ord
-          });
-          var queryString = '';
-          delete newMeta.q;
-          delete newMeta.total;
-          delete newMeta.fields;
-          for (let x in newMeta ) {
-            if (newMeta[x]) queryString += `${!queryString.length ? '?' : '&'}${x}=${newMeta[x]}`;
-          }
-          history.push(queryString)
-          _dispatch({ type: 'PAGINATION_CHANGE', dataResponse: meta });
-        }
-      }
-      expandable={{
-        expandedRowRender: record => (
-          <p style={{ margin: 0 }}>{JSON.stringify(record)}</p>  
-        )}}
-    > </Table>
-  ]);
+	useEffect(() => {
+		if (!editData) return;
+		put();
+	}, [editData, put]);
+
+	// console.log(searchFields)
+	useEffect(() => {
+		if (searchFields) fetch();
+	}, [searchFields, fetch])
+
+	const openPopup = (values, num) => {
+		onOpen(values);
+		setPopup(true);
+	}
+
+	var { data, behavior, total } = _state;
+	// console.log(behavior, meta)
+	return ([
+		<div key='a1'>
+			{/* <Tag> { searchText } </Tag> */}
+		</div>,
+		contentEdit && (
+		<Button
+			key='button'
+			style={{ marginBottom: 25 }}
+			onClick={() => openPopup({}, -1)}
+		>
+			Create
+		</Button>
+		),
+		contentEdit && (
+		<Modal
+			centered
+			closable={false}
+			maskClosable={false}
+			confirmLoading={behavior === 'posting'}
+			title='Update'
+			key='modal'
+			width='80%' 
+			visible={popup}
+			onOk={onOk}
+			onCancel={() => setPopup(false)}
+			cancelButtonProps={{ disabled: behavior === 'posting' }}
+		>
+			{contentEdit}
+		</Modal>
+		),
+		<Table
+		key='table'
+		columns={[...tColumns, {
+			title: 'Action',
+			render: record => {return <button onClick={contentEdit ? () => openPopup(record, 1) : () => {}}>Update</button>}
+			// render: record => {return <button >Update</button>}
+		}]}
+		dataSource={data}
+		rowKey='id'
+		loading={behavior === 'fetching'}
+		// onRow={row => ({
+		//   onClick: contentEdit ? () => openPopup(row) : () => {},
+		// })}
+		pagination={ 
+			{
+				current: searchFields.offset || undefined,
+				pageSize: searchFields.limit || 20,
+				pageSizeOptions: [10, 20, 30],
+				total: total || data.length,
+				disabled: behavior === 'fetching',
+				position: ['topRight' , 'bottomRight']
+			}
+		}
+		
+		expandable={{
+			expandedRowRender: record => (
+			<p style={{ margin: 0 }}>{JSON.stringify(record)}</p>  
+			)}}
+		{...tableProps}
+		> </Table>
+	]);
 }
 
 export default List;
