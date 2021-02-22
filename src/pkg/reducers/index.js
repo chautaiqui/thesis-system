@@ -1,5 +1,5 @@
 import React, { useReducer, createContext } from 'react';
-import { useHistory } from 'react-router-dom';
+// import { useHistory } from 'react-router-dom';
 
 const UserContext = createContext();
 const UserProvider = ({ children }) => {
@@ -33,14 +33,15 @@ export const User = {
 }
 
 export const PageReducer = (state, action) => {
-  // const history = useHistory();
   console.log(action)
   switch (action.type) {
     case 'init_search_field':
       return { ...state, searchFields: extractSearch(action.data) }
     case 'update_search_field': 
-      // window.history.replace(query)
       return { ...state, searchFields: action.data };
+    case 'reset_search_filter_field':
+      delete state.searchFields[action.data];
+      return state;
     default:
       return state;
   } 

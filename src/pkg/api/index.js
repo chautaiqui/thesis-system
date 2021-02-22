@@ -1,4 +1,4 @@
-import Login from "../../components/auth/login";
+// import Login from "../../components/auth/login";
 
 const _promise = obj => new Promise(resolve => setTimeout(() => resolve(obj), 1000));
 
@@ -27,8 +27,7 @@ const getRequest = async (fn, api_token, meta = {}) => {
     delete meta.qui;
     delete meta.fields;
     delete meta.total;  
-    var queryString = '';
-    let temp;
+    let queryString = '';
     for (let x in meta ) {
       if (!x || !meta[x]) continue;
       queryString += `&${x}=${encodeURIComponent(meta[x])}`;

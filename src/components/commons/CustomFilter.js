@@ -135,6 +135,7 @@ export const CustomFilter = props => {
             ...getColumnSearchProps("address")
         }
         ];
+    console.log(searchText)
     return (
         <Table
             columns={columns}

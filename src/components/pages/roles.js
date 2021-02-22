@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import List from '@components/commons/list';
 
-import Switch from 'antd/lib/switch';
+// import Switch from 'antd/lib/switch';
 import Form from 'antd/lib/form';
 import Row from 'antd/lib/row';
 import Col from 'antd/lib/col';
