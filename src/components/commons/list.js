@@ -5,10 +5,8 @@ import { User } from '@pkg/reducers';
 import Table from 'antd/lib/table';
 import Button from 'antd/lib/button';
 import Modal from 'antd/lib/modal';
-import { Tag, Input, Space} from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
 
-import  { useLocation, useHistory  } from 'react-router-dom';
+import  { useHistory  } from 'react-router-dom';
 import { messageError } from './';
 
 const reducer = (state, action) => {
@@ -37,7 +35,7 @@ const initialState = { data: [], behavior: 'init' };
 const List = props => {
 	const { fn, tColumns, editData, 
 		contentEdit, onOpen, onOk,
-		searchFields, updateSF = () => {},
+		searchFields, 
 		tableProps
 	} = props;
 	const [ popup, setPopup ] = useState(false);
@@ -63,7 +61,7 @@ const List = props => {
 		} catch (e) {
 			_dispatch({ type: 'FETCH_ERROR', error: e });
 		}
-	}, [user.api_token, fn, searchFields]);
+	}, [user.api_token, fn, searchFields, history]);
 
 	const put = useCallback(async () => {
 		_dispatch({ type: 'UPDATING' });
@@ -117,9 +115,6 @@ const List = props => {
 	var { data, behavior, total } = _state;
 	// console.log(behavior, meta)
 	return ([
-		<div key='a1'>
-			{/* <Tag> { searchText } </Tag> */}
-		</div>,
 		contentEdit && (
 		<Button
 			key='button'

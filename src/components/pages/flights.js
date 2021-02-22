@@ -6,12 +6,10 @@ import Form from 'antd/lib/form';
 import Row from 'antd/lib/row';
 import Col from 'antd/lib/col';
 import Input from 'antd/lib/input';
-import { Button, Space} from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
 import { PageReducer } from '@pkg/reducers';
-import { utility, filerColumn } from '@components/commons';
+import { utility, filerColumn, filterCheck } from '@components/commons';
 import { useLocation } from 'react-router-dom';
-
+import { Tag } from 'antd';
 
 const Flights = () => {
 	const { search } = useLocation();
@@ -39,206 +37,161 @@ const Flights = () => {
 		console.log('Failed:', errorInfo);
 	};
 	let lR = () => {};
-	let input;
-	return ( 
-	<List
-		listRef={fn => lR = fn}
-		contentEdit={
-		<Form 
-			form={form}
-			onFinish={onFinish}
-			onFinishFailed={onFinishFailed}
-		>
-			<Row gutter={16}>
-			<Col xs={22} sm={22} md={12}>
-				<Form.Item
-				className='dp-form'
-				{...utility.formItemLayout}
-				name='name'
-				label='Name'
-				rules={[{ required: true, message: 'Required' }]}
-				>
-				<Input />
-				</Form.Item>
-				<Form.Item
-				className='dp-form'
-				{...utility.formItemLayout}
-				name='diamond'
-				label='Diamond'
-				rules={[{ required: true, message: 'Required' }]}
-				>
-				<Input />
-				</Form.Item>
-				<Form.Item
-				className='dp-form'
-				{...utility.formItemLayout}
-				name='price'
-				label='Price'
-				rules={[{ required: true, message: 'Required' }]}
-				>
-				<Input />
-				</Form.Item>
-			</Col>
-			<Col xs={22} sm={22} md={12}>
-				<Form.Item
-				className='dp-form'
-				{...utility.formItemLayout}
-				name='description'
-				label='Description'
-				>
-				<Input />
-				</Form.Item>
-				<Form.Item
-				className='dp-form'
-				{...utility.formItemLayout}
-				name='enabled'
-				label='Enabled'
-				valuePropName='checked'
-				>
-				<Switch />
-				</Form.Item>
-			</Col>
-			</Row>
-		</Form> 
-		}
-		onOpen={v => {
-		setBaseForm(v);
-		form.resetFields();
-		form.setFieldsValue(v);
-		}}
-		onOk={() => form.submit()}
-		editData={editData}
-		fn='flights'
-		tColumns={[
-			{
-				title: 'Id',
-				dataIndex: 'id',
-				key: 'id',
-			},
-			{
-				title: 'Name',
-				dataIndex: 'name',
-				key: 'name',
-				// filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-				// 	<div style={{ padding: 8 }}>
-				// 	<Input
-				// 		ref={(node) => {
-				// 			input = node;
-				// 		  }}
-				// 		placeholder={`Search name`}
-				// 		style={{ width: 188, marginBottom: 8, display: 'block' }}
-				// 	/>
-				// 	<Space>
-				// 		<Button
-				// 			type="primary"
-				// 			onClick={() => {
-				// 				// confirm();
-				// 				_dispatch({ type: 'update_search_field', data: { ...searchFields, name: input.state.value} })
-				// 			}}
-				// 			icon={<SearchOutlined />}
-				// 			size="small"
-				// 			style={{ width: 90 }}
-				// 		>
-				// 			Search
-				// 		</Button>
-				// 	</Space>
-				// 	</div>
-				// ),
-				// filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
-				// filterDropdown: ({
-				// 	setSelectedKeys,
-				// 	selectedKeys,
-				// 	confirm,
-				// 	clearFilters
-				//   }) => (
-				// 	<div style={{ padding: 8 }}>
-				// 	  <Input
-				// 		placeholder={`Search name`}
-				// 		value={selectedKeys[0]}
-				// 		onChange={(e) =>
-				// 		  setSelectedKeys(e.target.value ? [e.target.value] : [])
-				// 		}
-				// 		onPressEnter={() =>
-				// 		  confirm()
-				// 		}
-				// 		style={{ width: 188, marginBottom: 8, display: "block" }}
-				// 	  />
-				// 	  <Space>
-				// 		<Button
-				// 		  type="primary"
-				// 		  onClick={() => confirm()}
-				// 		  icon={<SearchOutlined />}
-				// 		  size="small"
-				// 		  style={{ width: 90 }}
-				// 		>
-				// 		  Search
-				// 		</Button>
-				// 		<Button
-				// 		  onClick={() => clearFilters()}
-				// 		  size="small"
-				// 		  style={{ width: 90 }}
-				// 		>
-				// 		  Reset
-				// 		</Button>
-				// 	  </Space>
-				// 	</div>
-				//   ),
-				// filterIcon: (filtered) => (
-				// <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
-				// ),
-				// defaultFilteredValue: [searchFields.name] || ['']
-				...filerColumn(searchFields, 'name')
-			},
-			{
-				title: 'Total bookings',
-				dataIndex: 'total_bookings',
-				key: 'total_bookings',
-			},
-			{
-				title: 'Daily bookings',
-				dataIndex: 'daily_bookings',
-				key: 'daily_bookings',
-			},
-			{
-				title: 'Price',
-				dataIndex: 'price',
-				key: 'price',
-			},
-			{
-				title: 'Activated',
-				dataIndex: 'activated',
-				key: 'activated',
-				...filerColumn(searchFields, 'activated'),
-				render: v => v === 0 ? <Switch checked={false} /> : <Switch checked={true} />
-			},
-		]}
-		searchFields={searchFields}
-		updateSF={updateSF}
-		tableProps={{
-		onChange: Object.keys(searchFields).length === 0 ? () => {} :
-			(pagination,f,s) => {
-			console.log(f, s)
-			// let _or = 'asc';
-			// if (s.order) _or = s.order.slice(0, s.order.length-3)
-			// let ord = `${s.field || 'id'}|${_or}`
-			// let newMeta = Object.assign({}, searchFields, {
-			//   offset: pagination.current,
-			//   limit: pagination.pageSize,
-			//   order: ord
-			// });
-			// var queryString = '';
-			// delete newMeta.q;
-			// delete newMeta.total;
-			// delete newMeta.fields;
-			// for (let x in newMeta ) {
-			//   if (newMeta[x]) queryString += `${!queryString.length ? '?' : '&'}${x}=${newMeta[x]}`;
-			// }
-			// history.push(queryString);
-			_dispatch({type: 'update_search_field', data: { ...searchFields, offset: pagination.current, limit: pagination.pageSize, ...f } })
-			} 
-		}}
-	/>
-	);
+	const lstFilter = ['name' , 'activated']
+	return ([
+		(lstFilter.map(item => {
+			if (includeObj(searchFields, item)) {
+				return <Tag
+						key={item}
+						// onClose={_dispatch({type: 'reset_search_filter_field', data: item})}
+						closable
+						onClose={e => {
+							// e.preventDefault();
+							_dispatch({type: 'reset_search_filter_field', data: item})
+							_dispatch({type: 'update_search_field', data: { ...searchFields } })
+						}}
+					>
+						{`${item[0].toUpperCase()}${item.slice(1)}: ${searchFields[item]}`}
+					</Tag>
+			}
+		})),
+		<List
+			key='list'
+			listRef={fn => lR = fn}
+			contentEdit={
+			<Form 
+				form={form}
+				onFinish={onFinish}
+				onFinishFailed={onFinishFailed}
+			>
+				<Row gutter={16}>
+				<Col xs={22} sm={22} md={12}>
+					<Form.Item
+					className='dp-form'
+					{...utility.formItemLayout}
+					name='name'
+					label='Name'
+					rules={[{ required: true, message: 'Required' }]}
+					>
+					<Input />
+					</Form.Item>
+					<Form.Item
+					className='dp-form'
+					{...utility.formItemLayout}
+					name='diamond'
+					label='Diamond'
+					rules={[{ required: true, message: 'Required' }]}
+					>
+					<Input />
+					</Form.Item>
+					<Form.Item
+					className='dp-form'
+					{...utility.formItemLayout}
+					name='price'
+					label='Price'
+					rules={[{ required: true, message: 'Required' }]}
+					>
+					<Input />
+					</Form.Item>
+				</Col>
+				<Col xs={22} sm={22} md={12}>
+					<Form.Item
+					className='dp-form'
+					{...utility.formItemLayout}
+					name='description'
+					label='Description'
+					>
+					<Input />
+					</Form.Item>
+					<Form.Item
+					className='dp-form'
+					{...utility.formItemLayout}
+					name='enabled'
+					label='Enabled'
+					valuePropName='checked'
+					>
+					<Switch />
+					</Form.Item>
+				</Col>
+				</Row>
+			</Form> 
+			}
+			onOpen={v => {
+			setBaseForm(v);
+			form.resetFields();
+			form.setFieldsValue(v);
+			}}
+			onOk={() => form.submit()}
+			editData={editData}
+			fn='flights'
+			tColumns={[
+				{
+					title: 'Id',
+					dataIndex: 'id',
+					key: 'id',
+					sorter: true,
+					sortDirections: ['ascend', 'descend', 'ascend'],
+				},
+				{
+					title: 'Name',
+					dataIndex: 'name',
+					key: 'name',
+					sorter: true,
+					sortDirections: ['ascend', 'descend', 'ascend'],
+					...filerColumn(searchFields, 'name')
+				},
+				{
+					title: 'Total bookings',
+					dataIndex: 'total_bookings',
+					key: 'total_bookings',
+				},
+				{
+					title: 'Daily bookings',
+					dataIndex: 'daily_bookings',
+					key: 'daily_bookings',
+				},
+				{
+					title: 'Price',
+					dataIndex: 'price',
+					key: 'price',
+				},
+				{
+					title: 'Activated',
+					dataIndex: 'activated',
+					key: 'activated',
+					...filterCheck(),
+					// ...filerColumn(searchFields, 'activated'),
+					render: v => v === 0 ? <Switch checked={false} /> : <Switch checked={true} />
+				},
+			]}
+			searchFields={searchFields}
+			updateSF={updateSF}
+			tableProps={{
+			onChange: Object.keys(searchFields).length === 0 ? () => {} :
+				(pagination,f,s) => {
+					console.log(f, s)
+					let fs = {};
+					for (let item in f) {
+						if (Array.isArray(f[item]) && f[item][0]) {
+							fs = { ...fs, ...{[item]: f[item]}}
+						} else if (!Array.isArray(f[item])) {
+							// console.log('reset: ',item)
+							_dispatch({type: 'reset_search_filter_field', data: item})
+						}
+					}
+					if (Object.keys(s).length !== 0) {
+						fs = { ...fs, ...{order: `${s.field || 'id'}|${s.order.slice(0, s.order.length-3)}`}}
+					}
+					_dispatch({type: 'update_search_field', data: { ...searchFields, offset: pagination.current, limit: pagination.pageSize, ...fs } })
+				} 
+			}}
+		/>
+	]);
 }
-
+function includeObj(obj,item) {
+	for (let x in obj) {
+	  if (item === x) return true
+	}
+	return false
+}
 export default Flights;
