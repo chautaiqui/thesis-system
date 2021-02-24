@@ -6,25 +6,31 @@ import Form from 'antd/lib/form';
 import Row from 'antd/lib/row';
 import Col from 'antd/lib/col';
 import Input from 'antd/lib/input';
+
 import { PageReducer } from '@pkg/reducers';
 import { utility, filerColumn, filterCheck } from '@components/commons';
 import { useLocation } from 'react-router-dom';
-import { Tag } from 'antd';
 
 const Flights = () => {
 	const { search } = useLocation();
 	const [ editData, setEditData ] = useState();
 	const [ baseForm, setBaseForm ] = useState({});
 	const [ form ] = Form.useForm();
+	
 	const [ _state, _dispatch] = useReducer(PageReducer, {searchFields: undefined});
 	const {searchFields} = _state;
+	
 	useEffect(() => {
 		_dispatch({type: 'init_search_field', data: search})
 	}, [])
 	
-	const updateSF = useCallback (meta => {
-		if(meta.offset === searchFields.offset && meta.limit === searchFields.limit && searchFields.total === meta.total ) return;
-		_dispatch({type: 'update_search_field', data: { ...searchFields, ...meta }})
+	const updateSF = useCallback (data => {
+		// if(meta.offset === searchFields.offset && meta.limit === searchFields.limit && searchFields.total === meta.total ) return;
+		_dispatch({type: 'update_search_field', data: { ...searchFields, ...data }})
+	}, [searchFields])
+
+	const resetSF = useCallback (dataIndex => {
+		_dispatch({type: 'update_search_field', data: { ...searchFields, [dataIndex]: null } })
 	}, [searchFields])
 
 	if (!searchFields) return <div />;
@@ -37,24 +43,7 @@ const Flights = () => {
 		console.log('Failed:', errorInfo);
 	};
 	let lR = () => {};
-	const lstFilter = ['name' , 'activated']
 	return ([
-		(lstFilter.map(item => {
-			if (includeObj(searchFields, item)) {
-				return <Tag
-						key={item}
-						// onClose={_dispatch({type: 'reset_search_filter_field', data: item})}
-						closable
-						onClose={e => {
-							// e.preventDefault();
-							_dispatch({type: 'reset_search_filter_field', data: item})
-							_dispatch({type: 'update_search_field', data: { ...searchFields } })
-						}}
-					>
-						{`${item[0].toUpperCase()}${item.slice(1)}: ${searchFields[item]}`}
-					</Tag>
-			}
-		})),
 		<List
 			key='list'
 			listRef={fn => lR = fn}
@@ -75,24 +64,7 @@ const Flights = () => {
 					>
 					<Input />
 					</Form.Item>
-					<Form.Item
-					className='dp-form'
-					{...utility.formItemLayout}
-					name='diamond'
-					label='Diamond'
-					rules={[{ required: true, message: 'Required' }]}
-					>
-					<Input />
-					</Form.Item>
-					<Form.Item
-					className='dp-form'
-					{...utility.formItemLayout}
-					name='price'
-					label='Price'
-					rules={[{ required: true, message: 'Required' }]}
-					>
-					<Input />
-					</Form.Item>
+					
 				</Col>
 				<Col xs={22} sm={22} md={12}>
 					<Form.Item
@@ -151,47 +123,21 @@ const Flights = () => {
 					key: 'daily_bookings',
 				},
 				{
-					title: 'Price',
-					dataIndex: 'price',
-					key: 'price',
-				},
-				{
 					title: 'Activated',
 					dataIndex: 'activated',
 					key: 'activated',
-					...filterCheck(),
+					...filterCheck(searchFields, 'activated'),
 					// ...filerColumn(searchFields, 'activated'),
 					render: v => v === 0 ? <Switch checked={false} /> : <Switch checked={true} />
 				},
 			]}
 			searchFields={searchFields}
 			updateSF={updateSF}
-			tableProps={{
-			onChange: Object.keys(searchFields).length === 0 ? () => {} :
-				(pagination,f,s) => {
-					console.log(f, s)
-					let fs = {};
-					for (let item in f) {
-						if (Array.isArray(f[item]) && f[item][0]) {
-							fs = { ...fs, ...{[item]: f[item]}}
-						} else if (!Array.isArray(f[item])) {
-							// console.log('reset: ',item)
-							_dispatch({type: 'reset_search_filter_field', data: item})
-						}
-					}
-					if (Object.keys(s).length !== 0) {
-						fs = { ...fs, ...{order: `${s.field || 'id'}|${s.order.slice(0, s.order.length-3)}`}}
-					}
-					_dispatch({type: 'update_search_field', data: { ...searchFields, offset: pagination.current, limit: pagination.pageSize, ...fs } })
-				} 
-			}}
+			tableProps={{}}
+			resetSF = {resetSF}
 		/>
 	]);
+
 }
-function includeObj(obj,item) {
-	for (let x in obj) {
-	  if (item === x) return true
-	}
-	return false
-}
+
 export default Flights;

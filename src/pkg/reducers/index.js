@@ -33,23 +33,23 @@ export const User = {
 }
 
 export const PageReducer = (state, action) => {
-  console.log(action)
+  // console.log(action)
   switch (action.type) {
     case 'init_search_field':
       return { ...state, searchFields: extractSearch(action.data) }
     case 'update_search_field': 
       return { ...state, searchFields: action.data };
-    case 'reset_search_filter_field':
-      delete state.searchFields[action.data];
-      return state;
     default:
       return state;
   } 
 }
 
+
 function extractSearch(search) {
 	let query = {};
-  query = search.slice(1).split('&').reduce((r, i) => !!i ? Object.assign({}, r, { [i.split('=')[0]]: decodeURIComponent(i.split('=')[1]) }) : r, {});
+  query = search.slice(1).split('&').reduce(
+    (r, i) => (!!i) ? Object.assign({}, r, { [i.split('=')[0]]: decodeURIComponent(i.split('=')[1]) }) : r, {}
+  );
   if (!query.offset || query.offset < 0 ) query.offset = 1 
   if (!query.limit || [10, 20, 30].includes(query.limit)) query.limit = 20
   let re = /(\w)+\|(asc|desc)/;
