@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useReducer, useCallback, useContext } from 'react';
-import { fetchData, postData, putData } from '@api';
+import { fetchData, postData, putData, requires } from '@api';
 
 import { User } from '@pkg/reducers';
 import Table from 'antd/lib/table';
 import Button from 'antd/lib/button';
 import Modal from 'antd/lib/modal';
+import { Tag, Card } from 'antd';
+// import { Divider } from 'antd';
 
 import  { useHistory  } from 'react-router-dom';
 import { messageError } from './';
@@ -36,7 +38,11 @@ const List = props => {
 	const { fn, tColumns, editData, 
 		contentEdit, onOpen, onOk,
 		searchFields, 
-		tableProps
+		tableProps,
+		updateSF = () => {},
+		resetSF = () => {},
+		require = () => {},
+		fieldsRequire = [],
 	} = props;
 	const [ popup, setPopup ] = useState(false);
 	const [ _state, _dispatch ] = useReducer(reducer, initialState);
@@ -50,14 +56,14 @@ const List = props => {
 			const resp = await fetchData[fn](user.api_token, searchFields);
 			const { success, result, error } = resp;
 			if (!success) return _dispatch({ type: 'FETCH_ERROR', error: error })
-			result.meta = Object.assign({}, result.meta, { order: result.meta.order.join('|') });
+			if (result.meta) result.meta = Object.assign({}, result.meta, { order: result.meta.order.join('|') });
 			// if (result.meta === undefined) {Object.assign(result, {meta: {}})}
 			let query = '';
 			for (let x in searchFields) {
-				query += `&${x}=${searchFields[x]}`
+				if (searchFields[x] !== null) query += `&${x}=${searchFields[x]}`
 			}
 			history.replace({search: query.slice(1)});
-			_dispatch({ type: 'FETCH_SUCCESS', dataResponse: result, total: result.meta.total }) 
+			_dispatch({ type: 'FETCH_SUCCESS', dataResponse: result, total: result.meta ? result.meta.total : result.data.length }) 
 		} catch (e) {
 			_dispatch({ type: 'FETCH_ERROR', error: e });
 		}
@@ -102,10 +108,37 @@ const List = props => {
 		put();
 	}, [editData, put]);
 
-	// console.log(searchFields)
 	useEffect(() => {
 		if (searchFields) fetch();
 	}, [searchFields, fetch])
+
+	useEffect(()=> {
+		let mt = {
+			limit: 100,
+			offset: 1,
+			// model: 'advertiser'
+		}
+		const fetchRequire = async (fn) => {
+			try {
+				const res = await requires[fn](user.api_token, mt)
+				const { success, result } = res;
+				// console.log(success, result)
+				if (!success) return {[fn]: {}}
+				return {[fn]: result.data}
+			} catch(e) {
+				return {[fn]: {}}
+			}
+		}
+		let _data;
+		_data = fieldsRequire.map(async (item) => {
+			try {
+				return await fetchRequire(item)
+			} catch (e) {
+				return {}
+			}
+		})
+		require(_data)
+	},[])
 
 	const openPopup = (values, num) => {
 		onOpen(values);
@@ -113,64 +146,95 @@ const List = props => {
 	}
 
 	var { data, behavior, total } = _state;
-	// console.log(behavior, meta)
+	console.log(behavior)
 	return ([
-		contentEdit && (
-		<Button
-			key='button'
-			style={{ marginBottom: 25 }}
-			onClick={() => openPopup({}, -1)}
-		>
-			Create
-		</Button>
-		),
-		contentEdit && (
-		<Modal
-			centered
-			closable={false}
-			maskClosable={false}
-			confirmLoading={behavior === 'posting'}
-			title='Update'
-			key='modal'
-			width='80%' 
-			visible={popup}
-			onOk={onOk}
-			onCancel={() => setPopup(false)}
-			cancelButtonProps={{ disabled: behavior === 'posting' }}
-		>
-			{contentEdit}
-		</Modal>
-		),
-		<Table
-		key='table'
-		columns={[...tColumns, {
-			title: 'Action',
-			render: record => {return <button onClick={contentEdit ? () => openPopup(record, 1) : () => {}}>Update</button>}
-			// render: record => {return <button >Update</button>}
-		}]}
-		dataSource={data}
-		rowKey='id'
-		loading={behavior === 'fetching'}
-		// onRow={row => ({
-		//   onClick: contentEdit ? () => openPopup(row) : () => {},
-		// })}
-		pagination={ 
+		<Card key='card1'>
+			{Object.entries(searchFields)
+				.filter(item => !['offset', 'limit', 'order'].includes(item[0]) && !!item[1])
+				.map(item => (
+					<Tag
+						key={item[0]}
+						closable
+						onClose={e => {
+							resetSF(item[0])
+						}}
+					>
+						{`${item[0]}: ${item[1]}`}
+					</Tag>
+				)
+			)}
+		</Card>,
+		<Card key='card2'>
 			{
-				current: searchFields.offset || undefined,
-				pageSize: searchFields.limit || 20,
-				pageSizeOptions: [10, 20, 30],
-				total: total || data.length,
-				disabled: behavior === 'fetching',
-				position: ['topRight' , 'bottomRight']
+				contentEdit && (
+					<Button
+						key='create'                              
+						style={{ marginBottom: 25 }}
+						onClick={() => openPopup({}, -1)}
+					>
+						Create
+					</Button>
+					)
 			}
-		}
-		
-		expandable={{
-			expandedRowRender: record => (
-			<p style={{ margin: 0 }}>{JSON.stringify(record)}</p>  
-			)}}
-		{...tableProps}
-		> </Table>
+			{
+				contentEdit && (
+					<Modal
+						centered
+						closable={false}
+						maskClosable={false}
+						confirmLoading={behavior === 'posting'}
+						title='Create'
+						key='modal'
+						width='80%' 
+						visible={popup}
+						onOk={onOk}
+						onCancel={() => setPopup(false)}
+						cancelButtonProps={{ disabled: behavior === 'posting' }}
+					>
+						{contentEdit}
+					</Modal>
+					)
+			}
+			{
+				<Table
+					key='table'
+					columns={tColumns}
+					dataSource={data}
+					rowKey='id'
+					loading={behavior === 'fetching'}
+					// onRow={row => ({
+					//   onClick: contentEdit ? () => openPopup(row) : () => {},
+					// })}
+					pagination={ 
+						{
+							current: Number(searchFields.offset) || undefined,
+							pageSize: searchFields.limit || 20,
+							pageSizeOptions: [10, 20, 30],
+							total: total || data.length,
+							disabled: behavior === 'fetching',
+							position: ['topRight' , 'bottomRight']
+						}
+					}
+					
+					expandable={{
+						expandedRowRender: record => (
+						<p style={{ margin: 0 }}>{JSON.stringify(record)}</p>  
+						)}}
+					onChange = {
+						Object.keys(searchFields).length === 0 ? () => {} :
+							(pagination,f,s) => {
+								console.log(f)
+								let fs = {};
+								if (Object.keys(s).length !== 0) {
+									fs = { ...fs, ...{order: `${s.field || 'id'}|${s.order.slice(0, s.order.length-3)}`}}
+								}
+								updateSF({offset: pagination.current, limit: pagination.pageSize, ...f, ...fs})
+						} 
+					}
+					{...tableProps}
+				> </Table>
+			}
+		</Card>
 	]);
 }
 

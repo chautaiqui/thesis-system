@@ -1,18 +1,16 @@
-import Plans from './plans';
 import Flights from './flights';
+import Campaigns from './campaigns';
 import Permissions from './permissions';
+import Creative from './creative';
 import Roles from './roles';
-import User from './user';
-// import Users from './users';
 // import Transactions from './transactions';
 
 const subPages1 = [
-  { path: '/plans', label: 'Plans', component: Plans, permissions: 'plans' },
+  { path: '/campaigns', label: 'Campaigns', component: Campaigns, permissions: 'campaigns' },
   { path: '/flights', label: 'Flights', component: Flights, permissions: 'flights' },
+  { path: '/creative', label: 'Creative', component: Creative, permissions: 'creative' },
   { path: '/permissions', label: 'Permissions', component: Permissions, permissions: 'permissions' },
   { path: '/roles', label: 'Roles', component: Roles, permissions: 'roles' },
-  { path: '/user', label: 'User', component: User, permissions: 'user' },
-  // { path: '/users', label: 'Users', component: Users, roles: 'users' },
   // { path: '/transactions', label: 'Transactions', component: Transactions, roles: 'transactions' }
 ];
 
@@ -24,3 +22,4 @@ export const menuPages = [
     children: subPages1
   }
 ];
+

@@ -24,7 +24,6 @@ const getRequest = async (fn, api_token, meta = {}) => {
   try {
     let _h = new Headers()
     _h.append('authorization',api_token);
-    delete meta.qui;
     delete meta.fields;
     delete meta.total;  
     let queryString = '';
@@ -39,38 +38,16 @@ const getRequest = async (fn, api_token, meta = {}) => {
     })
     if(!re.ok) return {success: false, error: 'Api error'}
     let _re = await re.json();
+    if(_re.status === 401) return window.location.reload()
+    if(_re.status === 403) return {success: true, result: {data: []}}
     if(_re.status !== 200) return {success: false, error: _re.message || 'Api ok but smt error'}
+    
     return {success: true, result: _re} // result {data, meta}
   } catch (e) {
     return { success: false, error: e };
   }
 }
-const _getRequest = async (fn, api_token, meta) => {    
-  try {
-    let _h = new Headers()
-    _h.append('authorization',api_token);
-    var queryString = '';
-    if (Object.keys(meta).length !== 0) {
-      var options = {
-        offset: meta.offset,
-        limit: meta.limit
-      }
-      for (let x in options ) {
-        queryString += `${x}=${options[x]}&`;
-      }
-    }
-    var url = `http://localhost:3000/user/`;
-    let re = await fetch(url, {
-        method: 'GET'
-    })
-    if(!re.ok) return {success: false, error: 'Api error'}
-    let _re = await re.json();
-    let tem = {data: _re, meta: {}}
-    return {success: true, result: tem} // result {data, meta}
-  } catch (e) {
-    return { success: false, error: e };
-  }
-}
+
 const postRequestItem = async(fn, api_token, data) => {
   try {
     let _h = new Headers()
@@ -122,38 +99,12 @@ const signin = {
 }
 
 const fetchData = {
-  plans: () => _promise({
-    success: true,
-    result: [
-      {
-        id: 1,
-        name: 'a',
-        diamond: 1,
-        price: 1,
-        enabled: true
-      },
-      {
-        id: 2,
-        name: 'b',
-        diamond: 2,
-        price: 2,
-        enabled: true
-      },
-      {
-        id: 3,
-        name: 'c',
-        diamond: 3,
-        price: 3,
-        enabled: true
-      }
-    ]
-  }),
   users: () => {},
   transaction: () => {},
+  campaigns: (api_token, meta) => getRequest('campaigns', api_token, meta),
   flights: (api_token, meta) => getRequest('flights', api_token, meta),
   permissions: (api_token, meta) => getRequest('permissions', api_token, meta),
   roles: (api_token, meta) => getRequest('roles', api_token, meta),
-  user: (api_token, meta) => _getRequest('user', api_token, meta)
 }
 
 const postData = {
@@ -175,22 +126,18 @@ const postData = {
 }
 
 const putData = {
-  plans: () => _promise({
-    success: true,
-    result: {
-      id: 1,
-      name: 'a',
-      diamond: 1,
-      price: 1,
-      enabled: true
-    }
-  }),
   users: () => {},
   transaction: () => {},
   flights: (api_token, data) => putRequest('flights', api_token, data, data.id),
   roles: (api_token, data) => putRequest('roles', api_token, data, data.id),
   user: (api_token, data) => putRequest('user', api_token, data, data.id)
 }
-export { signin, fetchData, postData, putData };
+
+const requires = {
+  accounts: (api_token, meta) => getRequest('accounts', api_token, meta),
+  flights: (api_token, meta) => getRequest('flights', api_token, meta)
+}
+
+export { signin, fetchData, postData, putData, requires };
 
 

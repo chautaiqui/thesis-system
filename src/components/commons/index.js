@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useState} from 'react';
 
 import message from 'antd/lib/message';
 import notification from 'antd/lib/notification';
 import * as utility from './utility';
 import Input from 'antd/lib/input';
 import { Button, Space} from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined, DownOutlined} from '@ant-design/icons';
+import { Select, DatePicker } from 'antd';
+const { Option } = Select;
+
+
 export const messageError = msg => {
 if (msg) {
 	let content;
@@ -86,21 +90,118 @@ export const filerColumn = (searchFields, dataIndex) => ({
 	filterIcon: (filtered) => (
 		<SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
 		),
-		defaultFilteredValue: [searchFields[dataIndex]] || []
+	filteredValue: searchFields[dataIndex] || null,
+	// defaultFilteredValue: [searchFields[dataIndex]] || []
 })
 
-export const filterCheck = () => ({
+export const filterCheck = (searchFields, dataIndex) => ({
 	filters: [
 		{
-		  text: '1',
+		  text: 'Enable',
 		  value: '1',
 		},
 		{
-		  text: '0',
+		  text: 'Disable',
 		  value: '0',
 		},
 	  ],
-	  filterMultiple: false,
+	filteredValue: searchFields[dataIndex] || null,
+	filterMultiple: false,
 })
+
+export const filterSelect = (searchFields, dataIndex, requireData) => {
+	const data = requireData ? requireData.accounts.map(item=>item.name) : []
+	return {
+		filterDropdown: ({
+			setSelectedKeys,
+			selectedKeys,
+			confirm,
+			clearFilters
+			}) => (
+				[<CustomSelect
+					key='cus sel'
+					data={data} 
+					dataIndex={dataIndex} 
+					confirm={confirm} 
+					setSelectedKeys={setSelectedKeys} 
+					requireData={requireData}
+					clearFilters={clearFilters}
+				/>,
+				<Button
+					key='rs'
+					onClick={() => clearFilters()}
+					size="small"
+					style={{ width: 100 }}
+				>
+					Reset
+				</Button>]
+		),
+		filterIcon: (filtered) => (
+			<DownOutlined style={{ color: filtered ? "#1890ff" : undefined }}/>
+		),
+		filteredValue: searchFields[dataIndex] || null,
+	}
+}
+
+export const filterDatePicker = (searchFields, dataIndex) => {
+	return {
+		filterDropdown: ({
+			setSelectedKeys,
+			selectedKeys,
+			confirm,
+			clearFilters
+			}) => (
+				<DatePicker onChange={(date, dateString) => {
+					if(dateString) {
+						setSelectedKeys(dateString);
+						confirm();
+					}
+					clearFilters();
+				}}/>
+		),
+		filterIcon: (filtered) => (
+			<DownOutlined style={{ color: filtered ? "#1890ff" : undefined }}/>
+		),
+		filteredValue: searchFields[dataIndex] || null,
+	}
+}
+
+export const CustomSelect = (props) => {
+	const { data, confirm, setSelectedKeys, requireData, clearFilters } = props;
+	const [search, setSearch] = useState('')
+	return (
+		<div>
+			<Select 
+				style={{ width: '100%' }}  tokenSeparators={[',']}
+				onSearch={(value) => {
+					setSearch(value)
+				}}
+				allowClear={true}
+				showSearch={true}
+				placeholder= {`Select`}
+				filterOption={false}
+				// onSelect={(value) => {
+				// 	// value -> account_id
+				// 	setSelectedKeys(requireData.accounts.filter(item => item.name === value)[0].id.toString())
+				// 	confirm();
+				// }}
+				onChange={(value) => {
+					if (value) {
+						setSelectedKeys(requireData.accounts.filter(item => item.name === value)[0].id.toString())
+						confirm();
+					}
+					clearFilters();
+				}}
+			>
+				{(data.filter(item => item.includes(search)).length === 0 ? data : data.filter(item => item.includes(search)))
+				.map((d) => (
+					<Option key={d}>{d}</Option>
+				))}
+			</Select>
+		</div>
+
+	)
+}
+
 
 export { utility };
