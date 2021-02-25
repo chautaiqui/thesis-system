@@ -11,8 +11,9 @@ import Row from 'antd/lib/row';
 import Col from 'antd/lib/col';
 import Input from 'antd/lib/input';
 
-import { Menu, Dropdown, Button, Radio, DatePicker } from 'antd';
+import { Menu, Dropdown, Button, Radio, DatePicker, Select } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
+import moment from 'moment';
 
 const radioStyle = {
 	display: 'block',
@@ -30,15 +31,19 @@ const Campaigns = () => {
     const [ _state, _dispatch] = useReducer(PageReducer, {searchFields: undefined});
 	const {searchFields} = _state;
 
+	const viewLog = () => {
+		console.log('click')
+		// bat len model 
+	}
 	const menu = (
 		<Menu>
 			<Menu.Item key="1">View Detail</Menu.Item>
 			<Menu.Item key="2">Copy</Menu.Item>
 			<Menu.Item key="3">View Report</Menu.Item>
-			<Menu.Item key="4">View Log</Menu.Item>
+			<Menu.Item key="4" onClick={viewLog}>View Log</Menu.Item>
 		</Menu>
 	);
-	
+
     useEffect(() => {
 		_dispatch({type: 'init_search_field', data: search})
 	}, [])
@@ -61,6 +66,9 @@ const Campaigns = () => {
 	if (!searchFields) return <div />;
 
 	const onFinish = values => {
+		for (let item in values) {
+			if (typeof values[item] === 'object') values[item] = values[item].format('YYYY-MM-DD')
+		}
 		setEditData({ ...baseForm, ...values });
 	};
 
@@ -70,6 +78,7 @@ const Campaigns = () => {
 
 	let lR = () => {};
 	// console.log(requireData[0] ? requireData[0].accounts : 'undified')
+	let accounts = requireData[0] ? requireData[0].accounts.map(item => ({label: item.name, value: item.id})) : [];
     return ([
 		<List
 			key='list'
@@ -89,7 +98,15 @@ const Campaigns = () => {
 							label='Advertiser: '
 							rules={[{ required: true, message: 'Required' }]}
 						>
-							<Input />
+							<Select 
+								allowClear
+								showSearch
+								placeholder= {'Choose advertiser'}
+								options={accounts}
+								filterOption={(inputValue, options) => {
+									return options.label.includes(inputValue)
+								}}
+							/>
 						</Form.Item>
 					</Col>
 				</Row>
@@ -114,7 +131,11 @@ const Campaigns = () => {
 							name='start_date'
 							label='Date range: '
 						>
-							<DatePicker />
+							<DatePicker 
+							placeholder={'Start date'}
+							disabledDate={(current) => {
+								return current && current < moment().startOf('day');
+							}}/>
 						</Form.Item>
 					</Col>
 					<Col span={20}>
@@ -124,7 +145,12 @@ const Campaigns = () => {
 							name='end_date'
 							label='-'
 						>
-							<DatePicker />
+							<DatePicker 
+							placeholder={'End date'}
+							disabledDate={(current) => {
+								return current && current < moment().startOf('day');
+							}}
+							/>
 						</Form.Item>
 					</Col>
 				</Row>
@@ -149,13 +175,13 @@ const Campaigns = () => {
 							label='Type: '
 						>
 							<Radio.Group>
-							<Radio style={radioStyle} value={'VOD'}>
+							<Radio style={radioStyle} value={'vod'}>
 								VOD
 							</Radio>
-							<Radio style={radioStyle} value={'Display'}>
+							<Radio style={radioStyle} value={'display'}>
 								Display
 							</Radio>
-							<Radio style={radioStyle} value={'Live TV'}>
+							<Radio style={radioStyle} value={'livetv'}>
 								Live TV
 							</Radio>
 							</Radio.Group>
@@ -170,7 +196,7 @@ const Campaigns = () => {
 							name='activated'
 							label='Activated: '
 						>
-							<Switch />
+							<Switch defaultChecked/>
 						</Form.Item>
 					</Col>
 				</Row>
@@ -235,7 +261,7 @@ const Campaigns = () => {
 					width: "10%",
 					...filterCheck(searchFields, 'activated'),
 					// ...filerColumn(searchFields, 'activated'),
-					render: v => v === 0 ? <Switch checked={false} /> : <Switch checked={true} />
+					render: v => v === 0 ? <Switch /> : <Switch checked />
 				},
 				{
 					title: 'Action',
@@ -252,7 +278,25 @@ const Campaigns = () => {
 			searchFields={searchFields}
 			updateSF={updateSF}
 			tableProps={{
-				size: 'small'
+				size: 'small',
+				expandable: {
+					expandedRowRender: record => (
+						<div>
+						<Row style={{paddingLeft: 50}}>
+							<Col span={12}>Advertiser: {record.account.name}</Col>
+							<Col span={12}>Description: {record.description}</Col>
+						</Row>
+						<Row style={{paddingLeft: 50}}>
+							<Col span={12}>Campaign name:{record.name}</Col>
+							<Col span={12}>Type: {record.type}</Col>
+						</Row>
+						<Row style={{paddingLeft: 50}}>
+							<Col span={12}>Date range: {record.start_date} - {record.end_date}</Col>
+							<Col span={12}>Activated: {record.activated === 0 ? <Switch/> : <Switch defaultChecked/>}</Col>
+						</Row>
+						</div>
+					)
+				}
 			}}
 			resetSF = {resetSF}
             require={require}

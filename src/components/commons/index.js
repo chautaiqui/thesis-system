@@ -120,6 +120,8 @@ export const filterSelect = (searchFields, dataIndex, requireData) => {
 			}) => (
 				[<CustomSelect
 					key='cus sel'
+					searchFields={searchFields}
+					dataIndex={dataIndex}
 					data={data} 
 					dataIndex={dataIndex} 
 					confirm={confirm} 
@@ -168,33 +170,29 @@ export const filterDatePicker = (searchFields, dataIndex) => {
 
 export const CustomSelect = (props) => {
 	const { data, confirm, setSelectedKeys, requireData, clearFilters } = props;
-	const [search, setSearch] = useState('')
+	const [search, setSearch] = useState('');
+	let temp = data.filter(item => item.includes(search)).length === 0 ? data : data.filter(item => item.includes(search))
+	// console.log(searchFields[dataIndex] ? searchFields[dataIndex] : 'k co')
 	return (
 		<div>
 			<Select 
 				style={{ width: '100%' }}  tokenSeparators={[',']}
-				onSearch={(value) => {
-					setSearch(value)
+				onSearch={(v) => {
+					setSearch(v)
 				}}
-				allowClear={true}
-				showSearch={true}
-				placeholder= {`Select`}
-				filterOption={false}
-				// onSelect={(value) => {
-				// 	// value -> account_id
-				// 	setSelectedKeys(requireData.accounts.filter(item => item.name === value)[0].id.toString())
-				// 	confirm();
-				// }}
+				allowClear
+				showSearch
+				placeholder= {`Search `}
 				onChange={(value) => {
 					if (value) {
+						// value -> account_id
 						setSelectedKeys(requireData.accounts.filter(item => item.name === value)[0].id.toString())
 						confirm();
 					}
 					clearFilters();
 				}}
 			>
-				{(data.filter(item => item.includes(search)).length === 0 ? data : data.filter(item => item.includes(search)))
-				.map((d) => (
+				{temp.map(d => (
 					<Option key={d}>{d}</Option>
 				))}
 			</Select>

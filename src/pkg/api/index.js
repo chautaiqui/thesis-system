@@ -20,7 +20,7 @@ const postRequest = async (fn, body) => {
     return { success: false, error: e };
   }
 }
-const getRequest = async (fn, api_token, meta = {}) => {
+const getRequest = async (fn, api_token, meta = {}, extend = []) => {
   try {
     let _h = new Headers()
     _h.append('authorization',api_token);
@@ -31,7 +31,8 @@ const getRequest = async (fn, api_token, meta = {}) => {
       if (!x || !meta[x]) continue;
       queryString += `&${x}=${encodeURIComponent(meta[x])}`;
     }
-    var url = `${apiDomain}/api/${fn}?${queryString.slice(1)}`;
+    const ex = extend.length === 0 ? '' : '/' + extend[0] + '/' + extend[1];
+    var url = `${apiDomain}/api/${fn}${ex}?${queryString.slice(1)}`;
     let re = await fetch(url, {
         method: 'GET',
         headers: _h
@@ -78,7 +79,7 @@ const putRequest = async(fn, api_token, data, id) => {
     _h.append('authorization',api_token);
     _h.append('Content-Type', 'application/json');
     var url = `${apiDomain}/api/${fn}/${id}`;
-    console.log(url)
+    
     let re = await fetch(url, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -122,7 +123,8 @@ const postData = {
   transaction: () => {},
   flights: (api_token, data) => postRequestItem('flights', api_token, data),
   roles: (api_token, data) => postRequestItem('roles', api_token, data),
-  user: (api_token, data) => postRequestItem('user', api_token, data)
+  user: (api_token, data) => postRequestItem('user', api_token, data),
+  campaigns: (api_token, data) => postRequestItem('campaigns', api_token, data),
 }
 
 const putData = {
@@ -130,7 +132,8 @@ const putData = {
   transaction: () => {},
   flights: (api_token, data) => putRequest('flights', api_token, data, data.id),
   roles: (api_token, data) => putRequest('roles', api_token, data, data.id),
-  user: (api_token, data) => putRequest('user', api_token, data, data.id)
+  user: (api_token, data) => putRequest('user', api_token, data, data.id),
+  campaigns: (api_token, data) => putRequest('campaigns', api_token, data, data.id),
 }
 
 const requires = {
