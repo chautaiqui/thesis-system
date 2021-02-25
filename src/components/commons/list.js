@@ -43,6 +43,7 @@ const List = props => {
 		resetSF = () => {},
 		require = () => {},
 		fieldsRequire = [],
+		action = [], 
 	} = props;
 	const [ popup, setPopup ] = useState(false);
 	const [ _state, _dispatch ] = useReducer(reducer, initialState);
@@ -72,13 +73,15 @@ const List = props => {
 	const put = useCallback(async () => {
 		_dispatch({ type: 'UPDATING' });
 		try {
-		const _fn = editData.id ? putData[fn] : postData[fn];
-		const resp = await _fn(user.api_token, editData);
-		const { success, result, error } = resp;
-		if (!success) _dispatch({ type: 'UPDATE_ERROR', error: error })
-		else _dispatch({ type: 'UPDATE_SUCCESS', item: result });
+			console.log(editData)
+			const _fn = editData.id ? putData[fn] : postData[fn];
+			const resp = await _fn(user.api_token, editData);
+			const { success, result, error } = resp;
+			// console.log(success, result, error)
+			if (!success) _dispatch({ type: 'UPDATE_ERROR', error: error })
+			else _dispatch({ type: 'UPDATE_SUCCESS', item: result });
 		} catch (e) {
-		_dispatch({ type: 'UPDATE_ERROR', error: e });
+			_dispatch({ type: 'UPDATE_ERROR', error: e });
 		}
 	}, [user.api_token, fn, editData]);
 
@@ -146,9 +149,15 @@ const List = props => {
 	}
 
 	var { data, behavior, total } = _state;
-	console.log(behavior)
+	// console.log(behavior)
 	return ([
-		<Card key='card1'>
+		<Card 
+		style={{
+			borderRadius: 5,
+			marginBottom: 15,
+			boxSizing: 'border-box'
+		}}
+		key='card1'>
 			{Object.entries(searchFields)
 				.filter(item => !['offset', 'limit', 'order'].includes(item[0]) && !!item[1])
 				.map(item => (
@@ -164,12 +173,17 @@ const List = props => {
 				)
 			)}
 		</Card>,
-		<Card key='card2'>
+		<Card 
+		style={{
+			borderRadius: 5,
+			boxSizing: 'border-box'
+		}}
+		key='card2'>
 			{
 				contentEdit && (
 					<Button
 						key='create'                              
-						style={{ marginBottom: 25 }}
+						style={{ marginBottom: 0 }}
 						onClick={() => openPopup({}, -1)}
 					>
 						Create
@@ -198,7 +212,13 @@ const List = props => {
 			{
 				<Table
 					key='table'
-					columns={tColumns}
+					columns={
+						[...tColumns, 
+						action.length === 0 ? {} : {
+							title: 'Action',
+        					render: record => {return <button onClick={contentEdit ? () => openPopup(record, 1) : () => {}}>Update</button>}
+						}]
+					}
 					dataSource={data}
 					rowKey='id'
 					loading={behavior === 'fetching'}
@@ -215,15 +235,10 @@ const List = props => {
 							position: ['topRight' , 'bottomRight']
 						}
 					}
-					
-					expandable={{
-						expandedRowRender: record => (
-						<p style={{ margin: 0 }}>{JSON.stringify(record)}</p>  
-						)}}
 					onChange = {
 						Object.keys(searchFields).length === 0 ? () => {} :
 							(pagination,f,s) => {
-								console.log(f)
+								// console.log(f)
 								let fs = {};
 								if (Object.keys(s).length !== 0) {
 									fs = { ...fs, ...{order: `${s.field || 'id'}|${s.order.slice(0, s.order.length-3)}`}}
