@@ -31,7 +31,7 @@ const getRequest = async (fn, api_token, meta = {}, extend = []) => {
       if (!x || !meta[x]) continue;
       queryString += `&${x}=${encodeURIComponent(meta[x])}`;
     }
-    const ex = extend.length === 0 ? '' : '/' + extend[0] + '/' + extend[1];
+    const ex = extend.length === 0 ? '' : '/' + extend.join('/');
     var url = `${apiDomain}/api/${fn}${ex}?${queryString.slice(1)}`;
     let re = await fetch(url, {
         method: 'GET',
@@ -138,9 +138,12 @@ const putData = {
 
 const requires = {
   accounts: (api_token, meta) => getRequest('accounts', api_token, meta),
-  flights: (api_token, meta) => getRequest('flights', api_token, meta)
+  flights: (api_token, meta) => getRequest('flights', api_token, meta),
+  provinces: (api_token, meta) => getRequest('provinces', api_token, meta),
+  categories: (api_token, meta) => getRequest('categories', api_token, meta),
+
 }
 
 export { signin, fetchData, postData, putData, requires };
 
-
+export {getRequest};

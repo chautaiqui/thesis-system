@@ -39,6 +39,12 @@ export const PageReducer = (state, action) => {
       return { ...state, searchFields: extractSearch(action.data) }
     case 'update_search_field': 
       return { ...state, searchFields: action.data };
+    case 'get_require_data': 
+      let obj = {}
+      action.data.map(item => {
+        obj[Object.keys(item)[0]] = Object.values(item)[0]
+      })
+      return { ...state, requireData: obj };
     default:
       return state;
   } 

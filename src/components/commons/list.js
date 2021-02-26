@@ -1,36 +1,39 @@
 import React, { useState, useEffect, useReducer, useCallback, useContext } from 'react';
-import { fetchData, postData, putData, requires } from '@api';
+import { fetchData, postData, putData, requires, getRequest } from '@api';
 
 import { User } from '@pkg/reducers';
 import Table from 'antd/lib/table';
 import Button from 'antd/lib/button';
 import Modal from 'antd/lib/modal';
-import { Tag, Card } from 'antd';
+import { Tag, Card, Menu, Dropdown} from 'antd';
+import { DownOutlined, SolutionOutlined } from '@ant-design/icons';
+
 // import { Divider } from 'antd';
 
-import  { useHistory  } from 'react-router-dom';
+import  { Switch, useHistory  } from 'react-router-dom';
 import { messageError } from './';
+import { isArguments } from 'lodash';
 
 const reducer = (state, action) => {
-switch (action.type) {
-	case 'FETCH_FETCHING':
-	return { ...state, behavior: 'fetching' };
-	case 'FETCH_SUCCESS':
-	return { ...state, data: action.dataResponse.data, total: action.total, behavior: 'stall' };
-	case 'FETCH_ERROR':
-	messageError(action.error);
-	return { ...state, data: [], behavior: 'stall' };
-	case 'UPDATING':
-	return { ...state, behavior: 'updating' };
-	case 'UPDATE_SUCCESS':
-	return { ...state, behavior: 'update_success' };
-	case 'UPDATE_ERROR':
-	messageError(action.error);
-	return { ...state, behavior: 'stall' };
-	case 'STALL':
-	return { ...state, behavior: 'stall' };
-	default: return state;
-}
+	switch (action.type) {
+		case 'FETCH_FETCHING':
+			return { ...state, behavior: 'fetching' };
+		case 'FETCH_SUCCESS':
+			return { ...state, data: action.dataResponse.data, total: action.total, behavior: 'stall' };
+		case 'FETCH_ERROR':
+			messageError(action.error);
+			return { ...state, data: [], behavior: 'stall' };
+		case 'UPDATING':
+			return { ...state, behavior: 'updating' };
+		case 'UPDATE_SUCCESS':
+			return { ...state, behavior: 'update_success' };
+		case 'UPDATE_ERROR':
+			messageError(action.error);
+			return { ...state, behavior: 'stall' };
+		case 'STALL':
+			return { ...state, behavior: 'stall' };
+		default: return state;
+	}
 }
 const initialState = { data: [], behavior: 'init' };
 
@@ -46,11 +49,13 @@ const List = props => {
 		action = [], 
 	} = props;
 	const [ popup, setPopup ] = useState(false);
+	const [ logData, setLogData] = useState({visible: false, title: "", data: []});
 	const [ _state, _dispatch ] = useReducer(reducer, initialState);
 	const [ user ] = useContext(User.context);
 
 	// const { search } = useLocation();
 	const history = useHistory();
+
 	const fetch = useCallback(async () => {
 		_dispatch({ type: 'FETCH_FETCHING' });
 		try {
@@ -116,16 +121,10 @@ const List = props => {
 	}, [searchFields, fetch])
 
 	useEffect(()=> {
-		let mt = {
-			limit: 100,
-			offset: 1,
-			// model: 'advertiser'
-		}
-		const fetchRequire = async (fn) => {
+		const fetchRequire = async (fn, meta) => {
 			try {
-				const res = await requires[fn](user.api_token, mt)
+				const res = await requires[fn](user.api_token, meta)
 				const { success, result } = res;
-				// console.log(success, result)
 				if (!success) return {[fn]: {}}
 				return {[fn]: result.data}
 			} catch(e) {
@@ -135,7 +134,7 @@ const List = props => {
 		let _data;
 		_data = fieldsRequire.map(async (item) => {
 			try {
-				return await fetchRequire(item)
+				return await fetchRequire(item.name, item.meta)
 			} catch (e) {
 				return {}
 			}
@@ -147,9 +146,38 @@ const List = props => {
 		onOpen(values);
 		setPopup(true);
 	}
+	const actionClick = (e, record) => {
+		switch (e.key) {
+			case 'View Detail':
+				console.log('detail')
+				break;
+			case 'Copy':
+				console.log('copy')
+				break;
+			case 'View Report':
+				console.log('report')
+				break;
+			case 'View Log':
+				(async()=>{
+					try {
+						const reps = await getRequest(fn, user.api_token, {} , [record.id, 'audit']);
+						const {success, result} = reps;
+						if (!success) return;
+						setLogData({...logData, ...{visible: true, title: `Changelog: ${fn}/${record.id}`, data: result.data}})
+					} catch(e) {
+						return;
+					}
+				})()
+				break;
+			default:
+				return
+		}
+
+	}
 
 	var { data, behavior, total } = _state;
 	// console.log(behavior)
+	console.log(logData.data)
 	return ([
 		<Card 
 		style={{
@@ -174,11 +202,12 @@ const List = props => {
 			)}
 		</Card>,
 		<Card 
-		style={{
-			borderRadius: 5,
-			boxSizing: 'border-box'
-		}}
-		key='card2'>
+			style={{
+				borderRadius: 5,
+				boxSizing: 'border-box'
+			}}
+			key='card2'
+		>
 			{
 				contentEdit && (
 					<Button
@@ -189,6 +218,52 @@ const List = props => {
 						Create
 					</Button>
 					)
+			}
+			{
+				<Modal
+					centered
+					closable={false}
+					visible={logData.visible}
+					maskClosable={false}
+					title={<><SolutionOutlined/>{logData.title}</>}
+					onCancel={() => setLogData({...logData, ...{visible:false}})}
+					footer={<Button onClick={() => setLogData({...logData, ...{visible:false}})}>Close</Button>}
+					keyboard
+				>
+					<Table 
+						bordered
+						loading={logData.data.length === 0}
+						dataSource={logData.data}
+						size={'small'}
+						columns={[
+							{
+								title: 'Date',
+								dataIndex: 'created_at',
+								key: 'created_at',
+							},
+							{
+								title: 'User',
+								dataIndex: 'user',
+								key: 'user',
+								render: record => {
+									return record.id + '-' + record.name + record.email
+								}
+							},
+							{
+								title: 'Event',
+								dataIndex: 'event',
+								key: 'event',
+								render: record => {
+									return <Tag color={record === 'updated' ? 'blue': 'green'}>{record}</Tag>
+								}
+							},
+							
+						]}
+						pagination={false}
+						rowKey='id'
+						loading={logData.data.length === 0}
+					/>
+				</Modal>
 			}
 			{
 				contentEdit && (
@@ -216,7 +291,21 @@ const List = props => {
 						[...tColumns, 
 						action.length === 0 ? {} : {
 							title: 'Action',
-        					render: record => {return <button onClick={contentEdit ? () => openPopup(record, 1) : () => {}}>Update</button>}
+        					render: record => {
+								const menu = (<Menu>
+										{action.map(item => 
+											<Menu.Item key={item} onClick={(e) => actionClick(e,record)}>{item}</Menu.Item>	
+										)}
+									</Menu>)
+								return (
+									<Dropdown overlay={menu} trigger={['click']}>
+										<Button className="ant-dropdown-link" onClick={e => e.preventDefault()}>
+										Action <DownOutlined />
+										</Button>
+									</Dropdown>
+		
+								)
+							}
 						}]
 					}
 					dataSource={data}
@@ -238,10 +327,10 @@ const List = props => {
 					onChange = {
 						Object.keys(searchFields).length === 0 ? () => {} :
 							(pagination,f,s) => {
-								// console.log(f)
+								console.log(f,s)
 								let fs = {};
 								if (Object.keys(s).length !== 0) {
-									fs = { ...fs, ...{order: `${s.field || 'id'}|${s.order.slice(0, s.order.length-3)}`}}
+									fs = { ...fs, ...{order: `${s.order ? s.field: 'id'}|${s.order ? s.order.slice(0, s.order.length-3): 'desc'}`}}
 								}
 								updateSF({offset: pagination.current, limit: pagination.pageSize, ...f, ...fs})
 						} 

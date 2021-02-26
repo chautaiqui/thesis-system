@@ -110,7 +110,7 @@ export const filterCheck = (searchFields, dataIndex) => ({
 })
 
 export const filterSelect = (searchFields, dataIndex, requireData) => {
-	const data = requireData ? requireData.accounts.map(item=>item.name) : []
+	const data = requireData ? requireData.map(item=>item.name) : []
 	return {
 		filterDropdown: ({
 			setSelectedKeys,

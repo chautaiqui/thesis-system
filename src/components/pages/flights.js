@@ -17,9 +17,8 @@ const Flights = () => {
 	const [ baseForm, setBaseForm ] = useState({});
 	const [ form ] = Form.useForm();
 	
-	const [ _state, _dispatch] = useReducer(PageReducer, {searchFields: undefined});
-	const {searchFields} = _state;
-	
+    const [ _state, _dispatch] = useReducer(PageReducer, {searchFields: undefined, requireData: {}});
+	const { searchFields, requireData } = _state;
 	useEffect(() => {
 		_dispatch({type: 'init_search_field', data: search})
 	}, [])
@@ -33,8 +32,14 @@ const Flights = () => {
 		_dispatch({type: 'update_search_field', data: { ...searchFields, [dataIndex]: null } })
 	}, [searchFields])
 
-	if (!searchFields) return <div />;
+	const require = useCallback (async (data) => {
+		// data: [promise]
+		Promise.all(data).then(values => {
+			_dispatch({type: 'get_require_data', data: values})
+		})
+	}, [searchFields])
 
+	if (!searchFields) return <div />;
 	const onFinish = values => {
 		setEditData({ ...baseForm, ...values });
 	};
@@ -128,13 +133,20 @@ const Flights = () => {
 					key: 'activated',
 					...filterCheck(searchFields, 'activated'),
 					// ...filerColumn(searchFields, 'activated'),
-					render: v => v === 0 ? <Switch checked={false} /> : <Switch checked={true} />
+					render: v => v === 0 ? <Switch/> : <Switch checked/>
 				},
 			]}
 			searchFields={searchFields}
 			updateSF={updateSF}
 			tableProps={{}}
 			resetSF = {resetSF}
+            require={require}
+			fieldsRequire={[
+				{name: 'accounts', meta : {limit: 100, offset: 1,}}, 
+				{name: 'provinces', meta : {limit: 1000, offset: 1,}}, 
+				{name: 'categories', meta : {limit: 1000, offset: 1,}}, 
+			]}
+			action={['View Detail', 'View Report', 'View Log']}
 		/>
 	]);
 
