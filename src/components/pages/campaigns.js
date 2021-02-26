@@ -12,7 +12,6 @@ import Col from 'antd/lib/col';
 import Input from 'antd/lib/input';
 
 import { Menu, Dropdown, Button, Radio, DatePicker, Select } from 'antd';
-import { DownOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 const radioStyle = {
@@ -25,24 +24,10 @@ const Campaigns = () => {
     const { search } = useLocation();
 	const [ editData, setEditData ] = useState();
 	const [ baseForm, setBaseForm ] = useState({});
-	const [ requireData, setRequireData ] = useState([]);
 	const [ form ] = Form.useForm();
 
-    const [ _state, _dispatch] = useReducer(PageReducer, {searchFields: undefined});
-	const {searchFields} = _state;
-
-	const viewLog = () => {
-		console.log('click')
-		// bat len model 
-	}
-	const menu = (
-		<Menu>
-			<Menu.Item key="1">View Detail</Menu.Item>
-			<Menu.Item key="2">Copy</Menu.Item>
-			<Menu.Item key="3">View Report</Menu.Item>
-			<Menu.Item key="4" onClick={viewLog}>View Log</Menu.Item>
-		</Menu>
-	);
+    const [ _state, _dispatch] = useReducer(PageReducer, {searchFields: undefined, requireData: {}});
+	const {	searchFields, requireData} = _state;
 
     useEffect(() => {
 		_dispatch({type: 'init_search_field', data: search})
@@ -56,10 +41,10 @@ const Campaigns = () => {
 		_dispatch({type: 'update_search_field', data: { ...searchFields, [dataIndex]: null } })
 	}, [searchFields])
 
-    const require = useCallback (async (data) => {
+    const require = useCallback ((data) => {
 		// data: [promise]
 		Promise.all(data).then(values => {
-			setRequireData([...requireData, ...values])
+			_dispatch({type: 'get_require_data', data: values})
 		})
 	}, [searchFields])
 
@@ -77,8 +62,6 @@ const Campaigns = () => {
 	};
 
 	let lR = () => {};
-	// console.log(requireData[0] ? requireData[0].accounts : 'undified')
-	let accounts = requireData[0] ? requireData[0].accounts.map(item => ({label: item.name, value: item.id})) : [];
     return ([
 		<List
 			key='list'
@@ -102,7 +85,7 @@ const Campaigns = () => {
 								allowClear
 								showSearch
 								placeholder= {'Choose advertiser'}
-								options={accounts}
+								options={requireData['accounts'] ? requireData['accounts'].map(item => ({label: item.name, value: item.id})) : []}
 								filterOption={(inputValue, options) => {
 									return options.label.includes(inputValue)
 								}}
@@ -196,7 +179,7 @@ const Campaigns = () => {
 							name='activated'
 							label='Activated: '
 						>
-							<Switch defaultChecked/>
+							<Switch checked/>
 						</Form.Item>
 					</Col>
 				</Row>
@@ -218,12 +201,15 @@ const Campaigns = () => {
 					width: "5%",
 					sorter: true,
 					sortDirections: ['ascend', 'descend', 'ascend'],
+					...filerColumn(searchFields, 'id')
 				},
 				{
 					title: 'Campaign Name',
 					dataIndex: 'name',
 					key: 'name',
 					width: "15%",
+					sorter: true,
+					sortDirections: ['ascend', 'descend'],
 					...filerColumn(searchFields, 'name')
 				},
                 {
@@ -239,7 +225,7 @@ const Campaigns = () => {
                     render: (record) => {
 						return record.account.name
                     },
-					...filterSelect(searchFields, 'account_id', requireData[0])
+					...filterSelect(searchFields, 'account_id', requireData['accounts'])
 				},
                 {
 					title: 'Start date',
@@ -263,17 +249,6 @@ const Campaigns = () => {
 					// ...filerColumn(searchFields, 'activated'),
 					render: v => v === 0 ? <Switch /> : <Switch checked />
 				},
-				{
-					title: 'Action',
-					key: 'action',
-					render: v => (
-						<Dropdown overlay={menu} trigger={['click']}>
-							<Button className="ant-dropdown-link" onClick={e => e.preventDefault()}>
-							Action <DownOutlined />
-							</Button>
-						</Dropdown>
-					)
-				}
 			]}
 			searchFields={searchFields}
 			updateSF={updateSF}
@@ -292,7 +267,7 @@ const Campaigns = () => {
 						</Row>
 						<Row style={{paddingLeft: 50}}>
 							<Col span={12}>Date range: {record.start_date} - {record.end_date}</Col>
-							<Col span={12}>Activated: {record.activated === 0 ? <Switch/> : <Switch defaultChecked/>}</Col>
+							<Col span={12}>Activated: {record.activated === 0 ? <Switch/> : <Switch checked/>}</Col>
 						</Row>
 						</div>
 					)
@@ -300,19 +275,12 @@ const Campaigns = () => {
 			}}
 			resetSF = {resetSF}
             require={require}
-            fieldsRequire={['accounts']}
+            fieldsRequire={[
+				{name: 'accounts', meta : {limit: 100, offset: 1,}}, 
+			]}
+			action={['View Detail', 'Copy', 'View Report', 'View Log']}
 		/>
 	]);
 }
 
 export default Campaigns;
-
-// requireData: [
-// 	{
-// 		account: []
-// 	}, 
-// 	{
-// 		flight: [] 
-// 	},
-// 	...
-// ]
