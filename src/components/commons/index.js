@@ -57,15 +57,15 @@ export const filerColumn = (searchFields, dataIndex) => ({
 		}) => (
 		<div style={{ padding: 8 }}>
 			<Input
-			placeholder={`Search ${dataIndex}`}
-			value={selectedKeys[0]}
-			onChange={(e) =>
-				setSelectedKeys(e.target.value ? [e.target.value] : [])
-			}
-			onPressEnter={() =>
-				confirm()
-			}
-			style={{ width: 188, marginBottom: 8, display: "block" }}
+				placeholder={`Search ${dataIndex}`}
+				value={selectedKeys[0]}
+				onChange={(e) =>
+					setSelectedKeys(e.target.value ? [e.target.value] : [])
+				}
+				onPressEnter={() =>
+					confirm()
+				}
+				style={{ width: 188, marginBottom: 8, display: "block" }}
 			/>
 			<Space>
 			<Button
@@ -94,6 +94,36 @@ export const filerColumn = (searchFields, dataIndex) => ({
 	// defaultFilteredValue: [searchFields[dataIndex]] || []
 })
 
+export const filterSelectCheck = (searchFields, dataIndex) => {
+	return {
+		filterDropdown: ({
+			setSelectedKeys,
+			selectedKeys,
+			confirm,
+			clearFilters
+			}) => (
+				<Select
+					allowClear
+					placeholder={"All"}
+					options={[{label: 'Diable', value: 0}, {label: 'Enable', value: 1}]}
+					onChange={(v, l)=>{
+						if(l) {
+							console.log(v,l)
+							setSelectedKeys(l.value);
+							confirm();
+						}
+						clearFilters();						
+					}}
+				/>
+		),
+		filterIcon: (filtered) => (
+			<DownOutlined style={{ color: filtered ? "#1890ff" : undefined }}/>
+		),
+		filteredValue: searchFields[dataIndex] || null,
+		filterMultiple: false,
+	}
+}
+
 export const filterCheck = (searchFields, dataIndex) => ({
 	filters: [
 		{
@@ -110,7 +140,7 @@ export const filterCheck = (searchFields, dataIndex) => ({
 })
 
 export const filterSelect = (searchFields, dataIndex, requireData) => {
-	const data = requireData ? requireData.map(item=>item.name) : []
+	// const data = requireData ? requireData.map(item=>item.name) : []
 	return {
 		filterDropdown: ({
 			setSelectedKeys,
@@ -122,11 +152,10 @@ export const filterSelect = (searchFields, dataIndex, requireData) => {
 					key='cus sel'
 					searchFields={searchFields}
 					dataIndex={dataIndex}
-					data={data} 
+					data={requireData} 
 					dataIndex={dataIndex} 
 					confirm={confirm} 
 					setSelectedKeys={setSelectedKeys} 
-					requireData={requireData}
 					clearFilters={clearFilters}
 				/>,
 				<Button
@@ -169,9 +198,10 @@ export const filterDatePicker = (searchFields, dataIndex) => {
 }
 
 export const CustomSelect = (props) => {
-	const { data, confirm, setSelectedKeys, requireData, clearFilters } = props;
+	const { data, confirm, setSelectedKeys, clearFilters } = props;
 	const [search, setSearch] = useState('');
-	let temp = data.filter(item => item.includes(search)).length === 0 ? data : data.filter(item => item.includes(search))
+	let temp = data.filter(item => item.name.includes(search)).length === 0 ? data : data.filter(item => item.name.includes(search));
+	const temp1 = temp.map(item => ({name: item.name, id: item.id}));
 	// console.log(searchFields[dataIndex] ? searchFields[dataIndex] : 'k co')
 	return (
 		<div>
@@ -186,14 +216,17 @@ export const CustomSelect = (props) => {
 				onChange={(value) => {
 					if (value) {
 						// value -> account_id
-						setSelectedKeys(requireData.accounts.filter(item => item.name === value)[0].id.toString())
+						// console.log(data.filter(item => item.name === value)[0])
+						console.log(value)
+						setSelectedKeys(value)
 						confirm();
+						return;
 					}
 					clearFilters();
 				}}
 			>
-				{temp.map(d => (
-					<Option key={d}>{d}</Option>
+				{temp1.map(d => (
+					<Option key={d.id}>{d.name}</Option>
 				))}
 			</Select>
 		</div>
