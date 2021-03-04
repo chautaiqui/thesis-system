@@ -14,12 +14,6 @@ import Input from 'antd/lib/input';
 import { Menu, Dropdown, Button, Radio, DatePicker, Select } from 'antd';
 import moment from 'moment';
 
-const radioStyle = {
-	display: 'block',
-	height: '30px',
-	lineHeight: '30px',
-  };
-
 const Campaigns = () => {
     const { search } = useLocation();
 	const [ editData, setEditData ] = useState();
@@ -28,7 +22,6 @@ const Campaigns = () => {
 
     const [ _state, _dispatch] = useReducer(PageReducer, {searchFields: undefined, requireData: {}});
 	const {	searchFields, requireData} = _state;
-
     useEffect(() => {
 		_dispatch({type: 'init_search_field', data: search})
 	}, [])
@@ -41,11 +34,12 @@ const Campaigns = () => {
 		_dispatch({type: 'update_search_field', data: { ...searchFields, [dataIndex]: null } })
 	}, [searchFields])
 
-    const require = useCallback ((data) => {
+    const require = useCallback ((v) => {
 		// data: [promise]
-		Promise.all(data).then(values => {
-			_dispatch({type: 'get_require_data', data: values})
-		})
+		// Promise.all(data).then(values => {
+		// 	_dispatch({type: 'get_require_data', data: values})
+		// })
+		_dispatch({type: 'get_require_data', data: v})
 	}, [searchFields])
 
 	if (!searchFields) return <div />;
@@ -60,7 +54,6 @@ const Campaigns = () => {
 	const onFinishFailed = errorInfo => {
 		console.log('Failed:', errorInfo);
 	};
-
 	let lR = () => {};
     return ([
 		<List
@@ -78,7 +71,7 @@ const Campaigns = () => {
 							className='dp-form'
 							{...utility.formItemLayout}
 							name='account_id'
-							label='Advertiser: '
+							label='Advertiser'
 							rules={[{ required: true, message: 'Required' }]}
 						>
 							<Select 
@@ -99,7 +92,7 @@ const Campaigns = () => {
 							className='dp-form'
 							{...utility.formItemLayout}
 							name='name'
-							label='Campaigns name: '
+							label='Campaigns name'
 							rules={[{ required: true, message: 'Required' }]}
 						>
 							<Input />
@@ -112,7 +105,7 @@ const Campaigns = () => {
 							className='dp-form'
 							{...utility.formItemLayout}
 							name='start_date'
-							label='Date range: '
+							label='Date range'
 						>
 							<DatePicker 
 							placeholder={'Start date'}
@@ -143,7 +136,8 @@ const Campaigns = () => {
 							className='dp-form'
 							{...utility.formItemLayout}
 							name='description'
-							label='Description: '
+							label='Description'
+							initialValue=''
 						>
 							<Input />
 						</Form.Item>
@@ -155,18 +149,13 @@ const Campaigns = () => {
 							className='dp-form'
 							{...utility.formItemLayout}
 							name='type'
-							label='Type: '
+							label='Type'
+							initialValue='vod'
 						>
-							<Radio.Group>
-							<Radio style={radioStyle} value={'vod'}>
-								VOD
-							</Radio>
-							<Radio style={radioStyle} value={'display'}>
-								Display
-							</Radio>
-							<Radio style={radioStyle} value={'livetv'}>
-								Live TV
-							</Radio>
+							<Radio.Group >
+								<Radio style={{display:'block'}} value={'vod'}>VOD</Radio>
+								<Radio style={{display:'block'}} value={'display'}>Display</Radio>
+								<Radio style={{display:'block'}} value={'livetv'}>Live TV</Radio>
 							</Radio.Group>
 						</Form.Item>
 					</Col>
@@ -177,7 +166,8 @@ const Campaigns = () => {
 							className='dp-form'
 							{...utility.formItemLayout}
 							name='activated'
-							label='Activated: '
+							label='Activated'
+							initialValue= {true}
 						>
 							<Switch checked/>
 						</Form.Item>
@@ -274,11 +264,13 @@ const Campaigns = () => {
 				}
 			}}
 			resetSF = {resetSF}
-            require={require}
-            fieldsRequire={[
+            require = {require}
+			requireData = {requireData}
+            fieldsRequire = {[
 				{name: 'accounts', meta : {limit: 100, offset: 1,}}, 
 			]}
 			action={['View Detail', 'Copy', 'View Report', 'View Log']}
+			
 		/>
 	]);
 }

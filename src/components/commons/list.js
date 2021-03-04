@@ -35,11 +35,11 @@ const reducer = (state, action) => {
 		default: return state;
 	}
 }
-const initialState = { data: [], behavior: 'init' };
+const initialState = { data: [], behavior: 'init'};
 
 const List = props => {
 	const { fn, tColumns, editData, 
-		contentEdit, onOpen, onOk,
+		contentEdit,contentUpdate, onOpen, onOk,
 		searchFields, 
 		tableProps,
 		updateSF = () => {},
@@ -47,12 +47,13 @@ const List = props => {
 		require = () => {},
 		fieldsRequire = [],
 		action = [], 
+		requireData = {},
 	} = props;
-	const [ popup, setPopup ] = useState(false);
+	const [ popup, setPopup ] = useState({open: false, title: ''});
 	const [ logData, setLogData] = useState({visible: false, title: "", data: []});
 	const [ _state, _dispatch ] = useReducer(reducer, initialState);
 	const [ user ] = useContext(User.context);
-
+	
 	// const { search } = useLocation();
 	const history = useHistory();
 
@@ -96,7 +97,7 @@ const List = props => {
 		case 'stall':
 			return;
 		case 'update_success':
-			setPopup(false)
+			setPopup({open: false, title: ''})
 			fetch()
 			return
 		case 'init': 
@@ -139,17 +140,35 @@ const List = props => {
 				return {}
 			}
 		})
-		require(_data)
+		let obj = {};
+		Promise.all(_data).then(values => {
+			values.map(item => {
+				obj[Object.keys(item)[0]] = Object.values(item)[0]
+			})
+		})
+		// console.log(obj)
+		require(obj)
 	},[])
 
 	const openPopup = (values, num) => {
 		onOpen(values);
-		setPopup(true);
+		if (values.campaign_id && values.campaign.name && values.id && values.name) {
+			setPopup({open: true, title: `Campaign: ${values.campaign_id} - ${values.campaign.name}
+			Update Flight: ${values.id} - ${values.name}`});
+		} else {
+			setPopup({open: true, title: ''})
+		}
+
 	}
 	const actionClick = (e, record) => {
 		switch (e.key) {
 			case 'View Detail':
 				console.log('detail')
+				break;
+			case 'Update':
+				console.log('update')
+				console.log(record)
+				openPopup(record, -1)
 				break;
 			case 'Copy':
 				console.log('copy')
@@ -163,7 +182,23 @@ const List = props => {
 						const reps = await getRequest(fn, user.api_token, {} , [record.id, 'audit']);
 						const {success, result} = reps;
 						if (!success) return;
-						setLogData({...logData, ...{visible: true, title: `Changelog: ${fn}/${record.id}`, data: result.data}})
+						let span_data = []
+						result.data.map(item => {
+							let temp_arr = [];
+							for (let x in item.new_values) {
+								temp_arr = [... temp_arr, {
+									date: item.created_at,
+									user: `${item.user.id} - ${item.user.name} ${item.user.email}`,
+									event: item.event,
+									field: x,
+									old_value: item.old_values[x] || null,
+									new_value: item.new_values[x] ,
+									rowSpan: Object.keys(item.new_values)[0] === x ? Object.keys(item.new_values).length : 0,
+								}]
+							}
+							span_data = [...span_data, ...temp_arr]
+						})
+						setLogData({...logData, ...{visible: true, title: `Changelog: ${fn}/${record.id}`, data: span_data}})
 					} catch(e) {
 						return;
 					}
@@ -176,8 +211,8 @@ const List = props => {
 	}
 
 	var { data, behavior, total } = _state;
-	// console.log(behavior)
-	console.log(logData.data)
+	// console.log(behavior, requireData)
+	// console.log(logData.data)
 	return ([
 		<Card 
 		style={{
@@ -188,17 +223,19 @@ const List = props => {
 		key='card1'>
 			{Object.entries(searchFields)
 				.filter(item => !['offset', 'limit', 'order'].includes(item[0]) && !!item[1])
-				.map(item => (
-					<Tag
+				.map(item => {
+					// map label, value
+					let _n = M(item[0], item[1], requireData);
+					return <Tag
 						key={item[0]}
 						closable
 						onClose={e => {
 							resetSF(item[0])
 						}}
 					>
-						{`${item[0]}: ${item[1]}`}
+						{`${_n[0]}: ${_n[1]}`}
 					</Tag>
-				)
+				}
 			)}
 		</Card>,
 		<Card 
@@ -229,33 +266,69 @@ const List = props => {
 					onCancel={() => setLogData({...logData, ...{visible:false}})}
 					footer={<Button onClick={() => setLogData({...logData, ...{visible:false}})}>Close</Button>}
 					keyboard
+					width={'80%'}
 				>
 					<Table 
+						key={'child_table'}
 						bordered
 						loading={logData.data.length === 0}
 						dataSource={logData.data}
 						size={'small'}
+						scroll={{ y: 600 }} 
 						columns={[
 							{
 								title: 'Date',
-								dataIndex: 'created_at',
-								key: 'created_at',
+								dataIndex: 'date',
+								key: 'date',
+								render: (value, row) => {
+									return {
+										children: value,
+										props: {
+											rowSpan: row.rowSpan
+										}
+									}				
+								}
 							},
 							{
 								title: 'User',
 								dataIndex: 'user',
 								key: 'user',
-								render: record => {
-									return record.id + '-' + record.name + record.email
+								render: (value, row) => {
+									return {
+										children: value,
+										props: {
+											rowSpan: row.rowSpan
+										}
+									}				
 								}
 							},
 							{
 								title: 'Event',
 								dataIndex: 'event',
 								key: 'event',
-								render: record => {
-									return <Tag color={record === 'updated' ? 'blue': 'green'}>{record}</Tag>
+								render: (value, row) => {
+									return {
+										children: <Tag color={value === 'updated' ? 'green': 'blue'}>{value}</Tag>,
+										props: {
+											rowSpan: row.rowSpan
+										}
+									}				
 								}
+							},
+							{
+								title: 'Field',
+								dataIndex: 'field',
+								key: 'field',
+							},
+							{
+								title: 'Old value',
+								dataIndex: 'old_value',
+								key: 'old_value',
+							},
+							{
+								title: 'New value',
+								dataIndex: 'new_value',
+								key: 'new_value',
 							},
 							
 						]}
@@ -266,21 +339,21 @@ const List = props => {
 				</Modal>
 			}
 			{
-				contentEdit && (
+				(contentEdit || contentUpdate) && (
 					<Modal
 						centered
 						closable={false}
 						maskClosable={false}
 						confirmLoading={behavior === 'posting'}
-						title='Create'
+						title= { contentEdit? 'Create ' : popup.title}
 						key='modal'
 						width='80%' 
-						visible={popup}
+						visible={popup.open}
 						onOk={onOk}
 						onCancel={() => setPopup(false)}
 						cancelButtonProps={{ disabled: behavior === 'posting' }}
 					>
-						{contentEdit}
+						{contentEdit || contentUpdate}
 					</Modal>
 					)
 			}
@@ -293,7 +366,7 @@ const List = props => {
 							title: 'Action',
         					render: record => {
 								const menu = (<Menu>
-										{action.map(item => 
+										{action.map((item) => 
 											<Menu.Item key={item} onClick={(e) => actionClick(e,record)}>{item}</Menu.Item>	
 										)}
 									</Menu>)
@@ -343,3 +416,16 @@ const List = props => {
 }
 
 export default List;
+
+
+const M = (l, v, data) => {
+	// data.l 
+	switch (l) {
+		case 'account_id':
+			return ['Advertiser', data.accounts ? data.accounts.filter(item => item.id === Number(v))[0].name : v];
+		case 'activated':
+			return ['Activated', v === 0 ? 'disable' : 'Enable'];
+		default:
+			return [l,v]
+	}
+}
