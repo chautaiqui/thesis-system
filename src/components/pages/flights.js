@@ -6,17 +6,21 @@ import Form from 'antd/lib/form';
 import Row from 'antd/lib/row';
 import Col from 'antd/lib/col';
 import Input from 'antd/lib/input';
-import { DatePicker, Radio, Tabs, Tree  } from 'antd';
+import { DatePicker, Radio, Tabs, Tree, Select, InputNumber   } from 'antd';
 import moment from 'moment';
 
 
 import { PageReducer } from '@pkg/reducers';
-import { utility, filerColumn, filterCheck, filterSelectCheck } from '@components/commons';
+import { utility, filerColumn, filterCheck, MultiSelect } from '@components/commons';
 import { useLocation } from 'react-router-dom';
 
 
 const { RangePicker } = DatePicker;
 const { TabPane } = Tabs;
+const formatter = new Intl.NumberFormat('en-US', {
+	style: 'decimal',
+	unitDisplay: 'narrow'
+})
 
 const Flights = () => {
 	const { search } = useLocation();
@@ -84,7 +88,15 @@ const Flights = () => {
 								label='Publishers'
 								rules={[{ required: true, message: 'Required' }]}
 								>
-								<Input />
+								<Select 
+									allowClear
+									showSearch
+									options={requireData['accounts'] ? requireData['accounts'].map(item => ({label: item.name, value: item.id.toString()})) : []}
+									filterOption={(inputValue, options) => {
+										return options.label.includes(inputValue)
+									}}
+									notFoundContent={'Choose publisher'}
+								/>
 							</Form.Item>
 							<Form.Item
 								className='dp-form'
@@ -95,7 +107,7 @@ const Flights = () => {
 								>
 								<Input />
 							</Form.Item>
-							{/* <Tabs defaultActiveKey="1" className='dp-form' type='card'>
+							<Tabs defaultActiveKey="1" className='dp-form' type='card'>
 								<TabPane tab="Basic" key="1">
 									<Tree 
 										defaultExpandedKeys={['0-0', '0-1']}
@@ -215,7 +227,8 @@ const Flights = () => {
 								rules={[{ required: true, message: 'Required' }]}
 								>
 								<Input />
-							</Form.Item> */}
+								{/* input number  */}
+							</Form.Item>
 						</Col>
 						<Col xs={22} sm={22} md={12}>
 							{/* <Form.Item
@@ -231,14 +244,25 @@ const Flights = () => {
 									// defaultValue={[moment('2019-09-03', 'YYYY-MM-DD'), moment('2019-11-22', 'YYYY-MM-DD')]}
 									disabledDate={(current) => {return current && current < moment().endOf("year");}}
 								/>
-							</Form.Item>
+							</Form.Item> */}
 							<Form.Item
 								className='dp-form'
 								{...utility.formItemLayout}
 								name='day_weeks'
-								label='Date of week'
+								label='Day of week'
+								valuePropName="fileList"
+								getValueFromEvent={(e)=>{
+									console.log(e);
+									if (Array.isArray(e)) {
+										return e;
+									}
+
+									return e && e.fileList
+								}}
 							>
-								<Input />
+								<MultiSelect maxTag={3} listValue={[
+									{label:'Monday', value: 2}, {label:'Tuesday', value: 3},{label:'Wednesday', value: 4},{label:'Thursday', value: 5},{label:'Friday', value: 6},{label:'Saturday', value: 7},{label:'Sunday', value: 8}
+								]} placeholder={'Choose day of week'} />
 							</Form.Item>
 							<Form.Item
 								className='dp-form'
@@ -246,21 +270,20 @@ const Flights = () => {
 								name='hours'
 								label='Hours'
 								>
-								<Input />
+								<MultiSelect maxTag={5} listValue={[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23].map(item=>({label: item, value: item}))} placeholder={'Choose hours'}/>
 							</Form.Item>
-							<Form.Item
+							{/* <Form.Item
 								className='dp-form'
 								{...utility.formItemLayout}
 								name='booking_type'
 								label='Booking type'
-								initialValue='Impression'
 							>
 								<Radio.Group >
 									<Radio style={{display:'block'}} value={'Impression'}>Impression</Radio>
 									<Radio style={{display:'block'}} value={'Click'}>Click</Radio>
 									<Radio style={{display:'block'}} value={'Complete view'}>Complete view</Radio>
 								</Radio.Group>	
-							</Form.Item>
+							</Form.Item> */}
 							<Form.Item
 								className='dp-form'
 								{...{
@@ -268,13 +291,17 @@ const Flights = () => {
 										span: 8
 									},
 									wrapperCol: {
-										span: 14
+										span: 8
 									}
 									}}
 								name='total_bookings'
 								label='Total bookings'
 							>
-								<Input addonAfter={'Impression(s)'}/>
+								<InputNumber
+									style={{width: '100%', textAlign: 'right'}}
+									formatter={value => formatter.format(value.replace(/,/g, ""))}
+									parser={value => value.replace(/\D+/g, "")} // \D ko phai ki tu so
+								/>
 							</Form.Item>
 							<Form.Item
 								className='dp-form'
@@ -290,12 +317,20 @@ const Flights = () => {
 								label='Daily bookings'
 							>
 								<Input addonAfter={'Impression(s)'}/>
-							</Form.Item> */}
+							</Form.Item>
 						</Col>
 					</Row>
 				</Form> 
 			}
 			onOpen={v => {
+				// edit v
+				let fields = [ 'ad_frequency', 'categories', 'contents', 'countries', 'date_range', 'day_weeks', 'device_types', 'devices', 'hours', 'mobile_carriers', 'provinces', 'source_providers', 'webapps', 'zones'];
+				for (let x in v) {
+					if (fields.includes(x) && !Array.isArray(v[x])) {
+						v[x] = JSON.parse(v[x])
+					}
+				}
+				console.log(v)
 				setBaseForm(v);
 				form.resetFields();
 				form.setFieldsValue(v);

@@ -7,8 +7,8 @@ import Input from 'antd/lib/input';
 import { Button, Space} from 'antd';
 import { SearchOutlined, DownOutlined} from '@ant-design/icons';
 import { Select, DatePicker } from 'antd';
-const { Option } = Select;
 
+const { Option } = Select;
 
 export const messageError = msg => {
 if (msg) {
@@ -234,5 +234,43 @@ export const CustomSelect = (props) => {
 	)
 }
 
+export const MultiSelect = (props) => {
+	const [selected, setSelected] = useState([]);
+	const { maxTag, listValue, placeholder } = props;
+	let showTag = false;
+	if (selected.length > maxTag) showTag = true;
+	// console.log(JSON.stringify(selected))
+	return (
+		<Select 
+			mode={'multiple'}
+			placeholder={placeholder}
+			value={selected}
+			optionLabelProp="label"
+			onChange={(e)=>{
+				if (e.length > listValue.length) {
+					setSelected([]);
+				} else {
+					if (e.includes('all')) {
+						setSelected(listValue.map(item=>item.value));
+					}
+					else {
+						setSelected(e); 
+					}
+				}
+			}}
+			maxTagCount={showTag ? 0 : maxTag}
+			// lst [0,1,2,...24]
+			maxTagPlaceholder={`${selected.length === listValue.length ? 'All' : selected.length} selected`}
+		>
+			<Option key={'all'} value='all' label='Select All'>Select All</Option>
+			{listValue.map(item => 
+				<Option key={item.value} value={item.value} label={item.label}>
+					{item.label}
+				</Option>
+				
+			)}
+		</Select>
+	)
+}
 
 export { utility };

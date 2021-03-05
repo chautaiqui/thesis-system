@@ -80,12 +80,12 @@ const List = props => {
 		_dispatch({ type: 'UPDATING' });
 		try {
 			console.log(editData)
-			const _fn = editData.id ? putData[fn] : postData[fn];
-			const resp = await _fn(user.api_token, editData);
-			const { success, result, error } = resp;
-			// console.log(success, result, error)
-			if (!success) _dispatch({ type: 'UPDATE_ERROR', error: error })
-			else _dispatch({ type: 'UPDATE_SUCCESS', item: result });
+			// const _fn = editData.id ? putData[fn] : postData[fn];
+			// const resp = await _fn(user.api_token, editData);
+			// const { success, result, error } = resp;
+			// // console.log(success, result, error)
+			// if (!success) _dispatch({ type: 'UPDATE_ERROR', error: error })
+			// else _dispatch({ type: 'UPDATE_SUCCESS', item: result });
 		} catch (e) {
 			_dispatch({ type: 'UPDATE_ERROR', error: e });
 		}
@@ -153,7 +153,7 @@ const List = props => {
 	const openPopup = (values, num) => {
 		onOpen(values);
 		if (values.campaign_id && values.campaign.name && values.id && values.name) {
-			setPopup({open: true, title: `Campaign: ${values.campaign_id} - ${values.campaign.name}
+			setPopup({open: true, title: `Campaign: ${values.campaign_id} - ${values.campaign.name} 
 			Update Flight: ${values.id} - ${values.name}`});
 		} else {
 			setPopup({open: true, title: ''})
@@ -167,7 +167,6 @@ const List = props => {
 				break;
 			case 'Update':
 				console.log('update')
-				console.log(record)
 				openPopup(record, -1)
 				break;
 			case 'Copy':
