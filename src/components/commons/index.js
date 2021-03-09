@@ -6,10 +6,15 @@ import * as utility from './utility';
 import Input from 'antd/lib/input';
 import { Button, Space} from 'antd';
 import { SearchOutlined, DownOutlined} from '@ant-design/icons';
-import { Select, DatePicker } from 'antd';
+import { Select, DatePicker, InputNumber, Row, Col, Radio } from 'antd';
+import moment from 'moment';
 
+const { RangePicker } = DatePicker;
 const { Option } = Select;
-
+const formatter = new Intl.NumberFormat('en-US', {
+	style: 'decimal',
+	unitDisplay: 'narrow'
+})
 export const messageError = msg => {
 if (msg) {
 	let content;
@@ -279,4 +284,69 @@ export const MultiSelect = (props) => {
 	)
 }
 
+export const CustomInputNumber = (props) => {
+	const {label, value, onChange} = props;
+	const [number, setNumber] = useState(value?value:undefined);
+	React.useEffect(() => {
+		if (onChange) {
+		  	onChange(number);
+		}
+	}, [number]);
+
+	return (
+		<Row>
+			<Col span={12}>
+				<InputNumber
+					defaultValue={number}
+					style={{width: '100%', textAlign: 'right'}}
+					formatter={value => formatter.format(value.replace(/,/g, ""))}
+					parser={value => value.replace(/\D+/g, "")} // \D ko phai ki tu so
+					onChange={value=>setNumber(value)}
+				/>
+			</Col>
+			<Col span={12} offset={8}><span>{label}</span></Col>
+		</Row>
+		
+	)
+}
+
+export const RadioGroup = (props) => {
+	const {value, onChange, data} = props;
+	const [choose, setChoose] = useState(value?value:undefined);
+	React.useEffect(() => {
+		if (onChange) {
+		  	onChange(choose);
+		}
+	}, [choose]);
+	return (
+		<Radio.Group onChange={e=>setChoose(e.target.value)} value={choose}>
+			{data.map(item => 
+				<Radio style={{display:'block'}} value={item.value} key={item.value}>{item.label}</Radio>
+			)}
+		</Radio.Group>	
+	)
+}
+
+export const DateRangePicker = (props) => {
+	const {value = [], onChange, editable} = props;
+	console.log(editable)
+	// const _v = value? Object.values({...value[0],...{key:null}}).filter(item=> item !== null):[];
+	const [choose, setChoose] = useState([]);
+	React.useEffect(() => {
+		if (onChange) {
+			console.log(choose.map(item=>item._i))
+		  	onChange(choose.map(item=>item._i));
+		}
+	}, [choose]);
+	return (value.map((item, index) =>
+		<RangePicker 
+			separator={'-'}
+			// value={choose.map(item=>moment(item, 'YYYY-MM-DD'))}  
+			value={[item.from?moment(item.from):undefined, moment(item.to)]}
+			format={'YYYY-MM-DD'}
+			onChange={(e=>setChoose(e))}
+		/>
+		// <span >hello</span>
+	))
+}
 export { utility };
