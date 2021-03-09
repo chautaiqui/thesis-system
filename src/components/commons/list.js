@@ -340,7 +340,8 @@ const List = props => {
 			}
 			{
 				(contentEdit || contentUpdate) && (
-					<Modal
+					<Modal 
+						className={`${fn}-update`}
 						centered
 						closable={false}
 						maskClosable={false}

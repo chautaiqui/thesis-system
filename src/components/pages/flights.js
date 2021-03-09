@@ -6,12 +6,12 @@ import Form from 'antd/lib/form';
 import Row from 'antd/lib/row';
 import Col from 'antd/lib/col';
 import Input from 'antd/lib/input';
-import { DatePicker, Radio, Tabs, Tree, Select, InputNumber   } from 'antd';
+import { DatePicker, Radio, Tabs, Tree, Select, InputNumber } from 'antd';
 import moment from 'moment';
 
 
 import { PageReducer } from '@pkg/reducers';
-import { utility, filerColumn, filterCheck, MultiSelect } from '@components/commons';
+import { utility, filerColumn, filterCheck, MultiSelect, RadioGroup, DateRangePicker } from '@components/commons';
 import { useLocation } from 'react-router-dom';
 
 
@@ -27,7 +27,6 @@ const Flights = () => {
 	const [ editData, setEditData ] = useState();
 	const [ baseForm, setBaseForm ] = useState({});
 	const [ form ] = Form.useForm();
-	
     const [ _state, _dispatch] = useReducer(PageReducer, {searchFields: undefined, requireData: {}});
 	const { searchFields, requireData } = _state;
 	useEffect(() => {
@@ -231,21 +230,19 @@ const Flights = () => {
 							</Form.Item>
 						</Col>
 						<Col xs={22} sm={22} md={12}>
-							{/* <Form.Item
+							<Form.Item
 								className='dp-form'
 								{...utility.formItemLayout}
 								name='date_range'
 								label='Date ranges'
-								rules={[{ required: true, message: 'Required' }]}
-								initialValue={[moment('2019-09-03', 'YYYY-MM-DD'), moment('2019-11-22', 'YYYY-MM-DD')]}
+								// rules={[{ required: true, message: 'Required' }]}
+								getValueFromEvent={v => {
+									console.log(v)
+									return v  ;
+								}}
 							>
-								<RangePicker
-
-									// disabled={[true, true]}
-									// defaultValue={[moment('2019-09-03', 'YYYY-MM-DD'), moment('2019-11-22', 'YYYY-MM-DD')]}
-									disabledDate={(current) => {return current && current < moment().endOf("year");}}
-								/>
-							</Form.Item> */}
+								<DateRangePicker editable={form.getFieldValue('campaign')}/>
+							</Form.Item>
 							<Form.Item
 								className='dp-form'
 								{...utility.formItemLayout}
@@ -256,7 +253,7 @@ const Flights = () => {
 								}}
 							>
 								<MultiSelect maxTag={3} listValue={[
-									{label:'Monday', value: 2}, {label:'Tuesday', value: 3},{label:'Wednesday', value: 4},{label:'Thursday', value: 5},{label:'Friday', value: 6},{label:'Saturday', value: 7},{label:'Sunday', value: 8}
+									{label:'Monday', value: 1}, {label:'Tuesday', value: 2},{label:'Wednesday', value: 3},{label:'Thursday', value: 4},{label:'Friday', value: 5},{label:'Saturday', value: 6},{label:'Sunday', value: 0}
 								]} placeholder={'Choose day of week'}/>
 							</Form.Item>
 							<Form.Item
@@ -264,21 +261,23 @@ const Flights = () => {
 								{...utility.formItemLayout}
 								name='hours'
 								label='Hours'
+								getValueFromEvent={v => {
+									return v;
+								}}
 								>
 								<MultiSelect maxTag={5} listValue={[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23].map(item=>({label: item, value: item}))} placeholder={'Choose hours'}/>
 							</Form.Item>
-							{/* <Form.Item
+							<Form.Item
 								className='dp-form'
 								{...utility.formItemLayout}
 								name='booking_type'
 								label='Booking type'
-							> openVid, overView
-								<Radio.Group >
-									<Radio style={{display:'block'}} value={'Impression'}>Impression</Radio>
-									<Radio style={{display:'block'}} value={'Click'}>Click</Radio>
-									<Radio style={{display:'block'}} value={'Complete view'}>Complete view</Radio>
-								</Radio.Group>	
-							</Form.Item> */}
+								getValueFromEvent={v => {
+									return v
+								}}
+							> 
+								<RadioGroup data={[{value: 'impression', label: 'Impression'},{value: 'click', label: 'Click'},{value: 'complete_view', label: 'Complete view'}]}/>
+							</Form.Item>
 							<Form.Item
 								className='dp-form'
 								{...{
