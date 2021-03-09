@@ -11,7 +11,7 @@ import Row from 'antd/lib/row';
 import Col from 'antd/lib/col';
 import Input from 'antd/lib/input';
 
-import { Menu, Dropdown, Button, Radio, DatePicker, Select } from 'antd';
+import { Radio, DatePicker, Select } from 'antd';
 import moment from 'moment';
 
 const Campaigns = () => {
@@ -54,11 +54,9 @@ const Campaigns = () => {
 	const onFinishFailed = errorInfo => {
 		console.log('Failed:', errorInfo);
 	};
-	let lR = () => {};
     return ([
 		<List
 			key='list'
-			listRef={fn => lR = fn}
 			contentEdit={
 			<Form 
 				form={form}

@@ -50,7 +50,7 @@ const Login = props => {
       const _r2 = await signin.withToken(email, _r.result.api_token);
       if (!_r2.success) return messageError(_r2.error);
       onLogin(_r2.result.data, email, _r.result.api_token);
-    } catch (e) {
+     } catch (e) { 
       messageError(e);
     }
   };
