@@ -10,9 +10,9 @@ import { DownOutlined, SolutionOutlined } from '@ant-design/icons';
 
 // import { Divider } from 'antd';
 
-import  { Switch, useHistory  } from 'react-router-dom';
+import  { useHistory  } from 'react-router-dom';
 import { messageError } from './';
-import { isArguments } from 'lodash';
+// import { isArguments } from 'lodash';
 
 const reducer = (state, action) => {
 	switch (action.type) {
@@ -80,7 +80,8 @@ const List = props => {
 		_dispatch({ type: 'UPDATING' });
 		try {
 			console.log(editData)
-			// const _fn = editData.id ? putData[fn] : postData[fn];
+			const _fn = editData.id ? putData[fn] : postData[fn];
+			console.log(typeof _fn)
 			// const resp = await _fn(user.api_token, editData);
 			// const { success, result, error } = resp;
 			// // console.log(success, result, error)
@@ -89,7 +90,7 @@ const List = props => {
 		} catch (e) {
 			_dispatch({ type: 'UPDATE_ERROR', error: e });
 		}
-	}, [user.api_token, fn, editData]);
+	}, [fn, editData]);
 
 	useEffect(() => {
 		switch (_state.behavior) {
@@ -181,7 +182,7 @@ const List = props => {
 						const reps = await getRequest(fn, user.api_token, {} , [record.id, 'audit']);
 						const {success, result} = reps;
 						if (!success) return;
-						let span_data = []
+						let span_data = [];
 						result.data.map(item => {
 							let temp_arr = [];
 							for (let x in item.new_values) {

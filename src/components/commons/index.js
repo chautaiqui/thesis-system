@@ -235,11 +235,17 @@ export const CustomSelect = (props) => {
 }
 
 export const MultiSelect = (props) => {
-	const [selected, setSelected] = useState([]);
-	const { maxTag, listValue, placeholder } = props;
+	const { maxTag, listValue, placeholder, onChange, value = [] } = props;
+	const [selected, setSelected] = useState(value?value:[]);
+
 	let showTag = false;
 	if (selected.length > maxTag) showTag = true;
 	// console.log(JSON.stringify(selected))
+	React.useEffect(() => {
+		if (onChange) {
+		  	onChange(selected);
+		}
+	}, [selected]);
 	return (
 		<Select 
 			mode={'multiple'}
@@ -252,7 +258,7 @@ export const MultiSelect = (props) => {
 				} else {
 					if (e.includes('all')) {
 						setSelected(listValue.map(item=>item.value));
-					}
+				}
 					else {
 						setSelected(e); 
 					}

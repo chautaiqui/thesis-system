@@ -240,6 +240,7 @@ const Flights = () => {
 								initialValue={[moment('2019-09-03', 'YYYY-MM-DD'), moment('2019-11-22', 'YYYY-MM-DD')]}
 							>
 								<RangePicker
+
 									// disabled={[true, true]}
 									// defaultValue={[moment('2019-09-03', 'YYYY-MM-DD'), moment('2019-11-22', 'YYYY-MM-DD')]}
 									disabledDate={(current) => {return current && current < moment().endOf("year");}}
@@ -250,19 +251,13 @@ const Flights = () => {
 								{...utility.formItemLayout}
 								name='day_weeks'
 								label='Day of week'
-								valuePropName="fileList"
-								getValueFromEvent={(e)=>{
-									console.log(e);
-									if (Array.isArray(e)) {
-										return e;
-									}
-
-									return e && e.fileList
+								getValueFromEvent={v => {
+									return v;
 								}}
 							>
 								<MultiSelect maxTag={3} listValue={[
 									{label:'Monday', value: 2}, {label:'Tuesday', value: 3},{label:'Wednesday', value: 4},{label:'Thursday', value: 5},{label:'Friday', value: 6},{label:'Saturday', value: 7},{label:'Sunday', value: 8}
-								]} placeholder={'Choose day of week'} />
+								]} placeholder={'Choose day of week'}/>
 							</Form.Item>
 							<Form.Item
 								className='dp-form'
@@ -277,7 +272,7 @@ const Flights = () => {
 								{...utility.formItemLayout}
 								name='booking_type'
 								label='Booking type'
-							>
+							> openVid, overView
 								<Radio.Group >
 									<Radio style={{display:'block'}} value={'Impression'}>Impression</Radio>
 									<Radio style={{display:'block'}} value={'Click'}>Click</Radio>
