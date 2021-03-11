@@ -126,3 +126,9 @@ input:disabled {
 tr.ant-table-expanded-row, tr.ant-table-expanded-row:hover{
     background-color: #e6f7ff;
 }
+.flight-form .ant-input-number-handler-wrap {
+    display: none;
+}
+.flight-form .ant-input-number-input-wrap input {
+    text-align: right;
+}
