@@ -5,8 +5,9 @@ import notification from 'antd/lib/notification';
 import * as utility from './utility';
 import Input from 'antd/lib/input';
 import { Button, Space} from 'antd';
-import { SearchOutlined, DownOutlined} from '@ant-design/icons';
+import { SearchOutlined, DownOutlined, PlusOutlined, MinusOutlined} from '@ant-design/icons';
 import { Select, DatePicker, InputNumber, Row, Col, Radio } from 'antd';
+
 import moment from 'moment';
 
 const { RangePicker } = DatePicker;
@@ -295,16 +296,16 @@ export const CustomInputNumber = (props) => {
 
 	return (
 		<Row>
-			<Col span={12}>
+			<Col span={14}>
 				<InputNumber
 					defaultValue={number}
-					style={{width: '100%', textAlign: 'right'}}
+					style={{width: '100%'}}
 					formatter={value => formatter.format(value.replace(/,/g, ""))}
 					parser={value => value.replace(/\D+/g, "")} // \D ko phai ki tu so
 					onChange={value=>setNumber(value)}
 				/>
 			</Col>
-			<Col span={12} offset={8}><span>{label}</span></Col>
+			{label && (<Col span={10} style={{display: 'flex',flexDirection: 'column',justifyContent: 'center', textAlign: 'center'}}><span>{label}</span></Col>)}
 		</Row>
 		
 	)
@@ -329,24 +330,77 @@ export const RadioGroup = (props) => {
 
 export const DateRangePicker = (props) => {
 	const {value = [], onChange, editable} = props;
-	console.log(editable)
 	// const _v = value? Object.values({...value[0],...{key:null}}).filter(item=> item !== null):[];
-	const [choose, setChoose] = useState([]);
+	const [choose, setChoose] = useState(value);
 	React.useEffect(() => {
 		if (onChange) {
-			console.log(choose.map(item=>item._i))
-		  	onChange(choose.map(item=>item._i));
+		  	onChange(choose);
 		}
 	}, [choose]);
-	return (value.map((item, index) =>
-		<RangePicker 
-			separator={'-'}
-			// value={choose.map(item=>moment(item, 'YYYY-MM-DD'))}  
-			value={[item.from?moment(item.from):undefined, moment(item.to)]}
-			format={'YYYY-MM-DD'}
-			onChange={(e=>setChoose(e))}
-		/>
-		// <span >hello</span>
-	))
+	const ActionDate = (idx, key) => {
+		switch (key) {
+			case 0: {
+				//add
+				setChoose(choose.filter((item, index)=>index!==idx))
+				break;
+			}
+			case 1: {
+
+				setChoose([...choose, {from: undefined,to: undefined}])
+				//del
+				break;
+			}
+		}
+	}
+	const UpdateDate = (e, index) => {
+		const newDate = e.map(item=> item.format('YYYY-MM-DD'));
+		setChoose(prev => prev.map((item, idx) => idx === index ? {to: newDate[1], from: newDate[0]} : item));
+	}
+ 	const disabledDate = (current, index) => {
+		// Can not select days before today and today
+		let compare = false; // moment().startOf('day')
+		// compare moment(choose[index-1].from)
+		if (index === 0) {
+			// nothing 
+		} else {
+			compare = moment(choose[index-1].to, 'YYYY-MM-DD').isAfter(moment().startOf('day'));
+		}
+		const _d = compare ? moment(choose[index-1].to).add('days', 1) : moment().startOf('day');
+		return current && current < _d;
+	}
+	return (
+		<div>
+			{
+				choose.map((item, index) => {
+					return (
+						<div key={index}>
+							<RangePicker 
+								separator={'-'}
+								value={[item.from?moment(item.from, 'YYYY-MM-DD'):undefined, item.to?moment(item.to, 'YYYY-MM-DD'):undefined]}
+								format={'YYYY-MM-DD'}
+								onChange={(e=>UpdateDate(e, index))}
+								allowClear={false}
+								style={{width:'80%'}}
+								disabled={editable === 0 ? true : false} 
+								disabledDate={current => disabledDate(current, index)}
+							/>
+							<Button 
+								icon={<MinusOutlined />}
+								shape={'circle'}
+								style={{float: 'right', display: 'inline-block', color: 'red', background: 'white', border: '2px solid red'}}
+								onClick={(e) => {ActionDate(index, 0)}}
+							/>
+						</div>
+					)
+				})
+			}
+			<Button 
+				icon={<PlusOutlined />}
+				shape={'circle'}
+				style={{float: 'right', display: 'inline-block', color: 'green', background: 'white', border: '2px solid green'}}
+				onClick={(e) => {ActionDate(1, 1)}}
+			/>
+		</div>
+	)
 }
 export { utility };

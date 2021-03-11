@@ -49,6 +49,7 @@ const List = props => {
 		action = [], 
 		requireData = {},
 	} = props;
+	const [ comfirm, setConfirm ] = useState(false);
 	const [ popup, setPopup ] = useState({open: false, title: ''});
 	const [ logData, setLogData] = useState({visible: false, title: "", data: []});
 	const [ _state, _dispatch ] = useReducer(reducer, initialState);
@@ -125,7 +126,7 @@ const List = props => {
 	useEffect(()=> {
 		const fetchRequire = async (fn, meta) => {
 			try {
-				const res = await requires[fn](user.api_token, meta)
+				const res = await requires[fn.includes('-') ? fn.replace('-', '') : fn](user.api_token, meta)
 				const { success, result } = res;
 				if (!success) return {[fn]: {}}
 				return {[fn]: result.data}
@@ -266,7 +267,7 @@ const List = props => {
 					onCancel={() => setLogData({...logData, ...{visible:false}})}
 					footer={<Button onClick={() => setLogData({...logData, ...{visible:false}})}>Close</Button>}
 					keyboard
-					width={'80%'}
+					width={'90%'}
 				>
 					<Table 
 						key={'child_table'}
@@ -348,15 +349,32 @@ const List = props => {
 						confirmLoading={behavior === 'posting'}
 						title= { contentEdit? 'Create ' : popup.title}
 						key='modal'
-						width='80%' 
+						width='90%' 
 						visible={popup.open}
-						onOk={onOk}
+						onOk={()=>setConfirm(true)}
 						onCancel={() => setPopup(false)}
 						cancelButtonProps={{ disabled: behavior === 'posting' }}
+						cancelText={'Close'}
+						footer={[
+							<Button key="cancel" onClick={() => setPopup(false)}>Close</Button>,
+							<Button key="ok" onClick={()=>setConfirm(true)}>{contentEdit? 'Create ' : 'Update'}</Button>,
+						]}
 					>
 						{contentEdit || contentUpdate}
 					</Modal>
 					)
+			}
+			{
+				<Modal 
+					key={'comfirm'}
+					visible={comfirm}
+					footer={[
+						<Button key="confirm_ok" onClick={() => {onOk();setConfirm(false)}}>Ok</Button>,
+						<Button key="confirm_cancel" onClick={() => setConfirm(false)}>Cancel</Button>
+					]}
+				>
+					Confirm
+				</Modal>
 			}
 			{
 				<Table

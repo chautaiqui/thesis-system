@@ -7,11 +7,10 @@ import Row from 'antd/lib/row';
 import Col from 'antd/lib/col';
 import Input from 'antd/lib/input';
 import { DatePicker, Radio, Tabs, Tree, Select, InputNumber } from 'antd';
-import moment from 'moment';
 
 
 import { PageReducer } from '@pkg/reducers';
-import { utility, filerColumn, filterCheck, MultiSelect, RadioGroup, DateRangePicker } from '@components/commons';
+import { utility, filerColumn, filterCheck, MultiSelect, RadioGroup, DateRangePicker, CustomInputNumber } from '@components/commons';
 import { useLocation } from 'react-router-dom';
 
 
@@ -65,6 +64,7 @@ const Flights = () => {
 			listRef={fn => lR = fn}
 			contentUpdate={
 				<Form 
+					className={'flight-form'}
 					form={form}
 					onFinish={onFinish}
 					onFinishFailed={onFinishFailed}
@@ -225,7 +225,7 @@ const Flights = () => {
 								label='Weight'
 								rules={[{ required: true, message: 'Required' }]}
 								>
-								<Input />
+								<CustomInputNumber/>
 								{/* input number  */}
 							</Form.Item>
 						</Col>
@@ -237,11 +237,10 @@ const Flights = () => {
 								label='Date ranges'
 								// rules={[{ required: true, message: 'Required' }]}
 								getValueFromEvent={v => {
-									console.log(v)
 									return v  ;
 								}}
 							>
-								<DateRangePicker editable={form.getFieldValue('campaign')}/>
+								<DateRangePicker editable={form.getFieldValue('campaign') ? form.getFieldValue('campaign').activated: '1'}/>
 							</Form.Item>
 							<Form.Item
 								className='dp-form'
@@ -285,17 +284,18 @@ const Flights = () => {
 										span: 8
 									},
 									wrapperCol: {
-										span: 8
+										span: 14
 									}
 									}}
 								name='total_bookings'
 								label='Total bookings'
 							>
-								<InputNumber
-									style={{width: '100%', textAlign: 'right'}}
+								{/* <InputNumber
+									style={{width: '100%'}}
 									formatter={value => formatter.format(value.replace(/,/g, ""))}
 									parser={value => value.replace(/\D+/g, "")} // \D ko phai ki tu so
-								/>
+								/> */}
+								<CustomInputNumber label={'Impression(s)'}/>
 							</Form.Item>
 							<Form.Item
 								className='dp-form'
@@ -310,7 +310,7 @@ const Flights = () => {
 								name='daily_bookings'
 								label='Daily bookings'
 							>
-								<Input addonAfter={'Impression(s)'}/>
+								<CustomInputNumber label={'Impression(s)'}/>
 							</Form.Item>
 						</Col>
 					</Row>
@@ -377,6 +377,7 @@ const Flights = () => {
 				{name: 'accounts', meta : {limit: 100, offset: 1,}}, 
 				{name: 'provinces', meta : {limit: 1000, offset: 1,}}, 
 				{name: 'categories', meta : {limit: 1000, offset: 1,}}, 
+				{name: 'website-apps', meta : {limit: 1000, offset: 1,order: 'id|desc'}}, 
 			]}
 			action={['View Detail', 'Update', 'Copy' ,'View Report', 'View Log']}
 		/>

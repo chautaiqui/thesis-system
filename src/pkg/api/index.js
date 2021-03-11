@@ -141,7 +141,7 @@ const requires = {
   flights: (api_token, meta) => getRequest('flights', api_token, meta),
   provinces: (api_token, meta) => getRequest('provinces', api_token, meta),
   categories: (api_token, meta) => getRequest('categories', api_token, meta),
-
+  websiteapps: (api_token, meta) => getRequest('website-apps', api_token, meta),
 }
 
 export { signin, fetchData, postData, putData, requires };
