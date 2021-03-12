@@ -5,8 +5,8 @@ import { User } from '@pkg/reducers';
 import Table from 'antd/lib/table';
 import Button from 'antd/lib/button';
 import Modal from 'antd/lib/modal';
-import { Tag, Card, Menu, Dropdown} from 'antd';
-import { DownOutlined, SolutionOutlined } from '@ant-design/icons';
+import { Tag, Card, Menu, Dropdown, message } from 'antd';
+import { DownOutlined, SolutionOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 
 // import { Divider } from 'antd';
 
@@ -249,7 +249,7 @@ const List = props => {
 			{
 				contentEdit && (
 					<Button
-						key='create'                              
+						key='btncreate'                              
 						style={{ marginBottom: 0 }}
 						onClick={() => openPopup({}, -1)}
 					>
@@ -259,6 +259,7 @@ const List = props => {
 			}
 			{
 				<Modal
+					key={'viewlog'}
 					centered
 					closable={false}
 					visible={logData.visible}
@@ -270,7 +271,7 @@ const List = props => {
 					width={'90%'}
 				>
 					<Table 
-						key={'child_table'}
+						key={'log-table'}
 						bordered
 						loading={logData.data.length === 0}
 						dataSource={logData.data}
@@ -331,7 +332,6 @@ const List = props => {
 								dataIndex: 'new_value',
 								key: 'new_value',
 							},
-							
 						]}
 						pagination={false}
 						rowKey='id'
@@ -369,11 +369,23 @@ const List = props => {
 					key={'comfirm'}
 					visible={comfirm}
 					footer={[
-						<Button key="confirm_ok" onClick={() => {onOk();setConfirm(false)}}>Ok</Button>,
+						<Button key="confirm_ok" onClick={() => {
+							const key ='confirm';
+							message.loading({ content: 'Loading...', key});
+							onOk();
+							setTimeout(() => {
+								message.success({ content: 'Action successfully completed!', key, duration: 2 });
+							}, 1000);
+							setConfirm(false);
+						}}
+						>
+							Ok
+						</Button>,
 						<Button key="confirm_cancel" onClick={() => setConfirm(false)}>Cancel</Button>
 					]}
 				>
-					Confirm
+					<QuestionCircleOutlined style={{color:'#faad14', fontSize: '2em'}}/>
+					<span style={{marginLeft: 15}}>Confirm action</span> 
 				</Modal>
 			}
 			{

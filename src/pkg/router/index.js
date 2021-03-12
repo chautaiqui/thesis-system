@@ -44,10 +44,7 @@ export default RouterContainer;
 function Home() {
   return (
     <Row>
-      <Col span={8}>col-8</Col>
-      <Col span={8} offset={8}>
-        col-8
-      </Col>
+      Home
     </Row>
   );
 }

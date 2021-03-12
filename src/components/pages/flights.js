@@ -6,20 +6,14 @@ import Form from 'antd/lib/form';
 import Row from 'antd/lib/row';
 import Col from 'antd/lib/col';
 import Input from 'antd/lib/input';
-import { DatePicker, Radio, Tabs, Tree, Select, InputNumber } from 'antd';
+import { Tabs, Tree, Select } from 'antd';
 
 
 import { PageReducer } from '@pkg/reducers';
 import { utility, filerColumn, filterCheck, MultiSelect, RadioGroup, DateRangePicker, CustomInputNumber } from '@components/commons';
 import { useLocation } from 'react-router-dom';
 
-
-const { RangePicker } = DatePicker;
 const { TabPane } = Tabs;
-const formatter = new Intl.NumberFormat('en-US', {
-	style: 'decimal',
-	unitDisplay: 'narrow'
-})
 
 const Flights = () => {
 	const { search } = useLocation();
@@ -290,11 +284,6 @@ const Flights = () => {
 								name='total_bookings'
 								label='Total bookings'
 							>
-								{/* <InputNumber
-									style={{width: '100%'}}
-									formatter={value => formatter.format(value.replace(/,/g, ""))}
-									parser={value => value.replace(/\D+/g, "")} // \D ko phai ki tu so
-								/> */}
 								<CustomInputNumber label={'Impression(s)'}/>
 							</Form.Item>
 							<Form.Item
@@ -324,7 +313,7 @@ const Flights = () => {
 						v[x] = JSON.parse(v[x])
 					}
 				}
-				console.log(v)
+				// console.log(v)
 				setBaseForm(v);
 				form.resetFields();
 				form.setFieldsValue(v);
@@ -369,7 +358,18 @@ const Flights = () => {
 			]}
 			searchFields={searchFields}
 			updateSF={updateSF}
-			tableProps={{}}
+			tableProps={{
+				expandable: {
+					expandedRowRender: record => (
+						<div>
+						<Row style={{paddingLeft: 50}}>
+							<Col span={12}>Date Range</Col>
+						</Row>
+						
+						</div>
+					)
+				}
+			}}
 			resetSF = {resetSF}
             require={require}
 			requireData = {requireData}

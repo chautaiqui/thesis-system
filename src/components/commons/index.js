@@ -305,7 +305,7 @@ export const CustomInputNumber = (props) => {
 					onChange={value=>setNumber(value)}
 				/>
 			</Col>
-			{label && (<Col span={10} style={{display: 'flex',flexDirection: 'column',justifyContent: 'center', textAlign: 'center'}}><span>{label}</span></Col>)}
+			{label && (<Col span={10} style={{display: 'flex',flexDirection: 'column',justifyContent: 'center', paddingLeft: '2%'}}><span>{label}</span></Col>)}
 		</Row>
 		
 	)
@@ -345,7 +345,11 @@ export const DateRangePicker = (props) => {
 				break;
 			}
 			case 1: {
-
+				let check = false;
+				choose.map(item=>{
+					if (item.from === undefined || item.to === undefined) check = true
+				})
+				if (check) return;
 				setChoose([...choose, {from: undefined,to: undefined}])
 				//del
 				break;
@@ -373,14 +377,14 @@ export const DateRangePicker = (props) => {
 			{
 				choose.map((item, index) => {
 					return (
-						<div key={index}>
+						<div key={index} style={{marginBottom:5}}>
 							<RangePicker 
 								separator={'-'}
 								value={[item.from?moment(item.from, 'YYYY-MM-DD'):undefined, item.to?moment(item.to, 'YYYY-MM-DD'):undefined]}
 								format={'YYYY-MM-DD'}
 								onChange={(e=>UpdateDate(e, index))}
 								allowClear={false}
-								style={{width:'80%'}}
+								style={{width:'80%',marginBottom:5}}
 								disabled={editable === 0 ? true : false} 
 								disabledDate={current => disabledDate(current, index)}
 							/>
