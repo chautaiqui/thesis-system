@@ -54,6 +54,7 @@ const Campaigns = () => {
 	const onFinishFailed = errorInfo => {
 		console.log('Failed:', errorInfo);
 	};
+	// console.log(requireData['accounts'])
     return ([
 		<List
 			key='list'
@@ -78,14 +79,11 @@ const Campaigns = () => {
 								placeholder= {'Choose advertiser'}
 								options={requireData['accounts'] ? requireData['accounts'].map(item => ({label: item.name, value: item.id})) : []}
 								filterOption={(inputValue, options) => {
-									return options.label.includes(inputValue)
+									return options.label.toLowerCase().includes(inputValue.toLowerCase())
 								}}
+								notFoundContent={'Not Found advertiser'}
 							/>
 						</Form.Item>
-					</Col>
-				</Row>
-				<Row >
-					<Col span={20}>
 						<Form.Item
 							className='dp-form'
 							{...utility.formItemLayout}
@@ -95,10 +93,6 @@ const Campaigns = () => {
 						>
 							<Input />
 						</Form.Item>
-					</Col>
-				</Row>
-				<Row >
-					<Col span={20}>
 						<Form.Item
 							className='dp-form'
 							{...utility.formItemLayout}
@@ -111,8 +105,6 @@ const Campaigns = () => {
 								return current && current < moment().startOf('day');
 							}}/>
 						</Form.Item>
-					</Col>
-					<Col span={20}>
 						<Form.Item
 							className='dp-form'
 							{...utility.formItemLayout}
@@ -126,10 +118,6 @@ const Campaigns = () => {
 							}}
 							/>
 						</Form.Item>
-					</Col>
-				</Row>
-				<Row >
-					<Col span={20}>
 						<Form.Item
 							className='dp-form'
 							{...utility.formItemLayout}
@@ -139,10 +127,6 @@ const Campaigns = () => {
 						>
 							<Input />
 						</Form.Item>
-					</Col>
-				</Row>
-				<Row >
-					<Col span={20}>
 						<Form.Item
 							className='dp-form'
 							{...utility.formItemLayout}
@@ -156,10 +140,6 @@ const Campaigns = () => {
 								<Radio style={{display:'block'}} value={'livetv'}>Live TV</Radio>
 							</Radio.Group>
 						</Form.Item>
-					</Col>
-				</Row>
-				<Row >
-					<Col span={20}>
 						<Form.Item
 							className='dp-form'
 							{...utility.formItemLayout}
@@ -188,7 +168,7 @@ const Campaigns = () => {
 					key: 'id',
 					width: "5%",
 					sorter: true,
-					sortDirections: ['ascend', 'descend', 'ascend'],
+					sortDirections: ['ascend', 'descend'],
 					...filerColumn(searchFields, 'id')
 				},
 				{
@@ -235,13 +215,12 @@ const Campaigns = () => {
 					width: "10%",
 					...filterCheck(searchFields, 'activated'),
 					// ...filerColumn(searchFields, 'activated'),
-					render: v => v === 0 ? <Switch /> : <Switch checked />
+					render: v => <Switch checked={v===0?false:true} />
 				},
 			]}
 			searchFields={searchFields}
 			updateSF={updateSF}
 			tableProps={{
-				size: 'small',
 				expandable: {
 					expandedRowRender: record => (
 						<div>

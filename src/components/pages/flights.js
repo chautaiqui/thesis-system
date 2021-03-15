@@ -20,7 +20,8 @@ const Flights = () => {
 	const [ editData, setEditData ] = useState();
 	const [ baseForm, setBaseForm ] = useState({});
 	const [ form ] = Form.useForm();
-    const [ _state, _dispatch] = useReducer(PageReducer, {searchFields: undefined, requireData: {}});
+   
+	const [ _state, _dispatch] = useReducer(PageReducer, {searchFields: undefined, requireData: {}});
 	const { searchFields, requireData } = _state;
 	useEffect(() => {
 		_dispatch({type: 'init_search_field', data: search})
@@ -86,9 +87,9 @@ const Flights = () => {
 									showSearch
 									options={requireData['accounts'] ? requireData['accounts'].map(item => ({label: item.name, value: item.id.toString()})) : []}
 									filterOption={(inputValue, options) => {
-										return options.label.includes(inputValue)
+										return options.label.toLowerCase().includes(inputValue.toLowerCase())
 									}}
-									notFoundContent={'Choose publisher'}
+									notFoundContent={'Not Found publisher'}
 								/>
 							</Form.Item>
 							<Form.Item

@@ -46,12 +46,12 @@ const List = props => {
 		resetSF = () => {},
 		require = () => {},
 		fieldsRequire = [],
-		action = [], 
 		requireData = {},
+		logData = {visible: false, title: "", data: []}, closeViewLog = () => {}
 	} = props;
 	const [ comfirm, setConfirm ] = useState(false);
 	const [ popup, setPopup ] = useState({open: false, title: ''});
-	const [ logData, setLogData] = useState({visible: false, title: "", data: []});
+	// const [ logData, setLogData] = useState({visible: false, title: "", data: []});
 	const [ _state, _dispatch ] = useReducer(reducer, initialState);
 	const [ user ] = useContext(User.context);
 	
@@ -178,32 +178,32 @@ const List = props => {
 				console.log('report')
 				break;
 			case 'View Log':
-				(async()=>{
-					try {
-						const reps = await getRequest(fn, user.api_token, {} , [record.id, 'audit']);
-						const {success, result} = reps;
-						if (!success) return;
-						let span_data = [];
-						result.data.map(item => {
-							let temp_arr = [];
-							for (let x in item.new_values) {
-								temp_arr = [... temp_arr, {
-									date: item.created_at,
-									user: `${item.user.id} - ${item.user.name} ${item.user.email}`,
-									event: item.event,
-									field: x,
-									old_value: item.old_values[x] || null,
-									new_value: item.new_values[x] ,
-									rowSpan: Object.keys(item.new_values)[0] === x ? Object.keys(item.new_values).length : 0,
-								}]
-							}
-							span_data = [...span_data, ...temp_arr]
-						})
-						setLogData({...logData, ...{visible: true, title: `Changelog: ${fn}/${record.id}`, data: span_data}})
-					} catch(e) {
-						return;
-					}
-				})()
+				// (async()=>{
+				// 	try {
+				// 		const reps = await getRequest(fn, user.api_token, {} , [record.id, 'audit']);
+				// 		const {success, result} = reps;
+				// 		if (!success) return;
+				// 		let span_data = [];
+				// 		result.data.map(item => {
+				// 			let temp_arr = [];
+				// 			for (let x in item.new_values) {
+				// 				temp_arr = [... temp_arr, {
+				// 					date: item.created_at,
+				// 					user: `${item.user.id} - ${item.user.name} ${item.user.email}`,
+				// 					event: item.event,
+				// 					field: x,
+				// 					old_value: item.old_values[x] || null,
+				// 					new_value: item.new_values[x] ,
+				// 					rowSpan: Object.keys(item.new_values)[0] === x ? Object.keys(item.new_values).length : 0,
+				// 				}]
+				// 			}
+				// 			span_data = [...span_data, ...temp_arr]
+				// 		})
+				// 		setLogData({...logData, ...{visible: true, title: `Changelog: ${fn}/${record.id}`, data: span_data}})
+				// 	} catch(e) {
+				// 		return;
+				// 	}
+				// })()
 				break;
 			default:
 				return
@@ -212,7 +212,7 @@ const List = props => {
 	}
 
 	var { data, behavior, total } = _state;
-	// console.log(behavior, requireData)
+	// console.log(behavior)
 	// console.log(logData.data)
 	return ([
 		<Card 
@@ -223,7 +223,7 @@ const List = props => {
 		}}
 		key='card1'>
 			{Object.entries(searchFields)
-				.filter(item => !['offset', 'limit', 'order'].includes(item[0]) && !!item[1])
+				.filter(item => !['offset', 'limit', 'order', 'model'].includes(item[0]) && !!item[1])
 				.map(item => {
 					// map label, value
 					let _n = M(item[0], item[1], requireData);
@@ -262,11 +262,11 @@ const List = props => {
 					key={'viewlog'}
 					centered
 					closable={false}
-					visible={logData.visible}
+					visible={logData.visible }
 					maskClosable={false}
 					title={<><SolutionOutlined/>{logData.title}</>}
-					onCancel={() => setLogData({...logData, ...{visible:false}})}
-					footer={<Button onClick={() => setLogData({...logData, ...{visible:false}})}>Close</Button>}
+					onCancel={closeViewLog}
+					footer={<Button onClick={closeViewLog}>Close</Button>}
 					keyboard
 					width={'90%'}
 				>
@@ -391,30 +391,11 @@ const List = props => {
 			{
 				<Table
 					key='table'
-					columns={
-						[...tColumns, 
-						action.length === 0 ? {} : {
-							title: 'Action',
-        					render: record => {
-								const menu = (<Menu>
-										{action.map((item) => 
-											<Menu.Item key={item} onClick={(e) => actionClick(e,record)}>{item}</Menu.Item>	
-										)}
-									</Menu>)
-								return (
-									<Dropdown overlay={menu} trigger={['click']}>
-										<Button className="ant-dropdown-link" onClick={e => e.preventDefault()}>
-										Action <DownOutlined />
-										</Button>
-									</Dropdown>
-		
-								)
-							}
-						}]
-					}
+					columns={tColumns}
 					dataSource={data}
 					rowKey='id'
 					loading={behavior === 'fetching'}
+					tableLayout='auto'
 					// onRow={row => ({
 					//   onClick: contentEdit ? () => openPopup(row) : () => {},
 					// })}
@@ -425,13 +406,15 @@ const List = props => {
 							pageSizeOptions: [10, 20, 30],
 							total: total || data.length,
 							disabled: behavior === 'fetching',
-							position: ['topRight' , 'bottomRight']
+							position: ['topRight' , 'bottomRight'],
+							responsive: true,
+							showTotal: (total,range) => `${range.join('-')} of ${total} items`,
 						}
 					}
 					onChange = {
 						Object.keys(searchFields).length === 0 ? () => {} :
 							(pagination,f,s) => {
-								console.log(f,s)
+								// console.log(f,s)
 								let fs = {};
 								if (Object.keys(s).length !== 0) {
 									fs = { ...fs, ...{order: `${s.order ? s.field: 'id'}|${s.order ? s.order.slice(0, s.order.length-3): 'desc'}`}}

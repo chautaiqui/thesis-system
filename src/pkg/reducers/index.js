@@ -35,8 +35,9 @@ export const User = {
 export const PageReducer = (state, action) => {
   // console.log(action)
   switch (action.type) {
+    
     case 'init_search_field':
-      return { ...state, searchFields: extractSearch(action.data) }
+      return { ...state, searchFields: extractSearch(action.data)}
     case 'update_search_field':
       return { ...state, searchFields: action.data };
     case 'get_require_data': 

@@ -104,8 +104,7 @@ const fetchData = {
   transaction: () => {},
   campaigns: (api_token, meta) => getRequest('campaigns', api_token, meta),
   flights: (api_token, meta) => getRequest('flights', api_token, meta),
-  permissions: (api_token, meta) => getRequest('permissions', api_token, meta),
-  roles: (api_token, meta) => getRequest('roles', api_token, meta),
+  accounts: (api_token, meta) => getRequest('accounts', api_token, meta),
 }
 
 const postData = {
@@ -126,7 +125,7 @@ const postData = {
   user: (api_token, data) => postRequestItem('user', api_token, data),
   campaigns: (api_token, data) => postRequestItem('campaigns', api_token, data),
 }
-
+// putData -> update, postData -> create
 const putData = {
   users: () => {},
   transaction: () => {},
@@ -134,6 +133,7 @@ const putData = {
   roles: (api_token, data) => putRequest('roles', api_token, data, data.id),
   user: (api_token, data) => putRequest('user', api_token, data, data.id),
   campaigns: (api_token, data) => putRequest('campaigns', api_token, data, data.id),
+  accounts: (api_token, data) => putRequest('accounts', api_token, data, data.id)
 }
 
 const requires = {
@@ -142,6 +142,7 @@ const requires = {
   provinces: (api_token, meta) => getRequest('provinces', api_token, meta),
   categories: (api_token, meta) => getRequest('categories', api_token, meta),
   websiteapps: (api_token, meta) => getRequest('website-apps', api_token, meta),
+  users: (api_token, meta) => getRequest('users', api_token, meta)
 }
 
 export { signin, fetchData, postData, putData, requires };
