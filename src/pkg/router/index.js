@@ -19,7 +19,8 @@ const RouterContainer = () => {
       <Layout>
         <Switch>
           <Route exact path='/'>
-            <Home />
+            <Home /> 
+            {/* Nhay vao trang dashboard */}
           </Route>
           {routerPages.filter(p =>_user.isAdmin || _user.permissions.indexOf(p.permissions) > -1).map(p => (
             // <Route path={`${p.path}/:param`} key={`${p.path}/:param`}>

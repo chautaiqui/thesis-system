@@ -6,7 +6,7 @@ import * as utility from './utility';
 import Input from 'antd/lib/input';
 import { Button, Space} from 'antd';
 import { SearchOutlined, DownOutlined, PlusOutlined, MinusOutlined} from '@ant-design/icons';
-import { Select, DatePicker, InputNumber, Row, Col, Radio } from 'antd';
+import { Select, DatePicker, InputNumber, Row, Col, Radio, Switch } from 'antd';
 
 import moment from 'moment';
 
@@ -117,6 +117,7 @@ export const filterSelectCheck = (searchFields, dataIndex) => {
 							console.log(v,l)
 							setSelectedKeys(l.value);
 							confirm();
+							return;
 						}
 						clearFilters();						
 					}}
@@ -154,16 +155,37 @@ export const filterSelect = (searchFields, dataIndex, requireData) => {
 			confirm,
 			clearFilters
 			}) => (
-				[<CustomSelect
-					key='cus sel'
-					searchFields={searchFields}
-					dataIndex={dataIndex}
-					data={requireData} 
-					dataIndex={dataIndex} 
-					confirm={confirm} 
-					setSelectedKeys={setSelectedKeys} 
-					clearFilters={clearFilters}
+				[<Select 
+					key='filter select'
+					style={{ width: '100%' }}  tokenSeparators={[',']}
+					allowClear
+					showSearch
+					placeholder= {`Search `}
+					defaultValue={selectedKeys}
+					onChange={(value) => {
+						if (value) {
+							setSelectedKeys(value.toString());
+							confirm();
+							return;
+						}
+						clearFilters();
+					}}
+					options={requireData ? requireData.map(item => ({label: item.name, value: item.id})) : []}
+					filterOption={(inputValue, options) => {
+						return options.label.toLowerCase().includes(inputValue.toLowerCase())
+					}}
+					notFoundContent={'Not Found'}
 				/>,
+				// [<CustomSelect
+				// 	key='cus sel'
+				// 	searchFields={searchFields}
+				// 	dataIndex={dataIndex}
+				// 	data={requireData} 
+				// 	dataIndex={dataIndex} 
+				// 	confirm={confirm} 
+				// 	setSelectedKeys={setSelectedKeys} 
+				// 	clearFilters={clearFilters}
+				// />,
 				<Button
 					key='rs'
 					onClick={() => clearFilters()}
@@ -203,6 +225,7 @@ export const filterDatePicker = (searchFields, dataIndex) => {
 	}
 }
 
+// select filter
 export const CustomSelect = (props) => {
 	const { data, confirm, setSelectedKeys, clearFilters } = props;
 	const [search, setSearch] = useState('');
@@ -238,6 +261,7 @@ export const CustomSelect = (props) => {
 		</div>
 
 	)
+
 }
 
 export const MultiSelect = (props) => {
@@ -406,5 +430,39 @@ export const DateRangePicker = (props) => {
 			/>
 		</div>
 	)
+}
+
+export const CustomSwitch = (props) => {
+	const {value = [], onChange} = props;
+	const [choose, setChoose] = useState(value);
+	React.useEffect(() => {
+		if (onChange) {
+		  	onChange(choose);
+		}
+	}, [choose]);
+	return <Switch checked={choose===1?true:false} onChange={v=>setChoose(Number(v))}/>
+}
+export const CustomSelectObj = (props) => {
+	const {value = {}, onChange, data, notFound=''} = props;
+	// data: label, obj
+	// console.log(value)
+	const [choose, setChoose] = useState(value);
+	React.useEffect(() => {
+		if (onChange) {
+		  	onChange(choose);
+		}
+	}, [choose]);
+	return <Select 
+		allowClear
+		showSearch
+		options={data}
+		filterOption={(inputValue, options) => {
+			return options.label.toLowerCase().includes(inputValue.toLowerCase())
+		}}
+		defaultValue={choose.id}
+		onChange={v=>setChoose(v)}
+		notFoundContent={notFound}
+	/>
+	// return <div></div>
 }
 export { utility };
