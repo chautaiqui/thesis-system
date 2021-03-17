@@ -45,7 +45,8 @@ export const PageReducer = (state, action) => {
       // action.data.map(item => {
       //   obj[Object.keys(item)[0]] = Object.values(item)[0]
       // })
-      return { ...state, requireData: action.data };
+      // return { ...state, requireData: action.data };
+      return { ...state, requireData: { ...state.requireData, ...action.data }};
     default:
       return state;
   } 

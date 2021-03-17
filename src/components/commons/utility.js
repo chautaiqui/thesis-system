@@ -4,7 +4,7 @@ import numeral from 'numeral';
 import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
 import reduce from 'lodash/reduce';
-
+import { getRequest } from '@api';
 export const safelyParseJSON = (string, defaultValue = '') => {
   if (!string) {
     return defaultValue;
@@ -208,5 +208,32 @@ export const formItemLayout = {
   },
   wrapperCol: {
     span: 16
+  }
+}
+
+export const FetchAndSpanLogData = async (fn, id, api_token) => {
+  try {
+    const reps = await getRequest(fn, api_token, {} , [id, 'audit']);
+    const {success, result} = reps;
+    if (!success) return;
+    let span_data = [];
+    result.data.map(item => {
+        let temp_arr = [];
+        for (let x in item.new_values) {
+            temp_arr = [... temp_arr, {
+                date: item.created_at,
+                user: `${item.user.id} - ${item.user.name} ${item.user.email}`,
+                event: item.event,
+                field: x,
+                old_value: item.old_values[x] || null,
+                new_value: item.new_values[x] ,
+                rowSpan: Object.keys(item.new_values)[0] === x ? Object.keys(item.new_values).length : 0,
+            }]
+        }
+        span_data = [...span_data, ...temp_arr]
+    })
+    return span_data;
+  } catch(e) {
+    return [];
   }
 }

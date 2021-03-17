@@ -1,16 +1,17 @@
-import React, { useEffect, useReducer, useState, useCallback} from 'react';
+import React, { useEffect, useReducer, useState, useCallback, useContext } from 'react';
 import List from '@components/commons/list';
+import { User } from '@pkg/reducers';
 
 import Switch from 'antd/lib/switch';
 import Form from 'antd/lib/form';
 import Row from 'antd/lib/row';
 import Col from 'antd/lib/col';
 import Input from 'antd/lib/input';
-import { Tabs, Tree, Select } from 'antd';
-
+import { Tabs, Tree, Select, Button, Menu, Dropdown, DatePicker } from 'antd';
+import { DownOutlined, ReadOutlined, CopyOutlined, LineChartOutlined, SolutionOutlined } from '@ant-design/icons';
 
 import { PageReducer } from '@pkg/reducers';
-import { utility, filerColumn, filterCheck, MultiSelect, RadioGroup, DateRangePicker, CustomInputNumber } from '@components/commons';
+import { utility, filerColumn, filterCheck, MultiSelect, RadioGroup, ListDateRangePicker, CustomInputNumber } from '@components/commons';
 import { useLocation } from 'react-router-dom';
 
 const { TabPane } = Tabs;
@@ -19,18 +20,26 @@ const Flights = () => {
 	const { search } = useLocation();
 	const [ editData, setEditData ] = useState();
 	const [ baseForm, setBaseForm ] = useState({});
+	const [ logData, setLogData] = useState({visible: false, title: "", data: []});
+    const [ popup, setPopup ] = useState({open: false, title: ''});
+	
 	const [ form ] = Form.useForm();
    
 	const [ _state, _dispatch] = useReducer(PageReducer, {searchFields: undefined, requireData: {}});
 	const { searchFields, requireData } = _state;
+	const [ user ] = useContext(User.context);
+
 	useEffect(() => {
-		_dispatch({type: 'init_search_field', data: search})
-	}, [])
+        let isCancelled = false;
+		if (!!searchFields) return() => isCancelled = true;
+		if(!isCancelled) _dispatch({type: 'init_search_field', data: search});
+        return () => isCancelled = true;
+	}, [search, searchFields])
 	
 	const updateSF = useCallback (data => {
 		// if(meta.offset === searchFields.offset && meta.limit === searchFields.limit && searchFields.total === meta.total ) return;
 		_dispatch({type: 'update_search_field', data: { ...searchFields, ...data }})
-	}, [searchFields])
+	}, [])
 
 	const resetSF = useCallback (dataIndex => {
 		_dispatch({type: 'update_search_field', data: { ...searchFields, [dataIndex]: null } })
@@ -52,6 +61,9 @@ const Flights = () => {
 	const onFinishFailed = errorInfo => {
 		console.log('Failed:', errorInfo);
 	};
+	const closeViewLog = () => {
+        setLogData({...logData, ...{visible:false}})
+    }
 	let lR = () => {};
 	return ([
 		<List
@@ -125,7 +137,7 @@ const Flights = () => {
 														{
 															title: (
 																<Form.Item
-																	name='show'
+																	name='contents'
 																	label='Shows'
 																	>
 																	<Input />
@@ -221,7 +233,6 @@ const Flights = () => {
 								rules={[{ required: true, message: 'Required' }]}
 								>
 								<CustomInputNumber/>
-								{/* input number  */}
 							</Form.Item>
 						</Col>
 						<Col xs={22} sm={22} md={12}>
@@ -235,7 +246,8 @@ const Flights = () => {
 									return v  ;
 								}}
 							>
-								<DateRangePicker editable={form.getFieldValue('campaign') ? form.getFieldValue('campaign').activated: '1'}/>
+								<ListDateRangePicker editable={form.getFieldValue('campaign') ? form.getFieldValue('campaign').activated : '1'}/>
+								{/* <div><Input/></div> */}
 							</Form.Item>
 							<Form.Item
 								className='dp-form'
@@ -349,12 +361,45 @@ const Flights = () => {
 					key: 'daily_bookings',
 				},
 				{
-					title: 'Activated',
+					title: 'Action',
+					align: 'center',
 					dataIndex: 'activated',
 					key: 'activated',
+					width: "10%",
 					...filterCheck(searchFields, 'activated'),
 					// ...filerColumn(searchFields, 'activated'),
-					render: v => v === 0 ? <Switch/> : <Switch checked/>
+					render: (text, record, index) => ([
+						<div key='action'>
+							<Switch key='sw' checked={text===0?false:true} style={{marginBottom: 5}}/>
+							<Dropdown 
+								overlay={
+									<Menu>
+										<Menu.Item>
+											<ReadOutlined /> <span>Update</span>
+										</Menu.Item>
+										<Menu.Item>
+											<ReadOutlined /> <span>View Detail</span>
+										</Menu.Item>
+										<Menu.Item>
+											<CopyOutlined /> <span>Copy</span>
+										</Menu.Item>
+										<Menu.Item>
+											<LineChartOutlined /> <span>View Report</span>
+										</Menu.Item>
+										<Menu.Item
+											onClick={async () => {
+												var span_data = await utility.FetchAndSpanLogData('flights', record.id, user.api_token);
+												setLogData({...logData, ...{visible: true, title: `Changelog: flights/${record.id}`, data: span_data}})
+											}}
+										>
+											<SolutionOutlined /> <span>View Log</span>
+										</Menu.Item>
+									</Menu>
+								} placement="bottomLeft">
+							<Button>Action <DownOutlined /></Button>
+						</Dropdown>
+						</div>
+                    ])
 				},
 			]}
 			searchFields={searchFields}
@@ -366,7 +411,6 @@ const Flights = () => {
 						<Row style={{paddingLeft: 50}}>
 							<Col span={12}>Date Range</Col>
 						</Row>
-						
 						</div>
 					)
 				}
@@ -380,7 +424,8 @@ const Flights = () => {
 				{name: 'categories', meta : {limit: 1000, offset: 1,}}, 
 				{name: 'website-apps', meta : {limit: 1000, offset: 1,order: 'id|desc'}}, 
 			]}
-			action={['View Detail', 'Update', 'Copy' ,'View Report', 'View Log']}
+			logData={logData}
+            closeViewLog={closeViewLog}	
 		/>
 	]);
 
