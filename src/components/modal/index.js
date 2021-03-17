@@ -107,6 +107,7 @@ export const FormModal = (props) => {
             title= {data.title}
             key='modal_update_create'  
             width='90%' 
+            keyboard
             visible={options.open}
             footer={[
                 // <Button key="cancel" onClick={() => togglePopUp({ open: false })}>Close</Button>,

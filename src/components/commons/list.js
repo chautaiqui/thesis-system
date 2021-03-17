@@ -5,14 +5,28 @@ import { User } from '@pkg/reducers';
 import Table from 'antd/lib/table';
 import Button from 'antd/lib/button';
 import Modal from 'antd/lib/modal';
-import { Tag, Card, Menu, Dropdown, message } from 'antd';
-import { DownOutlined, SolutionOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { Tag, Card } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { ViewLogModal } from '../modal';
 // import { Divider } from 'antd';
 
 import  { useHistory  } from 'react-router-dom';
 import { messageError } from './';
 // import { isArguments } from 'lodash';
+
+const showConfirm = (title, content, onOK, onCancel) => {
+	Modal.confirm({
+		title: title,
+		icon: <ExclamationCircleOutlined />,
+		content: content,
+		onOk() {
+			onOK();
+		},
+		onCancel() {
+			onCancel();
+		},
+	});
+}
 
 const reducer = (state, action) => {
 	switch (action.type) {
@@ -38,8 +52,8 @@ const reducer = (state, action) => {
 const initialState = { data: [], behavior: 'init', confirm: false};
 
 const List = React.forwardRef((props, ref) => {
-	const { fn, tColumns, 
-		editData, contentEdit, popup = {open: false, title: ''}, togglePopUp = () => {},
+	const { fn, tColumns, ableCreate = false,
+		editData, contentEdit, popup = {open: false, title: ''}, closePopUp = () => {}, confirmPopup = () => {},  openPopup = () => {},
 		searchFields, updateSF = () => {}, resetSF = () => {}, /**/
 		tableProps,	
 		fieldsRequire = [], requireData = {}, /**/
@@ -51,7 +65,7 @@ const List = React.forwardRef((props, ref) => {
 	const [ _state, _dispatch ] = useReducer(reducer, initialState);
 	const [ user ] = useContext(User.context);
 	React.useImperativeHandle(ref, () => ({
-		togglePopUp
+		
 	}));
 	// const { search } = useLocation();
 	const history = useHistory();
@@ -81,6 +95,7 @@ const List = React.forwardRef((props, ref) => {
 			console.log(editData)
 			const _fn = editData.id ? putData[fn] : postData[fn];
 			console.log(typeof _fn)
+			_dispatch({ type: 'UPDATE_SUCCESS', item: {} });
 			// const resp = await _fn(user.api_token, editData);
 			// const { success, result, error } = resp;
 			// // console.log(success, result, error)
@@ -98,7 +113,7 @@ const List = React.forwardRef((props, ref) => {
 			case 'stall':
 				return;
 			case 'update_success':
-				togglePopUp({ open: false });
+				closePopUp({ open: false });
 				fetch()
 				return () => abortController.abort();
 			case 'init': 
@@ -164,7 +179,7 @@ const List = React.forwardRef((props, ref) => {
 	},[])
 
 	var { data, behavior, total, confirm } = _state;
-	// console.log(behavior)
+	console.log(behavior, editData)
 	// console.log(logData.data)
 	var filterSearchField = Object.entries(searchFields).filter(item => !['offset', 'limit', 'order', 'model'].includes(item[0]) && !!item[1]);
 	return ([
@@ -200,15 +215,17 @@ const List = React.forwardRef((props, ref) => {
 			key='card2'
 		>
 			{
-				contentEdit && (
+				// update thi co id
+				ableCreate && (
 					<Button
-						key='btncreate'                              
+						key='btncreate'    
+						type="primary"                          
 						style={{ marginBottom: 0 }}
-						onClick={() => togglePopUp({ open: true })}
+						onClick={() => openPopup({ open: true, title: `Create ${fn}`, option: 'create' })}
 					>
 						Create
 					</Button>
-					)
+				)
 			}
 			{
 				logData.visible && <ViewLogModal data={logData} onClose={closeViewLog}/>
@@ -226,10 +243,11 @@ const List = React.forwardRef((props, ref) => {
 						width='90%' 
 						visible={popup.open}
 						forceRender
-						footer={[
-							<Button key="cancel" onClick={() => {}}>Close</Button>,
-							<Button key="ok" onClick={()=>{}}>{!editData? 'Create ' : 'Update'}</Button>,
-						]}
+						keyboard
+						okText={(popup.option === 'update')? 'Update ' : 'Create'}
+						onOk={()=>showConfirm('Confirm action',popup.title, confirmPopup, closePopUp)}
+						cancelText='Close'
+						onCancel={closePopUp}
 					>
 						{contentEdit}
 					</Modal>

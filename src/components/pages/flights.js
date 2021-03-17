@@ -18,10 +18,10 @@ const { TabPane } = Tabs;
 
 const Flights = () => {
 	const { search } = useLocation();
-	const [ editData, setEditData ] = useState();
+	const [ editData, setEditData ] = useState({});
 	const [ baseForm, setBaseForm ] = useState({});
 	const [ logData, setLogData] = useState({visible: false, title: "", data: []});
-    const [ popup, setPopup ] = useState({open: false, title: ''});
+    const [ popup, setPopup ] = useState({open: false, title: '', option: 'update'});
 	
 	const [ form ] = Form.useForm();
    
@@ -64,12 +64,31 @@ const Flights = () => {
 	const closeViewLog = () => {
         setLogData({...logData, ...{visible:false}})
     }
+	const viewLog = async(id) => {
+        var span_data = await utility.FetchAndSpanLogData('flights', id, user.api_token);
+		setLogData({...logData, ...{visible: true, title: `Changelog: flights/${id}`, data: span_data}})
+    }
+
+    const updateRecord = (record) => {
+        // console.log('update', record)
+        setPopup({...popup,...{open: true,title: `Update Advertiser : ${record.id} ${record.name}`}})
+        let fields = []; // field JSON stringtify
+        for (let x in record) {
+            if (fields.includes(x) && !Array.isArray(record[x])) {
+                record[x] = JSON.parse(record[x])
+            }
+        }
+        console.log(record)
+        setBaseForm(record);
+        form.resetFields();
+        form.setFieldsValue(record);
+    }
 	let lR = () => {};
 	return ([
 		<List
 			key='list'
 			listRef={fn => lR = fn}
-			contentUpdate={
+			contentEdit={
 				<Form 
 					className={'flight-form'}
 					form={form}
@@ -374,7 +393,8 @@ const Flights = () => {
 							<Dropdown 
 								overlay={
 									<Menu>
-										<Menu.Item>
+										<Menu.Item
+											onClick={() =>updateRecord(record)}>
 											<ReadOutlined /> <span>Update</span>
 										</Menu.Item>
 										<Menu.Item>
@@ -387,10 +407,7 @@ const Flights = () => {
 											<LineChartOutlined /> <span>View Report</span>
 										</Menu.Item>
 										<Menu.Item
-											onClick={async () => {
-												var span_data = await utility.FetchAndSpanLogData('flights', record.id, user.api_token);
-												setLogData({...logData, ...{visible: true, title: `Changelog: flights/${record.id}`, data: span_data}})
-											}}
+											onClick={()=>viewLog(record.id)}
 										>
 											<SolutionOutlined /> <span>View Log</span>
 										</Menu.Item>
@@ -426,6 +443,13 @@ const Flights = () => {
 			]}
 			logData={logData}
             closeViewLog={closeViewLog}	
+			closeViewLog={()=>setLogData({...logData, ...{visible:false}})}
+            popup={popup}
+            openPopup={(v)=>{
+				setPopup(v)
+			}}
+            closePopUp={()=>setPopup({...popup,...{open:false}})}
+            confirmPopup={()=>form.submit()}
 		/>
 	]);
 

@@ -93,10 +93,11 @@ export const filerColumn = (searchFields, dataIndex) => ({
 			</Space>
 		</div>
 		),
-	filterIcon: () => (
-		<SearchOutlined style={!!searchFields[dataIndex] ? { color: "#1890ff" }: {}} />
-		),
-	// filteredValue: [searchFields[dataIndex]] || [],
+	filterIcon: () => {
+		return (
+		<SearchOutlined style={!!searchFields[dataIndex] ? { color: "#1890ff" }: {color: '#c0c0c0'}} />
+		)},
+	// filteredValue: searchFields[dataIndex] ? [searchFields[dataIndex]] : undefined,
 	defaultFilteredValue: searchFields[dataIndex] ? [searchFields[dataIndex]] : undefined
 })
 
@@ -358,6 +359,7 @@ export const ListDateRangePicker = (props) => {
 	const {value = [], onChange, editable} = props;
 	// const _v = value? Object.values({...value[0],...{key:null}}).filter(item=> item !== null):[];
 	const [choose, setChoose] = useState(value);
+	console.log(choose)
 	React.useEffect(() => {
 		if (onChange) {
 		  	onChange(choose);

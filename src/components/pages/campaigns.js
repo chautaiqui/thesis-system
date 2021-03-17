@@ -18,15 +18,16 @@ import moment from 'moment';
 
 const Campaigns = () => {
     const { search } = useLocation();
-	const [ editData, setEditData ] = useState();
+	const [ editData, setEditData ] = useState({id: 0}); 
 	const [ baseForm, setBaseForm ] = useState({});
-	const [ logData, setLogData] = useState({visible: false, title: "", data: []});
 
 	const [ form ] = Form.useForm();
 
     const [ _state, _dispatch] = useReducer(PageReducer, {searchFields: undefined, requireData: {}});
 	const {	searchFields, requireData} = _state;
 	const [ user ] = useContext(User.context);
+	const [ logData, setLogData] = useState({visible: false, title: "", data: []});
+    const [ popup, setPopup ] = useState({open: false, title: '', option: 'update'});
 
     useEffect(() => {
         let isCancelled = false;
@@ -44,27 +45,27 @@ const Campaigns = () => {
 	}, [searchFields])
 
     const require = useCallback ((v) => {
-		// data: [promise]
-		// Promise.all(data).then(values => {
-		// 	_dispatch({type: 'get_require_data', data: values})
-		// })
 		_dispatch({type: 'get_require_data', data: v})
 	}, [searchFields])
 
 	if (!searchFields) return <div />;
 
 	const onFinish = values => {
-		for (let item in values) {
-			if (typeof values[item] === 'object') values[item] = values[item].format('YYYY-MM-DD') /**/
-		}
+		// for (let item in values) {
+		// 	if (values[item].format('YYYY-MM-DD')) values[item] = values[item].format('YYYY-MM-DD') /**/
+		// }
 		setEditData({ ...baseForm, ...values });
 	};
 
 	const onFinishFailed = errorInfo => {
 		console.log('Failed:', errorInfo);
 	};
-	const closeViewLog = () => {
-        setLogData({...logData, ...{visible:false}})
+	const viewLog = async (id) => {
+		var span_data = await utility.FetchAndSpanLogData('campaigns', id, user.api_token);
+		setLogData({...logData, ...{visible: true, title: `Changelog: campaigns/${id}`, data: span_data}})
+	}
+	const closePopUp = () => {
+        setPopup({...popup,...{open:false}});
     }
 	// console.log(requireData['accounts'])
     return ([
@@ -165,12 +166,6 @@ const Campaigns = () => {
 				</Row>
 			</Form> 
 			}
-			onOpen={v => {
-			setBaseForm(v);
-			form.resetFields();
-			form.setFieldsValue(v);
-			}}
-			onOk={() => form.submit()}
 			editData={editData}
 			fn='campaigns'
 			tColumns={[
@@ -181,7 +176,6 @@ const Campaigns = () => {
 					width: "5%",
 					sorter: true,
 					sortDirections: ['ascend', 'descend'],
-					...filerColumn(searchFields, 'id')
 				},
 				{
 					title: 'Campaign Name',
@@ -246,10 +240,7 @@ const Campaigns = () => {
 										</Menu.Item>
 										<Menu.Item
 											key='4'
-											onClick={async () => {
-												var span_data = await utility.FetchAndSpanLogData('campaigns', record.id, user.api_token);
-												setLogData({...logData, ...{visible: true, title: `Changelog: campaigns/${record.id}`, data: span_data}})
-											}}
+											onClick={()=>viewLog(record.id)}
 										>
 											<SolutionOutlined /> <span>View Log</span>
 										</Menu.Item>
@@ -262,6 +253,7 @@ const Campaigns = () => {
 				},
 				
 			]}
+            ableCreate={true}
 			searchFields={searchFields}
 			updateSF={updateSF}
 			tableProps={{
@@ -291,7 +283,7 @@ const Campaigns = () => {
 				{name: 'accounts', meta : {limit: 100, offset: 1,}}, 
 			]}
 			logData={logData}
-            closeViewLog={closeViewLog}	
+            closeViewLog={()=>setLogData({...logData, ...{visible:false}})}	
 		/>
 	]);
 }

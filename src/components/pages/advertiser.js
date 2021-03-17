@@ -16,15 +16,17 @@ import { getRequest } from '@api';
 const Advertiser = (props) => {
     const { model } = props;
     const { search } = useLocation();
-	const [ editData, setEditData ] = useState();
+	const [ editData, setEditData ] = useState({id: 0});
 	const [ baseForm, setBaseForm ] = useState({});
-	const [ form ] = Form.useForm();
+	
+    const [ form ] = Form.useForm();
 
     const [ _state, _dispatch] = useReducer(PageReducer, {searchFields: undefined, requireData: {}});
 	const { searchFields, requireData } = _state;
 	const [ user ] = useContext(User.context);
 	const [ logData, setLogData] = useState({visible: false, title: "", data: []});
-    const [ popup, setPopup ] = useState({open: false, title: ''});
+    const [ popup, setPopup ] = useState({open: false, title: '', option: 'update'});
+    
     useEffect(() => {
         let isCancelled = false;
 		if(!isCancelled) _dispatch({type: 'init_search_field', data: search+`&model=${model}`})
@@ -46,60 +48,22 @@ const Advertiser = (props) => {
 
     if (!searchFields) return <div />;
 	const onFinish = values => {
-        let new_values = {...values, ...{sale_id: values.sale.id}};
+        // let new_values = {...values, ...{sale_id: values.sale.id}};
         /* update sale_id */
-		setEditData({ ...baseForm, ...new_values });
+		setEditData({ ...baseForm, ...values });
 	};
 
 	const onFinishFailed = errorInfo => {
 		console.log('Failed:', errorInfo);
 	};
-    const viewLog = (id) => {
-        // console.log('view log', id)
-        // console.log(user)
-        // set visiable modal
-        (async()=>{
-            try {
-                const reps = await getRequest('accounts', user.api_token, {} , [id, 'audit']);
-                const {success, result} = reps;
-                if (!success) return;
-                let span_data = [];
-                result.data.map(item => {
-                    let temp_arr = [];
-                    for (let x in item.new_values) {
-                        temp_arr = [... temp_arr, {
-                            date: item.created_at,
-                            user: `${item.user.id} - ${item.user.name} ${item.user.email}`,
-                            event: item.event,
-                            field: x,
-                            old_value: item.old_values[x] || null,
-                            new_value: item.new_values[x] ,
-                            rowSpan: Object.keys(item.new_values)[0] === x ? Object.keys(item.new_values).length : 0,
-                        }]
-                    }
-                    span_data = [...span_data, ...temp_arr]
-                })
-                setLogData({...logData, ...{visible: true, title: `Changelog: accounts/${id}`, data: span_data}})
-            } catch(e) {
-                return;
-            }
-        })()
+    const viewLog = async(id) => {
+        var span_data = await utility.FetchAndSpanLogData('accounts', id, user.api_token);
+		setLogData({...logData, ...{visible: true, title: `Changelog: accounts/${id}`, data: span_data}})
     }
-    const closeViewLog = () => {
-        setLogData({...logData, ...{visible:false}})
-    }
-    const closePopUp = () => {
-        setPopup({...popup,...{open:false}});
-    }
-    const openPopUp = (data) => {
-        setPopup(data);
-    }
-    const tooglePopup = (data) => {
-        setPopup(data);
-    }
-    const UpdateRecord = (record) => {
+
+    const updateRecord = (record) => {
         // console.log('update', record)
-        openPopUp({open: true,title: `Update Advertiser : ${record.id} ${record.name}`})
+        setPopup({...popup,...{open: true,title: `Update Advertiser : ${record.id} ${record.name}`}})
         let fields = []; // field JSON stringtify
         for (let x in record) {
             if (fields.includes(x) && !Array.isArray(record[x])) {
@@ -181,7 +145,6 @@ const Advertiser = (props) => {
 					key: 'id',
                     sorter: true,
 					sortDirections: ['ascend', 'descend'],
-					...filerColumn(searchFields, 'id')
 				},
                 {
 					title: 'Name',
@@ -208,13 +171,14 @@ const Advertiser = (props) => {
 					render: (text, record, index) => ([
                         <Switch key='sw' checked={text===0?false:true} style={{display: 'inline-block', marginLeft:10}}/>,
                         <Button title="Update" key='edit' size='small' style={{display: 'inline-block',marginLeft:2,borderRadius:'50%',background: 'white'}} 
-                            // onClick={()=>{Object.keys(requireData).length===0?(()=>{})(): UpdateRecord(record)}}><FormOutlined /></Button>,
-                            onClick={() =>UpdateRecord(record)}><FormOutlined /></Button>,
+                            // onClick={()=>{Object.keys(requireData).length===0?(()=>{})(): updateRecord(record)}}><FormOutlined /></Button>,
+                            onClick={() =>updateRecord(record)}><FormOutlined /></Button>,
                         <Button title="ViewLog" key='viewlog' size='small' style={{display: 'inline-block',marginLeft:2,borderRadius:'50%',background: 'white'}} onClick={()=> viewLog(record.id)}><SolutionOutlined /></Button>,
                     ])
                 }
                 
             ]}
+            ableCreate={true}
             searchFields={searchFields}
 			updateSF={updateSF}
             tableProps={{
@@ -226,11 +190,13 @@ const Advertiser = (props) => {
 				{ name: 'users', meta : {limit: 1000, offset: 1}, onChange: data => _dispatch({type: 'get_require_data', data: {users: data}})}, 
 			]}
             logData={logData}
-            closeViewLog={closeViewLog}
+            closeViewLog={()=>setLogData({...logData, ...{visible:false}})}
             popup={popup}
-            openPopUp={openPopUp}
-            tooglePopup={tooglePopup}
+            openPopup={(v)=>setPopup(v)}
+            closePopUp={()=>setPopup({...popup,...{open:false}})}
+            confirmPopup={()=>form.submit()}
             // action={['Update', 'View Log']}
+
         />
     ])
 }
