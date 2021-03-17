@@ -63,7 +63,7 @@ const postRequestItem = async(fn, api_token, data) => {
     if(!re.ok) return {success: false, error: 'Api error'}
     let _re = await re.json();
     // if(_re.status !== 200) return {success: false, error: _re.message || 'Api ok but smt error'}
-    if (_re.status === 500) return {success: false, error: 'The name has already been taken.'}
+    if (_re.status === 500) return {success: false, error: 'The name has already been taken.'} /* */
     return {success: true, result: _re}
   } catch (e) {
     return {
@@ -105,6 +105,10 @@ const fetchData = {
   campaigns: (api_token, meta) => getRequest('campaigns', api_token, meta),
   flights: (api_token, meta) => getRequest('flights', api_token, meta),
   accounts: (api_token, meta) => getRequest('accounts', api_token, meta),
+  provinces: (api_token, meta) => getRequest('provinces', api_token, meta),
+  categories: (api_token, meta) => getRequest('categories', api_token, meta),
+  websiteapps: (api_token, meta) => getRequest('website-apps', api_token, meta),
+  users: (api_token, meta) => getRequest('users', api_token, meta)
 }
 
 const postData = {

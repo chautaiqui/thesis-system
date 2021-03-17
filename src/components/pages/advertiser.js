@@ -13,8 +13,8 @@ import { useLocation } from 'react-router-dom';
 import { getRequest } from '@api';
 
 
-
-const Advertiser = () => {
+const Advertiser = (props) => {
+    const { model } = props;
     const { search } = useLocation();
 	const [ editData, setEditData ] = useState();
 	const [ baseForm, setBaseForm ] = useState({});
@@ -24,10 +24,11 @@ const Advertiser = () => {
 	const { searchFields, requireData } = _state;
 	const [ user ] = useContext(User.context);
 	const [ logData, setLogData] = useState({visible: false, title: "", data: []});
-
-
+    const [ popup, setPopup ] = useState({open: false, title: ''});
     useEffect(() => {
-		_dispatch({type: 'init_search_field', data: search+'&model=advertiser'})
+        let isCancelled = false;
+		if(!isCancelled) _dispatch({type: 'init_search_field', data: search+`&model=${model}`})
+        return () => isCancelled = true;
 	}, [])
     
     const updateSF = useCallback (data => {
@@ -45,7 +46,9 @@ const Advertiser = () => {
 
     if (!searchFields) return <div />;
 	const onFinish = values => {
-		setEditData({ ...baseForm, ...values });
+        let new_values = {...values, ...{sale_id: values.sale.id}};
+        /* update sale_id */
+		setEditData({ ...baseForm, ...new_values });
 	};
 
 	const onFinishFailed = errorInfo => {
@@ -85,15 +88,33 @@ const Advertiser = () => {
     const closeViewLog = () => {
         setLogData({...logData, ...{visible:false}})
     }
-    const UpdateRecord = (record) => {
-        console.log('update', record)
+    const closePopUp = () => {
+        setPopup({...popup,...{open:false}});
     }
-	let lR = () => {};
+    const openPopUp = (data) => {
+        setPopup(data);
+    }
+    const tooglePopup = (data) => {
+        setPopup(data);
+    }
+    const UpdateRecord = (record) => {
+        // console.log('update', record)
+        openPopUp({open: true,title: `Update Advertiser : ${record.id} ${record.name}`})
+        let fields = []; // field JSON stringtify
+        for (let x in record) {
+            if (fields.includes(x) && !Array.isArray(record[x])) {
+                record[x] = JSON.parse(record[x])
+            }
+        }
+        console.log(record)
+        setBaseForm(record);
+        form.resetFields();
+        form.setFieldsValue(record);
+    }
     return ([
         <List 
             key='list'
-            listRef={fn => lR = fn}
-            contentUpdate={
+            contentEdit={
                 <Form
                     className={'advertiser-form'}
 					form={form}
@@ -116,11 +137,17 @@ const Advertiser = () => {
                                 {...utility.formItemLayout}
                                 name='sale'
                                 label='Sale'
-                                getValueFromEvent={v => {
-                                    return requireData['users'].find(item=>item.id === v)
-                                }}
+                                // getValueFromEvent={v => {
+                                //     return requireData['users'].find(item=>item.id === v)
+                                    // return typeof v === 'object' ? v : requireData['users'].find(item=>item.id === v)
+                                    // return requireData['users'].find(item=>item.id === v) || null
+                                // }}
                             >
-                                <CustomSelectObj notFound={'Not found saler'} data={requireData['users'] ? requireData['users'].map(item => ({label: item.name, value: item.id})) : []}/>
+                                <CustomSelectObj
+                                    disabled={!requireData['users']} 
+                                    notFound={'Not found saler'} 
+                                    data={requireData['users'] ? requireData['users'].map(item => ({label: item.name, value: item.id})) : [{label: 'Loading', value: ''}]}
+                                />
                             </Form.Item>
                         </Col>
                         <Col xs={22} sm={22} md={12}>
@@ -137,27 +164,14 @@ const Advertiser = () => {
                                 {...utility.formItemLayout}
                                 name='activated'
                                 label='Activated'
-                                >
-                                <CustomSwitch />
+                                valuePropName="checked"
+                            >
+                                <Switch />
                             </Form.Item>
                         </Col>
                     </Row>
                 </Form>
             }
-            onOpen={v => {
-				// edit v
-				let fields = [];
-				for (let x in v) {
-					if (fields.includes(x) && !Array.isArray(v[x])) {
-						v[x] = JSON.parse(v[x])
-					}
-				}
-				console.log(v)
-				setBaseForm(v);
-				form.resetFields();
-				form.setFieldsValue(v);
-			}}
-            onOk={() => form.submit()}
             editData={editData}
             fn='accounts'   
             tColumns={[
@@ -167,6 +181,7 @@ const Advertiser = () => {
 					key: 'id',
                     sorter: true,
 					sortDirections: ['ascend', 'descend'],
+					...filerColumn(searchFields, 'id')
 				},
                 {
 					title: 'Name',
@@ -192,7 +207,9 @@ const Advertiser = () => {
 					key: 'activated',
 					render: (text, record, index) => ([
                         <Switch key='sw' checked={text===0?false:true} style={{display: 'inline-block', marginLeft:10}}/>,
-                        <Button title="Update" key='edit' size='small' style={{display: 'inline-block',marginLeft:2,borderRadius:'50%',background: 'white'}} onClick={()=>UpdateRecord(record)}><FormOutlined /></Button>,
+                        <Button title="Update" key='edit' size='small' style={{display: 'inline-block',marginLeft:2,borderRadius:'50%',background: 'white'}} 
+                            // onClick={()=>{Object.keys(requireData).length===0?(()=>{})(): UpdateRecord(record)}}><FormOutlined /></Button>,
+                            onClick={() =>UpdateRecord(record)}><FormOutlined /></Button>,
                         <Button title="ViewLog" key='viewlog' size='small' style={{display: 'inline-block',marginLeft:2,borderRadius:'50%',background: 'white'}} onClick={()=> viewLog(record.id)}><SolutionOutlined /></Button>,
                     ])
                 }
@@ -206,10 +223,13 @@ const Advertiser = () => {
             require={require}
 			requireData = {requireData}
             fieldsRequire={[
-				{name: 'users', meta : {limit: 1000, offset: 1,}}, 
+				{ name: 'users', meta : {limit: 1000, offset: 1}, onChange: data => _dispatch({type: 'get_require_data', data: {users: data}})}, 
 			]}
             logData={logData}
             closeViewLog={closeViewLog}
+            popup={popup}
+            openPopUp={openPopUp}
+            tooglePopup={tooglePopup}
             // action={['Update', 'View Log']}
         />
     ])

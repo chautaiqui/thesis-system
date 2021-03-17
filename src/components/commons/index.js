@@ -93,11 +93,11 @@ export const filerColumn = (searchFields, dataIndex) => ({
 			</Space>
 		</div>
 		),
-	filterIcon: (filtered) => (
-		<SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+	filterIcon: () => (
+		<SearchOutlined style={!!searchFields[dataIndex] ? { color: "#1890ff" }: {}} />
 		),
-	filteredValue: searchFields[dataIndex] || null,
-	// defaultFilteredValue: [searchFields[dataIndex]] || []
+	// filteredValue: [searchFields[dataIndex]] || [],
+	defaultFilteredValue: searchFields[dataIndex] ? [searchFields[dataIndex]] : undefined
 })
 
 export const filterSelectCheck = (searchFields, dataIndex) => {
@@ -131,17 +131,17 @@ export const filterSelectCheck = (searchFields, dataIndex) => {
 	}
 }
 
-export const filterCheck = (searchFields, dataIndex) => ({
-	filters: [
-		{
-		  text: 'Enable',
-		  value: '1',
-		},
-		{
-		  text: 'Disable',
-		  value: '0',
-		},
-	  ],
+export const filterCheck = (searchFields, dataIndex, options = [
+	{
+	  text: 'Enable',
+	  value: '1',
+	},
+	{
+	  text: 'Disable',
+	  value: '0',
+	},
+  ]) => ({
+	filters: options,
 	filteredValue: searchFields[dataIndex] || null,
 	filterMultiple: false,
 })
@@ -227,11 +227,12 @@ export const filterDatePicker = (searchFields, dataIndex) => {
 
 // select filter
 export const CustomSelect = (props) => {
-	const { data, confirm, setSelectedKeys, clearFilters } = props;
+	const { data, confirm, setSelectedKeys, clearFilters, labelPropName='name', valuePropName ='id' } = props;
 	const [search, setSearch] = useState('');
 	let temp = data.filter(item => item.name.includes(search)).length === 0 ? data : data.filter(item => item.name.includes(search));
 	const temp1 = temp.map(item => ({name: item.name, id: item.id}));
 	// console.log(searchFields[dataIndex] ? searchFields[dataIndex] : 'k co')
+
 	return (
 		<div>
 			<Select 
@@ -253,10 +254,11 @@ export const CustomSelect = (props) => {
 					}
 					clearFilters();
 				}}
+				options={temp.map(item => ({label: item[labelPropName], value: item[valuePropName]}))}
 			>
-				{temp1.map(d => (
+				{/* {temp1.map(d => (
 					<Option key={d.id}>{d.name}</Option>
-				))}
+				))} */}
 			</Select>
 		</div>
 
@@ -352,7 +354,7 @@ export const RadioGroup = (props) => {
 	)
 }
 
-export const DateRangePicker = (props) => {
+export const ListDateRangePicker = (props) => {
 	const {value = [], onChange, editable} = props;
 	// const _v = value? Object.values({...value[0],...{key:null}}).filter(item=> item !== null):[];
 	const [choose, setChoose] = useState(value);
@@ -369,13 +371,13 @@ export const DateRangePicker = (props) => {
 				break;
 			}
 			case 1: {
+				//del
 				let check = false;
 				choose.map(item=>{
-					if (item.from === undefined || item.to === undefined) check = true
+					if (item.from === undefined || item.to === undefined) check = true;
 				})
 				if (check) return;
-				setChoose([...choose, {from: undefined,to: undefined}])
-				//del
+				setChoose([...choose, {from: undefined,to: undefined}]);
 				break;
 			}
 		}
@@ -443,23 +445,24 @@ export const CustomSwitch = (props) => {
 	return <Switch checked={choose===1?true:false} onChange={v=>setChoose(Number(v))}/>
 }
 export const CustomSelectObj = (props) => {
-	const {value = {}, onChange, data, notFound=''} = props;
+	const {value = {}, onChange, data, notFound='', disabled} = props;
 	// data: label, obj
 	// console.log(value)
-	const [choose, setChoose] = useState(value);
+	const [choose, setChoose] = useState(value.id);
 	React.useEffect(() => {
 		if (onChange) {
 		  	onChange(choose);
 		}
 	}, [choose]);
 	return <Select 
+		disabled={disabled}
 		allowClear
 		showSearch
 		options={data}
 		filterOption={(inputValue, options) => {
 			return options.label.toLowerCase().includes(inputValue.toLowerCase())
 		}}
-		defaultValue={choose.id}
+		value={choose}
 		onChange={v=>setChoose(v)}
 		notFoundContent={notFound}
 	/>

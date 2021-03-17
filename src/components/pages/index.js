@@ -4,7 +4,6 @@ import Flights from './flights';
 import Campaigns from './campaigns';
 import Creative from './creative';
 import Advertiser from './advertiser';
-import Publisher from './publisher';
 
 // import Transactions from './transactions';
 import { ScheduleOutlined, RocketOutlined, StarOutlined, DashboardOutlined, GlobalOutlined,
@@ -14,14 +13,16 @@ import { ScheduleOutlined, RocketOutlined, StarOutlined, DashboardOutlined, Glob
 const Todo = () => {
   return <h1>To Do</h1>
 }
+const Adve = () => <Advertiser model='advertiser'/>
+const Pub = () => <Advertiser model='publisher'/>
 
 const subPages1 = [
   { path: '/dashboard', label: (<><DashboardOutlined /> Dashboard </>), component: Todo, permissions: 'dashboard' },
-  { path: '/advertisers', label: (<><GlobalOutlined /> Advertisers </>), component: Advertiser, permissions: 'advertisers' },
+  { path: '/advertisers', label: (<><GlobalOutlined /> Advertisers </>), component: Adve, permissions: 'advertisers' },
   { path: '/campaigns', label: (<><ScheduleOutlined style={{paddingLeft:20}}/> Campaigns </>), component: Campaigns, permissions: 'campaigns' },
   { path: '/flights', label: (<><RocketOutlined style={{paddingLeft:20}} rotate={45}/> Flights </>), component: Flights, permissions: 'flights' },
   { path: '/creative', label: (<><StarOutlined style={{paddingLeft:20}} color={'#fff'}/> Creative </>), component: Creative, permissions: 'creative' },
-  { path: '/publishers', label: (<><NotificationOutlined rotate={360}/> Publishers </>), component: Publisher, permissions: 'publishers' },
+  { path: '/publishers', label: (<><NotificationOutlined rotate={360}/> Publishers </>), component: Pub, permissions: 'publishers' },
   { path: '/categories', label: (<><GroupOutlined style={{paddingLeft:20}}/> Categories </>), component: Todo, permissions: 'categories' },
   { path: '/source-providers', label: (<><BulbOutlined style={{paddingLeft:20}}/> Source Providers </>), component: Todo, permissions: 'source-providers' },
   { path: '/placements', label: (<><HomeOutlined style={{paddingLeft:20}}/> Placements </>), component: Todo, permissions: 'placements' },

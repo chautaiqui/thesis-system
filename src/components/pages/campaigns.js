@@ -1,5 +1,6 @@
-import React, { useEffect, useReducer, useState, useCallback} from 'react';
+import React, { useEffect, useReducer, useState, useCallback, useContext } from 'react';
 import List from '@components/commons/list';
+import { User } from '@pkg/reducers';
 
 import { PageReducer } from '@pkg/reducers';
 import { utility, filerColumn, filterSelect, filterCheck, filterDatePicker } from '@components/commons';
@@ -11,19 +12,27 @@ import Row from 'antd/lib/row';
 import Col from 'antd/lib/col';
 import Input from 'antd/lib/input';
 
-import { Radio, DatePicker, Select } from 'antd';
+import { Radio, DatePicker, Select, Button, Menu, Dropdown } from 'antd';
+import { DownOutlined, ReadOutlined, CopyOutlined, LineChartOutlined, SolutionOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 const Campaigns = () => {
     const { search } = useLocation();
 	const [ editData, setEditData ] = useState();
 	const [ baseForm, setBaseForm ] = useState({});
+	const [ logData, setLogData] = useState({visible: false, title: "", data: []});
+
 	const [ form ] = Form.useForm();
 
     const [ _state, _dispatch] = useReducer(PageReducer, {searchFields: undefined, requireData: {}});
 	const {	searchFields, requireData} = _state;
+	const [ user ] = useContext(User.context);
+
     useEffect(() => {
-		_dispatch({type: 'init_search_field', data: search})
+        let isCancelled = false;
+		if (!!searchFields) return() => isCancelled = true;
+		if(!isCancelled) _dispatch({type: 'init_search_field', data: search});
+		return () => isCancelled = true;
 	}, [])
 	
 	const updateSF = useCallback (data => {
@@ -46,7 +55,7 @@ const Campaigns = () => {
 
 	const onFinish = values => {
 		for (let item in values) {
-			if (typeof values[item] === 'object') values[item] = values[item].format('YYYY-MM-DD')
+			if (typeof values[item] === 'object') values[item] = values[item].format('YYYY-MM-DD') /**/
 		}
 		setEditData({ ...baseForm, ...values });
 	};
@@ -54,6 +63,9 @@ const Campaigns = () => {
 	const onFinishFailed = errorInfo => {
 		console.log('Failed:', errorInfo);
 	};
+	const closeViewLog = () => {
+        setLogData({...logData, ...{visible:false}})
+    }
 	// console.log(requireData['accounts'])
     return ([
 		<List
@@ -209,14 +221,46 @@ const Campaigns = () => {
 					width: "15%",
 				},
 				{
-					title: 'Activated',
+					title: 'Action',
+					align: 'center',
 					dataIndex: 'activated',
 					key: 'activated',
 					width: "10%",
-					...filterCheck(searchFields, 'activated'),
+					...filterCheck(searchFields, 'activated', [{text: 'active', value: 1}, {text: 'disable', value: 0}]),
 					// ...filerColumn(searchFields, 'activated'),
-					render: v => <Switch checked={v===0?false:true} />
+					render: (text, record, index) => ([
+						<div key='action'>
+							<Switch key='sw' checked={text===0?false:true} style={{marginBottom: 5}}/>
+							<Dropdown 
+								key='dropdown'
+								overlay={
+									<Menu>
+										<Menu.Item key='1'>
+											<ReadOutlined /> <span>View Detail</span>
+										</Menu.Item>
+										<Menu.Item key='2'>
+											<CopyOutlined /> <span>Copy</span>
+										</Menu.Item>
+										<Menu.Item key='3'>
+											<LineChartOutlined /> <span>View Report</span>
+										</Menu.Item>
+										<Menu.Item
+											key='4'
+											onClick={async () => {
+												var span_data = await utility.FetchAndSpanLogData('campaigns', record.id, user.api_token);
+												setLogData({...logData, ...{visible: true, title: `Changelog: campaigns/${record.id}`, data: span_data}})
+											}}
+										>
+											<SolutionOutlined /> <span>View Log</span>
+										</Menu.Item>
+									</Menu>
+								} placement="bottomLeft">
+							<Button>Action <DownOutlined /></Button>
+						</Dropdown>
+						</div>
+                    ])
 				},
+				
 			]}
 			searchFields={searchFields}
 			updateSF={updateSF}
@@ -246,8 +290,8 @@ const Campaigns = () => {
             fieldsRequire = {[
 				{name: 'accounts', meta : {limit: 100, offset: 1,}}, 
 			]}
-			action={['View Detail', 'Copy', 'View Report', 'View Log']}
-			
+			logData={logData}
+            closeViewLog={closeViewLog}	
 		/>
 	]);
 }
