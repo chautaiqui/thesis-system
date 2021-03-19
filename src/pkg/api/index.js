@@ -107,7 +107,8 @@ const fetchData = {
   provinces: (api_token, meta) => getRequest('provinces', api_token, meta),
   categories: (api_token, meta) => getRequest('categories', api_token, meta),
   websiteapps: (api_token, meta) => getRequest('website-apps', api_token, meta),
-  users: (api_token, meta) => getRequest('users', api_token, meta)
+  users: (api_token, meta) => getRequest('users', api_token, meta),
+  config: (api_token, meta) => getRequest('config', api_token, meta),
 }
 
 const postData = {
@@ -127,15 +128,6 @@ const putData = {
   accounts: (api_token, data) => putRequest('accounts', api_token, data, data.id)
 }
 
-const requires = {
-  accounts: (api_token, meta) => getRequest('accounts', api_token, meta),
-  flights: (api_token, meta) => getRequest('flights', api_token, meta),
-  provinces: (api_token, meta) => getRequest('provinces', api_token, meta),
-  categories: (api_token, meta) => getRequest('categories', api_token, meta),
-  websiteapps: (api_token, meta) => getRequest('website-apps', api_token, meta),
-  users: (api_token, meta) => getRequest('users', api_token, meta)
-}
+export { signin, fetchData, postData, putData, getRequest };
 
-export { signin, fetchData, postData, putData, requires };
-
-export {getRequest};
+ 

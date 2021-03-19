@@ -53,7 +53,7 @@ const initialState = { data: [], behavior: 'init'};
 const List = React.forwardRef((props, ref) => {
 	const { fn, tColumns, ableCreate = false,
 		editData, contentEdit, popup = {}, togglePopup = () => {}, confirmPopup = () => {},  
-		searchFields, updateSF = () => {}, resetSF = () => {}, /**/
+		searchFields, onChangeSF = () => {},/**/
 		tableProps,	
 		fieldsRequire = [], requireData = {}, /**/
 		logData = {visible: false, title: "", data: []}, closeViewLog = () => {}, /**/	
@@ -172,7 +172,7 @@ const List = React.forwardRef((props, ref) => {
 						key={item[0]}
 						closable
 						onClose={e => {
-							resetSF(item[0])
+							onChangeSF({[item[0]]: null})
 						}}
 					>
 						{`${_n[0]}: ${_n[1]}`}
@@ -260,7 +260,7 @@ const List = React.forwardRef((props, ref) => {
 								if (Object.keys(s).length !== 0) {
 									fs = { ...fs, ...{order: `${s.order ? s.field: 'id'}|${s.order ? s.order.slice(0, s.order.length-3): 'desc'}`}}
 								}
-								updateSF({offset: pagination.current, limit: pagination.pageSize, ...f, ...fs})
+								onChangeSF({offset: pagination.current, limit: pagination.pageSize, ...f, ...fs})
 						} 
 					}
 					{...tableProps}

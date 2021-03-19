@@ -32,14 +32,7 @@ const Advertiser = (props) => {
         return () => isCancelled = true;
 	}, [model, search])
     
-    const updateSF = useCallback (data => {
-		// if(meta.offset === searchFields.offset && meta.limit === searchFields.limit && searchFields.total === meta.total ) return;
-		_dispatch({type: 'update_search_field', data: { ...searchFields, ...data }})
-	}, [searchFields])
-
-	const resetSF = useCallback (dataIndex => {
-		_dispatch({type: 'update_search_field', data: { ...searchFields, [dataIndex]: null } })
-	}, [searchFields])
+    const onChangeSF = data => _dispatch({type: 'update_search_field', data: { ...searchFields, ...data }}) 
 
     const require = async (v) => {
 		_dispatch({type: 'get_require_data', data: v})
@@ -180,10 +173,9 @@ const Advertiser = (props) => {
             ]}
             ableCreate={true}
             searchFields={searchFields}
-			updateSF={updateSF}
+			onChangeSF={onChangeSF}
             tableProps={{
             }}
-            resetSF = {resetSF}
             require={require}
 			requireData = {requireData}
             fieldsRequire={[
