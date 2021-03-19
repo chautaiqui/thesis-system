@@ -2,6 +2,7 @@ import React, { useReducer, createContext } from 'react';
 // import { useHistory } from 'react-router-dom';
 
 const UserContext = createContext();
+
 const UserProvider = ({ children }) => {
   const contextValue = useReducer((state, action) => {
     switch (action.type) {
@@ -46,6 +47,8 @@ export const PageReducer = (state, action) => {
       return { ...state, editData: { ...state.editData, ...action.data }};
     case 'set_baseform': 
       return { ...state, baseForm: { ...state.baseForm, ...action.data }};
+    case 'get_extend_data' :
+      return { ...state, updateData: { ...state.updateData, ...action.data }}; 
     default:
       return state;
   } 

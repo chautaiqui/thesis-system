@@ -471,4 +471,16 @@ export const CustomSelectObj = (props) => {
 	/>
 	// return <div></div>
 }
+
+export const MultiInput = props => {
+	const { value = [], onChange = () => {} , label = []} = props;
+	const [newValue, setNewValue] = useState(value);
+	console.log(newValue);
+	return (
+		<div>
+			<CustomInputNumber onChange={(v)=>console.log(v)} value={newValue[0]} label={label[0]}/>
+			<CustomInputNumber onChange={(v)=>console.log(v)} value={newValue[0]} label={label[1]}/>
+		</div>
+	)
+}
 export { utility };
