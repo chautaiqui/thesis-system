@@ -1,6 +1,6 @@
 // import Login from "../../components/auth/login";
 
-const _promise = obj => new Promise(resolve => setTimeout(() => resolve(obj), 1000));
+// const _promise = obj => new Promise(resolve => setTimeout(() => resolve(obj), 1000));
 
 const apiDomain = 'https://a.adsplay.xyz';
 const postRequest = async (fn, body) => {
@@ -100,7 +100,6 @@ const signin = {
 }
 
 const fetchData = {
-  users: () => {},
   transaction: () => {},
   campaigns: (api_token, meta) => getRequest('campaigns', api_token, meta),
   flights: (api_token, meta) => getRequest('flights', api_token, meta),
@@ -112,17 +111,6 @@ const fetchData = {
 }
 
 const postData = {
-  plans: () => _promise({
-    success: true,
-    result: {
-      id: 1,
-      name: 'a',
-      diamond: 1,
-      price: 1,
-      enabled: true
-    }
-  }),
-  users: () => {},
   transaction: () => {},
   flights: (api_token, data) => postRequestItem('flights', api_token, data),
   roles: (api_token, data) => postRequestItem('roles', api_token, data),
@@ -131,7 +119,6 @@ const postData = {
 }
 // putData -> update, postData -> create
 const putData = {
-  users: () => {},
   transaction: () => {},
   flights: (api_token, data) => putRequest('flights', api_token, data, data.id),
   roles: (api_token, data) => putRequest('roles', api_token, data, data.id),

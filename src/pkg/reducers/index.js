@@ -41,12 +41,11 @@ export const PageReducer = (state, action) => {
     case 'update_search_field':
       return { ...state, searchFields: action.data };
     case 'get_require_data': 
-      // let obj = {}
-      // action.data.map(item => {
-      //   obj[Object.keys(item)[0]] = Object.values(item)[0]
-      // })
-      // return { ...state, requireData: action.data };
       return { ...state, requireData: { ...state.requireData, ...action.data }};
+    case 'set_editdata': 
+      return { ...state, editData: { ...state.editData, ...action.data }};
+    case 'set_baseform': 
+      return { ...state, baseForm: { ...state.baseForm, ...action.data }};
     default:
       return state;
   } 

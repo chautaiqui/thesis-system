@@ -18,54 +18,52 @@ import moment from 'moment';
 
 const Campaigns = () => {
     const { search } = useLocation();
-	const [ editData, setEditData ] = useState();
-	const [ baseForm, setBaseForm ] = useState({});
-	const [ logData, setLogData] = useState({visible: false, title: "", data: []});
+	
 
 	const [ form ] = Form.useForm();
 
-    const [ _state, _dispatch] = useReducer(PageReducer, {searchFields: undefined, requireData: {}});
-	const {	searchFields, requireData} = _state;
+    const [ _state, _dispatch] = useReducer(PageReducer, {searchFields: undefined, requireData: {}, editData: {}, baseForm: {}});
+	const {	searchFields, requireData, editData, baseForm } = _state;
 	const [ user ] = useContext(User.context);
+	const [ logData, setLogData] = useState({visible: false, title: "", data: []});
+    const [ popup, setPopup ] = useState({open: false, title: '', option: 'create'});
 
     useEffect(() => {
         let isCancelled = false;
 		if (!!searchFields) return() => isCancelled = true;
 		if(!isCancelled) _dispatch({type: 'init_search_field', data: search});
 		return () => isCancelled = true;
-	}, [])
+	}, [search, searchFields])
 	
 	const updateSF = useCallback (data => {
 		_dispatch({type: 'update_search_field', data: { ...searchFields, ...data }})
 	}, [searchFields])
 
-	const resetSF = useCallback (dataIndex => {
+	const resetSF = dataIndex => {
 		_dispatch({type: 'update_search_field', data: { ...searchFields, [dataIndex]: null } })
-	}, [searchFields])
+	}
 
-    const require = useCallback ((v) => {
-		// data: [promise]
-		// Promise.all(data).then(values => {
-		// 	_dispatch({type: 'get_require_data', data: values})
-		// })
+    const require = (v) => {
 		_dispatch({type: 'get_require_data', data: v})
-	}, [searchFields])
+	}
 
 	if (!searchFields) return <div />;
 
 	const onFinish = values => {
-		for (let item in values) {
-			if (typeof values[item] === 'object') values[item] = values[item].format('YYYY-MM-DD') /**/
-		}
-		setEditData({ ...baseForm, ...values });
+		// for (let item in values) {
+		// 	if (values[item].format('YYYY-MM-DD')) values[item] = values[item].format('YYYY-MM-DD') /**/
+		// }
+		_dispatch({type: 'set_editdata', data: { ...baseForm, ...values }});
 	};
 
 	const onFinishFailed = errorInfo => {
 		console.log('Failed:', errorInfo);
 	};
-	const closeViewLog = () => {
-        setLogData({...logData, ...{visible:false}})
-    }
+	const viewLog = async (id) => {
+		var span_data = await utility.FetchAndSpanLogData('campaigns', id, user.api_token);
+		setLogData({...logData, ...{visible: true, title: `Changelog: campaigns/${id}`, data: span_data}})
+	}
+	
 	// console.log(requireData['accounts'])
     return ([
 		<List
@@ -165,12 +163,6 @@ const Campaigns = () => {
 				</Row>
 			</Form> 
 			}
-			onOpen={v => {
-			setBaseForm(v);
-			form.resetFields();
-			form.setFieldsValue(v);
-			}}
-			onOk={() => form.submit()}
 			editData={editData}
 			fn='campaigns'
 			tColumns={[
@@ -181,7 +173,6 @@ const Campaigns = () => {
 					width: "5%",
 					sorter: true,
 					sortDirections: ['ascend', 'descend'],
-					...filerColumn(searchFields, 'id')
 				},
 				{
 					title: 'Campaign Name',
@@ -246,10 +237,7 @@ const Campaigns = () => {
 										</Menu.Item>
 										<Menu.Item
 											key='4'
-											onClick={async () => {
-												var span_data = await utility.FetchAndSpanLogData('campaigns', record.id, user.api_token);
-												setLogData({...logData, ...{visible: true, title: `Changelog: campaigns/${record.id}`, data: span_data}})
-											}}
+											onClick={()=>viewLog(record.id)}
 										>
 											<SolutionOutlined /> <span>View Log</span>
 										</Menu.Item>
@@ -262,6 +250,7 @@ const Campaigns = () => {
 				},
 				
 			]}
+            ableCreate={true}
 			searchFields={searchFields}
 			updateSF={updateSF}
 			tableProps={{
@@ -288,10 +277,13 @@ const Campaigns = () => {
             require = {require}
 			requireData = {requireData}
             fieldsRequire = {[
-				{name: 'accounts', meta : {limit: 100, offset: 1,}}, 
+				{ name: 'accounts', meta : {limit: 1000, offset: 1}, onChange: data => _dispatch({type: 'get_require_data', data: {accounts: data}})}, 
 			]}
 			logData={logData}
-            closeViewLog={closeViewLog}	
+            closeViewLog={()=>setLogData({...logData, ...{visible:false}})}	
+			popup={popup}
+			togglePopup={(v)=>setPopup(v)}
+            confirmPopup={()=>form.submit()}
 		/>
 	]);
 }

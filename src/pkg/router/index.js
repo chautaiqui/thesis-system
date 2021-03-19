@@ -5,7 +5,7 @@ import {
   Route,
 } from 'react-router-dom';
 
-import { Row, Col } from 'antd';
+import { Row } from 'antd';
 
 import Layout from '@components/commons/layout';
 import { routerPages } from '@components/pages';

@@ -217,10 +217,15 @@ export const FetchAndSpanLogData = async (fn, id, api_token) => {
     const {success, result} = reps;
     if (!success) return;
     let span_data = [];
+    let tempRowSpan = [];
     result.data.map(item => {
         let temp_arr = [];
+        let sub = 0
         for (let x in item.new_values) {
-            temp_arr = [... temp_arr, {
+            if (['updated_by', 'created_by', 'created_at'].includes(x)) {continue;}
+            else {
+              sub+=1;
+              temp_arr = [...temp_arr, {
                 date: item.created_at,
                 user: `${item.user.id} - ${item.user.name} ${item.user.email}`,
                 event: item.event,
@@ -228,9 +233,25 @@ export const FetchAndSpanLogData = async (fn, id, api_token) => {
                 old_value: item.old_values[x] || null,
                 new_value: item.new_values[x] ,
                 rowSpan: Object.keys(item.new_values)[0] === x ? Object.keys(item.new_values).length : 0,
-            }]
+              }]
+            }
+            // temp_arr = [...temp_arr, {
+            //   date: item.created_at,
+            //   user: `${item.user.id} - ${item.user.name} ${item.user.email}`,
+            //   event: item.event,
+            //   field: x,
+            //   old_value: item.old_values[x] || null,
+            //   new_value: item.new_values[x] ,
+            //   rowSpan: Object.keys(item.new_values)[0] === x ? Object.keys(item.new_values).length : 0,
+            // }]
         }
-        span_data = [...span_data, ...temp_arr]
+        span_data = [...span_data, ...temp_arr];
+        tempRowSpan = [...tempRowSpan,sub];
+        return item;
+    })
+    let ind = 0;
+    span_data.map((item) => {
+      if (item.rowSpan !== 0) {item.rowSpan = tempRowSpan[ind]; ind+=1}
     })
     return span_data;
   } catch(e) {
