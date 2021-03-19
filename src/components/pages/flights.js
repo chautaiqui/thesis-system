@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState, useCallback, useContext } from 'react';
+import React, { useEffect, useReducer, useState, useContext } from 'react';
 import List from '@components/commons/list';
 import { User } from '@pkg/reducers';
 
@@ -7,8 +7,8 @@ import Form from 'antd/lib/form';
 import Row from 'antd/lib/row';
 import Col from 'antd/lib/col';
 import Input from 'antd/lib/input';
-import { Tabs, Tree, Select, Button, Menu, Dropdown, DatePicker } from 'antd';
-import { DownOutlined, ReadOutlined, CopyOutlined, LineChartOutlined, SolutionOutlined } from '@ant-design/icons';
+import { Tabs, Tree, Select, Button, Menu, Dropdown } from 'antd';
+import { DownOutlined, ReadOutlined, CopyOutlined, LineChartOutlined, SolutionOutlined, EditOutlined } from '@ant-design/icons';
 
 import { PageReducer } from '@pkg/reducers';
 import { utility, filerColumn, filterCheck, MultiSelect, RadioGroup, ListDateRangePicker, CustomInputNumber } from '@components/commons';
@@ -18,7 +18,7 @@ const { TabPane } = Tabs;
 
 const Flights = () => {
 	const { search } = useLocation();
-	const [ editData, setEditData ] = useState({});
+	const [ editData, setEditData ] = useState({id: 0});
 	const [ baseForm, setBaseForm ] = useState({});
 	const [ logData, setLogData] = useState({visible: false, title: "", data: []});
     const [ popup, setPopup ] = useState({open: false, title: '', option: 'update'});
@@ -30,28 +30,26 @@ const Flights = () => {
 	const [ user ] = useContext(User.context);
 
 	useEffect(() => {
-        let isCancelled = false;
-		if (!!searchFields) return() => isCancelled = true;
-		if(!isCancelled) _dispatch({type: 'init_search_field', data: search});
-        return () => isCancelled = true;
+		if (!!searchFields) return;
+		_dispatch({type: 'init_search_field', data: search});
 	}, [search, searchFields])
 	
-	const updateSF = useCallback (data => {
+	const updateSF = data => {
 		// if(meta.offset === searchFields.offset && meta.limit === searchFields.limit && searchFields.total === meta.total ) return;
 		_dispatch({type: 'update_search_field', data: { ...searchFields, ...data }})
-	}, [])
+	}
 
-	const resetSF = useCallback (dataIndex => {
+	const resetSF = dataIndex => {
 		_dispatch({type: 'update_search_field', data: { ...searchFields, [dataIndex]: null } })
-	}, [searchFields])
+	}
 
-	const require = useCallback (async (v) => {
+	const require = async (v) => {
 		// data: [promise]
 		// Promise.all(data).then(values => {
 		// 	_dispatch({type: 'get_require_data', data: values})
 		// })
 		_dispatch({type: 'get_require_data', data: v})
-	}, [searchFields])
+	}
 
 	if (!searchFields) return <div />;
 	const onFinish = values => {
@@ -61,9 +59,7 @@ const Flights = () => {
 	const onFinishFailed = errorInfo => {
 		console.log('Failed:', errorInfo);
 	};
-	const closeViewLog = () => {
-        setLogData({...logData, ...{visible:false}})
-    }
+	
 	const viewLog = async(id) => {
         var span_data = await utility.FetchAndSpanLogData('flights', id, user.api_token);
 		setLogData({...logData, ...{visible: true, title: `Changelog: flights/${id}`, data: span_data}})
@@ -71,8 +67,9 @@ const Flights = () => {
 
     const updateRecord = (record) => {
         // console.log('update', record)
-        setPopup({...popup,...{open: true,title: `Update Advertiser : ${record.id} ${record.name}`}})
-        let fields = []; // field JSON stringtify
+        setPopup({...popup,...{open: true,title: `Update Flights : ${record.id} ${record.name}`}})
+		
+		let fields = [ 'ad_frequency', 'categories', 'contents', 'countries', 'date_range', 'day_weeks', 'device_types', 'devices', 'hours', 'mobile_carriers', 'provinces', 'source_providers', 'webapps', 'zones'];
         for (let x in record) {
             if (fields.includes(x) && !Array.isArray(record[x])) {
                 record[x] = JSON.parse(record[x])
@@ -83,11 +80,9 @@ const Flights = () => {
         form.resetFields();
         form.setFieldsValue(record);
     }
-	let lR = () => {};
 	return ([
 		<List
 			key='list'
-			listRef={fn => lR = fn}
 			contentEdit={
 				<Form 
 					className={'flight-form'}
@@ -117,6 +112,7 @@ const Flights = () => {
 									allowClear
 									showSearch
 									options={requireData['accounts'] ? requireData['accounts'].map(item => ({label: item.name, value: item.id.toString()})) : []}
+									//publishser id: string ?
 									filterOption={(inputValue, options) => {
 										return options.label.toLowerCase().includes(inputValue.toLowerCase())
 									}}
@@ -129,8 +125,13 @@ const Flights = () => {
 								name='webapps'
 								label='Webapps'
 								rules={[{ required: true, message: 'Required' }]}
+								
 								>
-								<Input />
+								<Select 
+									allowClear
+									showSearch
+									options={requireData['website-apps'] ? requireData['website-apps'].filter(item=>item.publisher_id === 1).map(item => ({label: item.name, value: item.id.toString()})) : []}
+								/>
 							</Form.Item>
 							<Tabs defaultActiveKey="1" className='dp-form' type='card'>
 								<TabPane tab="Basic" key="1">
@@ -250,6 +251,10 @@ const Flights = () => {
 								name='weight'
 								label='Weight'
 								rules={[{ required: true, message: 'Required' }]}
+								getValueFromEvent={v => {
+									// console.log(!!v)
+									return !!v ? v : 0;
+								}}
 								>
 								<CustomInputNumber/>
 							</Form.Item>
@@ -315,6 +320,10 @@ const Flights = () => {
 									}}
 								name='total_bookings'
 								label='Total bookings'
+								rules={[{ required: true, message: 'Required' }]}
+								getValueFromEvent={v => {
+									return !!v ? v : 0;
+								}}
 							>
 								<CustomInputNumber label={'Impression(s)'}/>
 							</Form.Item>
@@ -330,6 +339,10 @@ const Flights = () => {
 									}}
 								name='daily_bookings'
 								label='Daily bookings'
+								rules={[{ required: true, message: 'Required' }]}
+								getValueFromEvent={v => {
+									return !!v ? v : 0;
+								}}
 							>
 								<CustomInputNumber label={'Impression(s)'}/>
 							</Form.Item>
@@ -395,7 +408,7 @@ const Flights = () => {
 									<Menu>
 										<Menu.Item
 											onClick={() =>updateRecord(record)}>
-											<ReadOutlined /> <span>Update</span>
+											<EditOutlined /> <span>Update</span>
 										</Menu.Item>
 										<Menu.Item>
 											<ReadOutlined /> <span>View Detail</span>
@@ -436,19 +449,15 @@ const Flights = () => {
             require={require}
 			requireData = {requireData}
 			fieldsRequire={[
-				{name: 'accounts', meta : {limit: 100, offset: 1,}}, 
-				{name: 'provinces', meta : {limit: 1000, offset: 1,}}, 
-				{name: 'categories', meta : {limit: 1000, offset: 1,}}, 
-				{name: 'website-apps', meta : {limit: 1000, offset: 1,order: 'id|desc'}}, 
+				{ name: 'accounts', meta : {limit: 1000, offset: 1}, onChange: data => _dispatch({type: 'get_require_data', data: {accounts: data}})}, 
+				{ name: 'provinces', meta : {limit: 1000, offset: 1}, onChange: data => _dispatch({type: 'get_require_data', data: {provinces: data}})}, 
+				{ name: 'categories', meta : {limit: 1000, offset: 1}, onChange: data => _dispatch({type: 'get_require_data', data: {categories: data}})}, 
+				{ name: 'website-apps', meta : {limit: 1000, offset: 1,order: 'id|desc'}, onChange: data => _dispatch({type: 'get_require_data', data: {['website-apps']: data}})}, 
 			]}
 			logData={logData}
-            closeViewLog={closeViewLog}	
 			closeViewLog={()=>setLogData({...logData, ...{visible:false}})}
             popup={popup}
-            openPopup={(v)=>{
-				setPopup(v)
-			}}
-            closePopUp={()=>setPopup({...popup,...{open:false}})}
+            togglePopup={(v)=>setPopup(v)}
             confirmPopup={()=>form.submit()}
 		/>
 	]);

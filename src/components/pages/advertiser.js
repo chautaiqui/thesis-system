@@ -3,35 +3,34 @@ import { User } from '@pkg/reducers';
 import List from '@components/commons/list';
 
 import { PageReducer } from '@pkg/reducers';
-import { utility, filerColumn, CustomSwitch, CustomSelectObj } from '@components/commons';
+import { utility, filerColumn, CustomSelectObj } from '@components/commons';
 
 import Form from 'antd/lib/form';
 import { Switch, Row, Col, Input, Button } from 'antd';
 import { FormOutlined, SolutionOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
 
-import { getRequest } from '@api';
+// import { getRequest } from '@api';
 
 
 const Advertiser = (props) => {
     const { model } = props;
     const { search } = useLocation();
-	const [ editData, setEditData ] = useState({id: 0});
-	const [ baseForm, setBaseForm ] = useState({});
 	
     const [ form ] = Form.useForm();
 
-    const [ _state, _dispatch] = useReducer(PageReducer, {searchFields: undefined, requireData: {}});
-	const { searchFields, requireData } = _state;
+    const [ _state, _dispatch] = useReducer(PageReducer, {searchFields: undefined, requireData: {}, editData: {}, baseForm: {}});
+	const { searchFields, requireData, editData, baseForm } = _state
 	const [ user ] = useContext(User.context);
-	const [ logData, setLogData] = useState({visible: false, title: "", data: []});
+	
+    const [ logData, setLogData] = useState({visible: false, title: "", data: []});
     const [ popup, setPopup ] = useState({open: false, title: '', option: 'update'});
     
     useEffect(() => {
         let isCancelled = false;
 		if(!isCancelled) _dispatch({type: 'init_search_field', data: search+`&model=${model}`})
         return () => isCancelled = true;
-	}, [])
+	}, [model, search])
     
     const updateSF = useCallback (data => {
 		// if(meta.offset === searchFields.offset && meta.limit === searchFields.limit && searchFields.total === meta.total ) return;
@@ -42,15 +41,15 @@ const Advertiser = (props) => {
 		_dispatch({type: 'update_search_field', data: { ...searchFields, [dataIndex]: null } })
 	}, [searchFields])
 
-    const require = useCallback (async (v) => {
+    const require = async (v) => {
 		_dispatch({type: 'get_require_data', data: v})
-	}, [searchFields])
+	}
 
     if (!searchFields) return <div />;
 	const onFinish = values => {
         // let new_values = {...values, ...{sale_id: values.sale.id}};
         /* update sale_id */
-		setEditData({ ...baseForm, ...values });
+        _dispatch({type: 'set_editdata', data: { ...baseForm, ...values }});
 	};
 
 	const onFinishFailed = errorInfo => {
@@ -71,7 +70,7 @@ const Advertiser = (props) => {
             }
         }
         console.log(record)
-        setBaseForm(record);
+        _dispatch({type: 'set_baseform', data: record});
         form.resetFields();
         form.setFieldsValue(record);
     }
@@ -156,7 +155,8 @@ const Advertiser = (props) => {
 					title: 'Sales',
 					dataIndex: 'sale',
 					key: 'sale',
-                    render: s => s ? s.name : ''
+                    render: s => s ? s.name : '',
+                    ...filerColumn(searchFields, 'sale')
 				},
                 {
 					title: 'Notes',
@@ -170,10 +170,10 @@ const Advertiser = (props) => {
 					key: 'activated',
 					render: (text, record, index) => ([
                         <Switch key='sw' checked={text===0?false:true} style={{display: 'inline-block', marginLeft:10}}/>,
-                        <Button title="Update" key='edit' size='small' style={{display: 'inline-block',marginLeft:2,borderRadius:'50%',background: 'white'}} 
+                        <Button title="Update" key='edit' size='small' style={{display: 'inline-block',marginLeft:4,borderRadius:'50%',background: 'white'}} 
                             // onClick={()=>{Object.keys(requireData).length===0?(()=>{})(): updateRecord(record)}}><FormOutlined /></Button>,
                             onClick={() =>updateRecord(record)}><FormOutlined /></Button>,
-                        <Button title="ViewLog" key='viewlog' size='small' style={{display: 'inline-block',marginLeft:2,borderRadius:'50%',background: 'white'}} onClick={()=> viewLog(record.id)}><SolutionOutlined /></Button>,
+                        <Button title="ViewLog" key='viewlog' size='small' style={{display: 'inline-block',marginLeft:4,borderRadius:'50%',background: 'white'}} onClick={()=> viewLog(record.id)}><SolutionOutlined /></Button>,
                     ])
                 }
                 
@@ -192,8 +192,9 @@ const Advertiser = (props) => {
             logData={logData}
             closeViewLog={()=>setLogData({...logData, ...{visible:false}})}
             popup={popup}
-            openPopup={(v)=>setPopup(v)}
-            closePopUp={()=>setPopup({...popup,...{open:false}})}
+            togglePopup={(v)=>setPopup(v)}
+            // openPopup={(v)=>setPopup(v)}
+            // closePopUp={()=>setPopup({...popup,...{open:false}})}
             confirmPopup={()=>form.submit()}
             // action={['Update', 'View Log']}
 

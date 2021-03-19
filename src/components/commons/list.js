@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useReducer, useCallback, useContext } from 'react';
-import { fetchData, postData, putData, requires, getRequest } from '@api';
+import React, { useEffect, useReducer, useCallback, useContext } from 'react';
+import { fetchData, postData, putData } from '@api';
 
 import { User } from '@pkg/reducers';
 import Table from 'antd/lib/table';
@@ -14,16 +14,13 @@ import  { useHistory  } from 'react-router-dom';
 import { messageError } from './';
 // import { isArguments } from 'lodash';
 
-const showConfirm = (title, content, onOK, onCancel) => {
+const showConfirm = (title, content, onOK) => {
 	Modal.confirm({
 		title: title,
 		icon: <ExclamationCircleOutlined />,
 		content: content,
 		onOk() {
 			onOK();
-		},
-		onCancel() {
-			onCancel();
 		},
 	});
 }
@@ -46,14 +43,16 @@ const reducer = (state, action) => {
 			return { ...state, behavior: 'stall' };
 		case 'STALL':
 			return { ...state, behavior: 'stall' };
+		case 'RELOAD':
+			return { ...state, behavior: 'init' };
 		default: return state;
 	}
 }
-const initialState = { data: [], behavior: 'init', confirm: false};
+const initialState = { data: [], behavior: 'init'};
 
 const List = React.forwardRef((props, ref) => {
 	const { fn, tColumns, ableCreate = false,
-		editData, contentEdit, popup = {open: false, title: ''}, closePopUp = () => {}, confirmPopup = () => {},  openPopup = () => {},
+		editData, contentEdit, popup = {}, togglePopup = () => {}, confirmPopup = () => {},  
 		searchFields, updateSF = () => {}, resetSF = () => {}, /**/
 		tableProps,	
 		fieldsRequire = [], requireData = {}, /**/
@@ -95,7 +94,7 @@ const List = React.forwardRef((props, ref) => {
 			console.log(editData)
 			const _fn = editData.id ? putData[fn] : postData[fn];
 			console.log(typeof _fn)
-			_dispatch({ type: 'UPDATE_SUCCESS', item: {} });
+			_dispatch({ type: 'UPDATE_SUCCESS', item: {} }); // only test, delete this line
 			// const resp = await _fn(user.api_token, editData);
 			// const { success, result, error } = resp;
 			// // console.log(success, result, error)
@@ -107,42 +106,34 @@ const List = React.forwardRef((props, ref) => {
 	}, [fn, editData]);
 
 	useEffect(() => {
-        const abortController = new AbortController();
 		switch (_state.behavior) {
 			case 'fetching':
 			case 'stall':
-				return;
+				return ;
 			case 'update_success':
-				closePopUp({ open: false });
+				togglePopup({ open: false });
 				fetch()
-				return () => abortController.abort();
+				return;
 			case 'init': 
 				// param here
 				// _dispatch({ type: 'PAGINATION_CHANGE', dataResponse: searchFields });
 				fetch();
-				return () => abortController.abort();
-			// case 'pagination_change':
-			// 	fetch();
-			// 	return;
-			default: return () => _dispatch({ type: 'STALL' });
+				return;
+			default: _dispatch({ type: 'STALL' });
 		}   
-	}, [_state.behavior, fetch]);
+	}, [_state.behavior, fetch, togglePopup]);
 
 	useEffect(() => {
-        const abortController = new AbortController();
 		if (!editData) return;
 		put();
-        return () => abortController.abort();
 	}, [editData, put]);
 
 	useEffect(() => {
 		const abortController = new AbortController();
 		if (searchFields) fetch();
-        return () => abortController.abort();
 	}, [searchFields, fetch])
 
 	useEffect(()=> {
-        const abortController = new AbortController();
 		const fetchRequire = async (fn, meta) => {
 			try {
 				const res = await fetchData[fn.includes('-') ? fn.replace('-', '') : fn](user.api_token, meta)
@@ -153,33 +144,15 @@ const List = React.forwardRef((props, ref) => {
 				return [];
 			}
 		}
-		// let _data;
-		// _data = fieldsRequire.map(async (item) => {
-		// 	try {
-		// 		return await fetchRequire(item.name, item.meta)
-		// 	} catch (e) {
-		// 		return {}
-		// 	}
-		// })
-		// let obj = {};
-		// Promise.all(_data).then(values => {
-		// 	values.map(item => {
-		// 		obj[Object.keys(item)[0]] = Object.values(item)[0]
-		// 	})
-		// })
-		// // console.log(obj)
-		// require(obj)
 
 		fieldsRequire.forEach(async item => {
 			if (!item.onChange) return;
 			item.onChange(await fetchRequire(item.name, item.meta));
 		})
-        return () => abortController.abort();
-
 	},[])
 
-	var { data, behavior, total, confirm } = _state;
-	console.log(behavior, editData)
+	var { data, behavior, total } = _state;
+	// console.log(behavior, editData, popup, requireData)
 	// console.log(logData.data)
 	var filterSearchField = Object.entries(searchFields).filter(item => !['offset', 'limit', 'order', 'model'].includes(item[0]) && !!item[1]);
 	return ([
@@ -221,7 +194,9 @@ const List = React.forwardRef((props, ref) => {
 						key='btncreate'    
 						type="primary"                          
 						style={{ marginBottom: 0 }}
-						onClick={() => openPopup({ open: true, title: `Create ${fn}`, option: 'create' })}
+						onClick={() => {togglePopup({ open: true, title: `Create ${fn}`, option: 'create' })}}
+						// onClick={() => console.log({ open: true, title: `Create ${fn}`, option: 'create' })}
+
 					>
 						Create
 					</Button>
@@ -245,9 +220,9 @@ const List = React.forwardRef((props, ref) => {
 						forceRender
 						keyboard
 						okText={(popup.option === 'update')? 'Update ' : 'Create'}
-						onOk={()=>showConfirm('Confirm action',popup.title, confirmPopup, closePopUp)}
+						onOk={()=>showConfirm('Confirm action',popup.title, confirmPopup) }
 						cancelText='Close'
-						onCancel={closePopUp}
+						onCancel={() => {togglePopup({...popup,...{open:false}}); _dispatch({ type: 'RELOAD' });}}
 					>
 						{contentEdit}
 					</Modal>
@@ -261,6 +236,7 @@ const List = React.forwardRef((props, ref) => {
 					rowKey='id'
 					loading={behavior === 'fetching'}
 					tableLayout='auto'
+					// size='middle'
 					// onRow={row => ({
 					//   onClick: contentEdit ? () => openPopup(row) : () => {},
 					// })}
@@ -304,6 +280,7 @@ const M = (l, v, data) => {
 			return ['Advertiser', data.accounts ? data.accounts.filter(item => item.id === Number(v))[0].name : v];
 		case 'activated':
 			return ['Activated', v === 0 ? 'disable' : 'Enable'];
+		
 		default:
 			return [l,v]
 	}

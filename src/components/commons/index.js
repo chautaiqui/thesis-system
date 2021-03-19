@@ -231,7 +231,6 @@ export const CustomSelect = (props) => {
 	const { data, confirm, setSelectedKeys, clearFilters, labelPropName='name', valuePropName ='id' } = props;
 	const [search, setSearch] = useState('');
 	let temp = data.filter(item => item.name.includes(search)).length === 0 ? data : data.filter(item => item.name.includes(search));
-	const temp1 = temp.map(item => ({name: item.name, id: item.id}));
 	// console.log(searchFields[dataIndex] ? searchFields[dataIndex] : 'k co')
 
 	return (
@@ -278,7 +277,7 @@ export const MultiSelect = (props) => {
 		if (onChange) {
 		  	onChange(selected);
 		}
-	}, [selected]);
+	}, [selected, onChange]);
 	return (
 		<Select 
 			mode={'multiple'}
@@ -314,18 +313,18 @@ export const MultiSelect = (props) => {
 
 export const CustomInputNumber = (props) => {
 	const {label, value, onChange} = props;
-	const [number, setNumber] = useState(value?value:undefined);
+	const [number, setNumber] = useState(value);
 	React.useEffect(() => {
 		if (onChange) {
 		  	onChange(number);
 		}
-	}, [number]);
+	}, [number, onChange]);
 
 	return (
 		<Row>
 			<Col span={14}>
 				<InputNumber
-					defaultValue={number}
+					value={number}
 					style={{width: '100%'}}
 					formatter={value => formatter.format(value.replace(/,/g, ""))}
 					parser={value => value.replace(/\D+/g, "")} // \D ko phai ki tu so
@@ -345,7 +344,7 @@ export const RadioGroup = (props) => {
 		if (onChange) {
 		  	onChange(choose);
 		}
-	}, [choose]);
+	}, [choose, onChange]);
 	return (
 		<Radio.Group onChange={e=>setChoose(e.target.value)} value={choose}>
 			{data.map(item => 
@@ -359,29 +358,31 @@ export const ListDateRangePicker = (props) => {
 	const {value = [], onChange, editable} = props;
 	// const _v = value? Object.values({...value[0],...{key:null}}).filter(item=> item !== null):[];
 	const [choose, setChoose] = useState(value);
-	console.log(choose)
 	React.useEffect(() => {
 		if (onChange) {
 		  	onChange(choose);
 		}
-	}, [choose]);
+	}, [choose, onChange]);
 	const ActionDate = (idx, key) => {
 		switch (key) {
 			case 0: {
-				//add
+				//del
 				setChoose(choose.filter((item, index)=>index!==idx))
 				break;
 			}
 			case 1: {
-				//del
+				//add
 				let check = false;
 				choose.map(item=>{
-					if (item.from === undefined || item.to === undefined) check = true;
+					if (item.from === undefined || item.to === undefined) {check = true}
+					return item;
 				})
 				if (check) return;
 				setChoose([...choose, {from: undefined,to: undefined}]);
 				break;
 			}
+			default:
+				return;
 		}
 	}
 	const UpdateDate = (e, index) => {
@@ -405,7 +406,7 @@ export const ListDateRangePicker = (props) => {
 			{
 				choose.map((item, index) => {
 					return (
-						<div key={index} style={{marginBottom:5}}>
+						<div key={index} style={{marginBottom:3}}>
 							<RangePicker 
 								separator={'-'}
 								value={[item.from?moment(item.from, 'YYYY-MM-DD'):undefined, item.to?moment(item.to, 'YYYY-MM-DD'):undefined]}
@@ -419,7 +420,7 @@ export const ListDateRangePicker = (props) => {
 							<Button 
 								icon={<MinusOutlined />}
 								shape={'circle'}
-								style={{float: 'right', display: 'inline-block', color: 'red', background: 'white', border: '2px solid red'}}
+								style={{float: 'right', display: 'inline-block', color: 'red', background: 'white', border: '1px solid red'}}
 								onClick={(e) => {ActionDate(index, 0)}}
 							/>
 						</div>
@@ -429,7 +430,7 @@ export const ListDateRangePicker = (props) => {
 			<Button 
 				icon={<PlusOutlined />}
 				shape={'circle'}
-				style={{float: 'right', display: 'inline-block', color: 'green', background: 'white', border: '2px solid green'}}
+				style={{float: 'right', display: 'inline-block', color: 'green', background: 'white', border: '1px solid green'}}
 				onClick={(e) => {ActionDate(1, 1)}}
 			/>
 		</div>
@@ -443,7 +444,7 @@ export const CustomSwitch = (props) => {
 		if (onChange) {
 		  	onChange(choose);
 		}
-	}, [choose]);
+	}, [choose, onChange]);
 	return <Switch checked={choose===1?true:false} onChange={v=>setChoose(Number(v))}/>
 }
 export const CustomSelectObj = (props) => {
@@ -455,7 +456,7 @@ export const CustomSelectObj = (props) => {
 		if (onChange) {
 		  	onChange(choose);
 		}
-	}, [choose]);
+	}, [choose, onChange]);
 	return <Select 
 		disabled={disabled}
 		allowClear

@@ -18,35 +18,34 @@ import moment from 'moment';
 
 const Campaigns = () => {
     const { search } = useLocation();
-	const [ editData, setEditData ] = useState({id: 0}); 
-	const [ baseForm, setBaseForm ] = useState({});
+	
 
 	const [ form ] = Form.useForm();
 
-    const [ _state, _dispatch] = useReducer(PageReducer, {searchFields: undefined, requireData: {}});
-	const {	searchFields, requireData} = _state;
+    const [ _state, _dispatch] = useReducer(PageReducer, {searchFields: undefined, requireData: {}, editData: {}, baseForm: {}});
+	const {	searchFields, requireData, editData, baseForm } = _state;
 	const [ user ] = useContext(User.context);
 	const [ logData, setLogData] = useState({visible: false, title: "", data: []});
-    const [ popup, setPopup ] = useState({open: false, title: '', option: 'update'});
+    const [ popup, setPopup ] = useState({open: false, title: '', option: 'create'});
 
     useEffect(() => {
         let isCancelled = false;
 		if (!!searchFields) return() => isCancelled = true;
 		if(!isCancelled) _dispatch({type: 'init_search_field', data: search});
 		return () => isCancelled = true;
-	}, [])
+	}, [search, searchFields])
 	
 	const updateSF = useCallback (data => {
 		_dispatch({type: 'update_search_field', data: { ...searchFields, ...data }})
 	}, [searchFields])
 
-	const resetSF = useCallback (dataIndex => {
+	const resetSF = dataIndex => {
 		_dispatch({type: 'update_search_field', data: { ...searchFields, [dataIndex]: null } })
-	}, [searchFields])
+	}
 
-    const require = useCallback ((v) => {
+    const require = (v) => {
 		_dispatch({type: 'get_require_data', data: v})
-	}, [searchFields])
+	}
 
 	if (!searchFields) return <div />;
 
@@ -54,7 +53,7 @@ const Campaigns = () => {
 		// for (let item in values) {
 		// 	if (values[item].format('YYYY-MM-DD')) values[item] = values[item].format('YYYY-MM-DD') /**/
 		// }
-		setEditData({ ...baseForm, ...values });
+		_dispatch({type: 'set_editdata', data: { ...baseForm, ...values }});
 	};
 
 	const onFinishFailed = errorInfo => {
@@ -64,9 +63,7 @@ const Campaigns = () => {
 		var span_data = await utility.FetchAndSpanLogData('campaigns', id, user.api_token);
 		setLogData({...logData, ...{visible: true, title: `Changelog: campaigns/${id}`, data: span_data}})
 	}
-	const closePopUp = () => {
-        setPopup({...popup,...{open:false}});
-    }
+	
 	// console.log(requireData['accounts'])
     return ([
 		<List
@@ -280,10 +277,13 @@ const Campaigns = () => {
             require = {require}
 			requireData = {requireData}
             fieldsRequire = {[
-				{name: 'accounts', meta : {limit: 100, offset: 1,}}, 
+				{ name: 'accounts', meta : {limit: 1000, offset: 1}, onChange: data => _dispatch({type: 'get_require_data', data: {accounts: data}})}, 
 			]}
 			logData={logData}
             closeViewLog={()=>setLogData({...logData, ...{visible:false}})}	
+			popup={popup}
+			togglePopup={(v)=>setPopup(v)}
+            confirmPopup={()=>form.submit()}
 		/>
 	]);
 }

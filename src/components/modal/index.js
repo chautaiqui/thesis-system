@@ -8,7 +8,7 @@ import { SolutionOutlined } from '@ant-design/icons';
 
 
 export const ViewLogModal = (props) => {
-    const { data = [], onClose = () => {} } = props;
+    const { data = {}, onClose = () => {} } = props;
     return (
         <Modal 
             key={'viewlog'}
@@ -28,7 +28,7 @@ export const ViewLogModal = (props) => {
             <Table 
                 key={'log-table'}
                 bordered
-                loading={data.data.length === 0}
+                // loading={data.data.length === 0}
                 dataSource={data.data}
                 size={'small'}
                 scroll={{ y: 600 }} 
@@ -90,12 +90,13 @@ export const ViewLogModal = (props) => {
                 ]}
                 pagination={false}
                 rowKey='user'
-                loading={data.data.length === 0}
             />
         </Modal>
     )
 }
 
+
+// ko can thiet lam
 export const FormModal = (props) => {
     const { data, options, component, loading, editData } = props;
     return (
