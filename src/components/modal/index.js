@@ -3,12 +3,23 @@ import React from 'react';
 import Modal from 'antd/lib/modal';
 import Table from 'antd/lib/table';
 import { Tag, Button } from 'antd';
+import { utility } from '@components/commons';
 
 import { SolutionOutlined } from '@ant-design/icons';
 
 
 export const ViewLogModal = (props) => {
-    const { data = {}, onClose = () => {} } = props;
+    const { data = {}, onClose = () => {}, api_token } = props;
+    const [audit, setAudit] = React.useState([]);
+    React.useEffect(()=>{
+        if (!data.visible  || audit.length !==0 ) return;
+        // fetch data
+        const getData = async() => {
+            let span_data = await utility.FetchAndSpanLogData(data.fn, data.data.id, api_token);
+            setAudit(span_data);
+        }
+        getData();
+    },[])
     return (
         <Modal 
             key={'viewlog'}
@@ -17,7 +28,7 @@ export const ViewLogModal = (props) => {
             visible={data.visible}
             maskClosable={false}
             onCancel={onClose} 
-            title={<><SolutionOutlined/>{data.title}</>}
+            title={<><SolutionOutlined/>{`Changelog: ${data.fn}/${data.data.id}`}</>}
             footer={
                 <Button onClick={onClose}>Close</Button>
             }
@@ -28,8 +39,8 @@ export const ViewLogModal = (props) => {
             <Table 
                 key={'log-table'}
                 bordered
-                // loading={data.data.length === 0}
-                dataSource={data.data}
+                // loading={audit.length === 0}
+                dataSource={audit}
                 size={'small'}
                 scroll={{ y: 600 }} 
                 columns={[

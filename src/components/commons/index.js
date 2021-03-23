@@ -321,18 +321,16 @@ export const CustomInputNumber = (props) => {
 	}, [number, onChange]);
 
 	return (
-		<Row>
-			<Col span={14}>
-				<InputNumber
-					value={number}
-					style={{width: '100%'}}
-					formatter={value => formatter.format(value.replace(/,/g, ""))}
-					parser={value => value.replace(/\D+/g, "")} // \D ko phai ki tu so
-					onChange={value=>setNumber(value)}
-				/>
-			</Col>
-			{label && (<Col span={10} style={{display: 'flex',flexDirection: 'column',justifyContent: 'center', paddingLeft: '2%'}}><span>{label}</span></Col>)}
-		</Row>
+		<div>
+			<InputNumber
+				value={number}
+				style={{width: '40%'}}
+				formatter={value => formatter.format(value.replace(/\D+/g, ""))}
+				parser={value => value.replace(/\D+/g, "")} // \D ko phai ki tu so
+				onChange={value=>setNumber(Number(value))}
+			/>
+			{label && (<label style={{fontWeight: 'normal', marginLeft: 10}}>{label}</label>)}
+		</div>
 		
 	)
 }
@@ -475,11 +473,22 @@ export const CustomSelectObj = (props) => {
 export const MultiInput = props => {
 	const { value = [], onChange = () => {} , label = []} = props;
 	const [newValue, setNewValue] = useState(value);
-	console.log(newValue);
+	
+	React.useEffect(() => {
+		if (onChange) {
+		  	onChange(newValue);
+		}
+	}, [newValue, onChange]);
+
+	const onChangeNumber = (value, index) => {
+		newValue[index] = Number(value);
+		setNewValue(newValue);
+	}
 	return (
-		<div>
-			<CustomInputNumber onChange={(v)=>console.log(v)} value={newValue[0]} label={label[0]}/>
-			<CustomInputNumber onChange={(v)=>console.log(v)} value={newValue[0]} label={label[1]}/>
+		<div style={{display: 'inline-flex'}}>
+			{newValue.map((item, index) => {
+				return <CustomInputNumber value={item} label={label[index]} key={index} onChange={v=>onChangeNumber(v, index)}/>
+			})}
 		</div>
 	)
 }
