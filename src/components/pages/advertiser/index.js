@@ -6,8 +6,8 @@ import { PageReducer } from '@pkg/reducers';
 import { utility, filerColumn, CustomSelectObj } from '@components/commons';
 
 import Form from 'antd/lib/form';
-import { Switch, Row, Col, Input, Button } from 'antd';
-import { FormOutlined, SolutionOutlined } from '@ant-design/icons';
+import { Switch, Row, Col, Input } from 'antd';
+import { EditOutlined, SolutionOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
 
 // import { getRequest } from '@api';
@@ -23,9 +23,10 @@ const Advertiser = (props) => {
 	const { searchFields, requireData, editData, baseForm } = _state
 	const [ user ] = useContext(User.context);
 	
-    const [ logData, setLogData] = useState({visible: false, title: "", data: []});
     const [ popup, setPopup ] = useState({open: false, title: '', option: 'update'});
     
+    const listRef = React.useRef();
+
     useEffect(() => {
         let isCancelled = false;
 		if(!isCancelled) _dispatch({type: 'init_search_field', data: search+`&model=${model}`})
@@ -48,11 +49,7 @@ const Advertiser = (props) => {
 	const onFinishFailed = errorInfo => {
 		console.log('Failed:', errorInfo);
 	};
-    const viewLog = async(id) => {
-        var span_data = await utility.FetchAndSpanLogData('accounts', id, user.api_token);
-		setLogData({...logData, ...{visible: true, title: `Changelog: accounts/${id}`, data: span_data}})
-    }
-
+   
     const updateRecord = (record) => {
         // console.log('update', record)
         setPopup({...popup,...{open: true,title: `Update Advertiser : ${record.id} ${record.name}`}})
@@ -70,6 +67,7 @@ const Advertiser = (props) => {
     return ([
         <List 
             key='list'
+            ref={listRef}
             contentEdit={
                 <Form
                     className={'advertiser-form'}
@@ -155,22 +153,14 @@ const Advertiser = (props) => {
 					title: 'Notes',
 					dataIndex: 'notes',
 					key: 'notes',
-				},
-                {
-                    title: 'Action',
-                    align: 'center',
-                    dataIndex: 'activated',
-					key: 'activated',
-					render: (text, record, index) => ([
-                        <Switch key='sw' checked={text===0?false:true} style={{display: 'inline-block', marginLeft:10}}/>,
-                        <Button title="Update" key='edit' size='small' style={{display: 'inline-block',marginLeft:4,borderRadius:'50%',background: 'white'}} 
-                            // onClick={()=>{Object.keys(requireData).length===0?(()=>{})(): updateRecord(record)}}><FormOutlined /></Button>,
-                            onClick={() =>updateRecord(record)}><FormOutlined /></Button>,
-                        <Button title="ViewLog" key='viewlog' size='small' style={{display: 'inline-block',marginLeft:4,borderRadius:'50%',background: 'white'}} onClick={()=> viewLog(record.id)}><SolutionOutlined /></Button>,
-                    ])
-                }
-                
+				}, 
             ]}
+            tActions={
+                [
+                    {name: 'Update', label: <EditOutlined />, event: ()=>{}},
+                    {name: 'View Log', label: <SolutionOutlined />, event: (record) => listRef.current.toogleLog(record)},
+                ]
+            }
             ableCreate={true}
             searchFields={searchFields}
 			onChangeSF={onChangeSF}
@@ -181,8 +171,6 @@ const Advertiser = (props) => {
             fieldsRequire={[
 				{ name: 'users', meta : {limit: 1000, offset: 1}, onChange: data => _dispatch({type: 'get_require_data', data: {users: data}})}, 
 			]}
-            logData={logData}
-            closeViewLog={()=>setLogData({...logData, ...{visible:false}})}
             popup={popup}
             togglePopup={(v)=>setPopup(v)}
             // openPopup={(v)=>setPopup(v)}

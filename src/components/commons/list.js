@@ -1,17 +1,20 @@
-import React, { useEffect, useReducer, useCallback, useContext } from 'react';
+import React, { useState, useEffect, useReducer, useCallback, useContext } from 'react';
 import { fetchData, postData, putData } from '@api';
 
 import { User } from '@pkg/reducers';
 import Table from 'antd/lib/table';
 import Button from 'antd/lib/button';
 import Modal from 'antd/lib/modal';
-import { Tag, Card } from 'antd';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { Tag, Card, Switch, Dropdown, Menu } from 'antd';
+import { ExclamationCircleOutlined, DownOutlined } from '@ant-design/icons';
 import { ViewLogModal } from '../modal';
+import { filterCheck } from '@components/commons';
+
 // import { Divider } from 'antd';
 
 import  { useHistory  } from 'react-router-dom';
 import { messageError } from './';
+import { T } from 'antd/lib/upload/utils';
 // import { isArguments } from 'lodash';
 
 const showConfirm = (title, content, onOK) => {
@@ -51,20 +54,21 @@ const reducer = (state, action) => {
 const initialState = { data: [], behavior: 'init'};
 
 const List = React.forwardRef((props, ref) => {
-	const { fn, tColumns, ableCreate = false,
+	let { fn, tColumns, tableProps, ableCreate = false, tActions,
 		editData, contentEdit, popup = {}, togglePopup = () => {}, confirmPopup = () => {},  
-		searchFields, onChangeSF = () => {},/**/
-		tableProps,	
+		searchFields, onChangeSF = () => {},	
 		fieldsRequire = [], requireData = {}, /**/
-		logData = {visible: false, title: "", data: []}, closeViewLog = () => {}, /**/	
 	} = props;
 	// const [ comfirm, setConfirm ] = useState(false);
 	// const [ popup, setPopup ] = useState({open: false, title: ''});
-	// const [ logData, setLogData] = useState({visible: false, title: "", data: []});
+	const [ logData, setLogData] = useState({visible: false, fn: `${fn}`, data: {}});
 	const [ _state, _dispatch ] = useReducer(reducer, initialState);
 	const [ user ] = useContext(User.context);
 	React.useImperativeHandle(ref, () => ({
-		
+		toogleLog(record) {
+			console.log('toogle log', record);
+			setLogData({...logData, ...{visible: true, fn: `${fn}`, data: record}})
+		}
 	}));
 	// const { search } = useLocation();
 	const history = useHistory();
@@ -155,6 +159,65 @@ const List = React.forwardRef((props, ref) => {
 	// console.log(behavior, editData, popup, requireData)
 	// console.log(logData.data)
 	var filterSearchField = Object.entries(searchFields).filter(item => !['offset', 'limit', 'order', 'model'].includes(item[0]) && !!item[1]);
+
+	if(Array.isArray(tActions)) {
+		if (tActions.length < 3) {
+			tColumns = [
+				...tColumns,
+				{
+					title: 'Action',
+					align: 'center',
+					dataIndex: 'activated',
+					key: 'activated',
+					width: "15%",
+					render: (text, record, index) => [
+						<Switch key='sw' checked={text===0?false:true} style={{display: 'inline-block', marginLeft:10}}/>,
+						...tActions.map((item, index) => (
+							<Button 
+								key={index} 
+								title={item.name} 
+								size='small' 
+								style={{display: 'inline-block',marginLeft:4,borderRadius:'50%',background: 'white'}}
+								onClick={()=>item.event(record)}
+							>
+									{item.label}
+								</Button>
+						))
+					]
+				}
+			]
+		} else {
+			tColumns = [
+				...tColumns,
+				{
+					title: 'Action',
+					align: 'center',
+					dataIndex: 'activated',
+					key: 'activated',
+					width: "15%",
+					...filterCheck(searchFields, 'activated'),
+					render: (text, record, index) => [
+						<Switch key='sw' checked={text===0?false:true} style={{marginBottom: 5}}/>,
+						<Dropdown 
+							key='dropdown'
+							overlay={
+								<Menu>
+									{tActions.map((item, index) => (
+										<Menu.Item key={index} onClick={()=>item.event(record)}>
+											{item.label} <span>{item.name}</span>
+										</Menu.Item>
+									))}
+								</Menu>
+							} 
+							placement="bottomLeft"
+						>
+							<Button>Action <DownOutlined /></Button>
+						</Dropdown>
+					]
+				}
+			]
+		}
+	}
 	return ([
 		<Card 
 		style={{
@@ -203,7 +266,7 @@ const List = React.forwardRef((props, ref) => {
 				)
 			}
 			{
-				logData.visible && <ViewLogModal data={logData} onClose={closeViewLog}/>
+				logData.visible && <ViewLogModal api_token={user.api_token} data={logData} onClose={()=>setLogData({visible: false, fn: '', data: {}})}/>
 			}
 			{
 				(contentEdit) && (
