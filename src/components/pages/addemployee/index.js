@@ -58,7 +58,7 @@ export const Addemployee = (props) => {
                 <Form.Item label="DatePicker" name="dateOfBirth">
                     <DatePicker />
                 </Form.Item>
-                <Form.Item label="Type" name="type">
+                <Form.Item label="Role" name="role">
                     <Select>
                         <Select.Option value="1">Manager</Select.Option>
                         <Select.Option value="2">Employee</Select.Option>
