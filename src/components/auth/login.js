@@ -10,9 +10,6 @@ import Button from 'antd/lib/button';
 import { messageError } from '@components/commons';
 import { signin } from '@api';
 
-// TODO: 
-// 1. real api a.adsplay.net
-// 2. signin fpt email
 const Login = props => {
   const { onLogin } = props;
   const [ check, setCheck ] = useState(false);

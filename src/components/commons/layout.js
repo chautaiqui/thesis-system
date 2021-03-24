@@ -40,7 +40,7 @@ const AdminLayout = props => {
             <div className='logo-content'>
               <div className='logo-img' />
               <div className='logo-text'>
-                <span>CMS</span>
+                <span>CHM</span>
               </div>
               <div className='logo-switch'>
                 <Switch checked={isShow} size='small' onChange={value => setIsShow(value)} />
