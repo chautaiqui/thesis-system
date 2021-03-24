@@ -1,42 +1,43 @@
 import React from 'react';
 
-import { ScheduleOutlined, RocketOutlined, StarOutlined, DashboardOutlined, GlobalOutlined,
-  NotificationOutlined, GroupOutlined,BarChartOutlined, AreaChartOutlined, UploadOutlined
+import { RocketOutlined, UsergroupAddOutlined, DashboardOutlined,
+  AreaChartOutlined, TeamOutlined, ToolOutlined, HomeOutlined, SelectOutlined, GifOutlined
 } from '@ant-design/icons';
+
+import { Employee } from './employee';
+import { Addemployee } from './addemployee';
 const Todo = () => {
   return <h1>To Do</h1>
 }
 
 const subPages1 = [
-  { path: '/dashboard', label: (<><DashboardOutlined /> Dashboard </>), component: Todo, permissions: 'dashboard' },
-  { path: '/advertisers', label: (<><GlobalOutlined /> Advertisers </>), component: Todo, permissions: 'advertisers' },
-  { path: '/campaigns', label: (<><ScheduleOutlined style={{paddingLeft:20}}/> Campaigns </>), component: Todo, permissions: 'campaigns' },
-  { path: '/flights', label: (<><RocketOutlined style={{paddingLeft:20}} rotate={45}/> Flights </>), component: Todo, permissions: 'flights' },
-  { path: '/creative', label: (<><StarOutlined style={{paddingLeft:20}} color={'#fff'}/> Creative </>), component: Todo, permissions: 'creative' },
-  { path: '/publishers', label: (<><NotificationOutlined rotate={360}/> Publishers </>), component: Todo, permissions: 'publishers' },
-  { path: '/categories', label: (<><GroupOutlined style={{paddingLeft:20}}/> Categories </>), component: Todo, permissions: 'categories' },
-  
+  { path: '/dashboard', label: (<><DashboardOutlined style={{paddingLeft:10}}/> Dashboard </>), component: Todo, permissions: '' },
+  { path: '/employee', label: (<><TeamOutlined style={{paddingLeft:10}}/> Employee </>), component: Employee, permissions: '' },
+  { path: '/2', label: (<><UsergroupAddOutlined style={{paddingLeft:10}}/> Add Employee </>), component: Addemployee, permissions: '' },
+  { path: '/3', label: (<><ToolOutlined style={{paddingLeft:10}}/> Edit Hotel </>), component: Todo, permissions: '' },
+  { path: '/4', label: (<><HomeOutlined style={{paddingLeft:10}}/> Room </>), component: Todo, permissions: '' },
+  { path: '/5', label: (<><RocketOutlined style={{paddingLeft:10}} rotate={45}/> Form Resquest </>), component: Todo, permissions: '' },
 ];
 const subPages2 = [
-  {path: './campaign_report', label: (<><AreaChartOutlined /> Campaign Report </>), component: Todo, permissions: 'campaign_report'},
-  {path: './inventory_report', label: (<><BarChartOutlined /> Inventory Report </>), component: Todo, permissions: 'inventory_report'}
+  {path: '/7', label: (<><SelectOutlined /> Booking </>), component: Todo, permissions: ''},
+  {path: '/8', label: (<><GifOutlined /> Voucher </>), component: Todo, permissions: ''},
 ];
 const subPages3 = [
-  {path: './medias', label: (<><UploadOutlined /> Medias </>), component: Todo, permissions: 'medias'},
+  {path: '/9', label: (<><AreaChartOutlined /> Inventory Report </>), component: Todo, permissions: ''},
 ];
 export const routerPages = [...subPages1, ...subPages2];
 
 export const menuPages = [
   {
-    label: 'manage',
+    label: 'Manage Empoyee',
     children: subPages1
   },
   {
-    label: 'Employee',
+    label: 'Manage Booking',
     children: subPages2
   },
   {
-    label: 'Tools',
+    label: 'Report',
     children: subPages3
   }
 ];
