@@ -2,8 +2,10 @@ import React, { useState, useEffect, useContext } from 'react';
 import { User } from '@pkg/reducers';
 import { getRequest } from '@pkg/api';
 
-import { Table, Tag, Button, message } from 'antd';
-
+import { Table, Tag, Modal } from 'antd';
+import {
+    Form, Input, Button, Radio, Select, DatePicker, message, Row, Col
+} from 'antd';
 const dataSource = [
     {
         email: "employee1.5@gmail.com",
@@ -61,64 +63,6 @@ const dataSource = [
     }
 ]
 
-const columns = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      align: 'center',
-      key: 'name',
-    },
-    {
-      title: 'Phone',
-      dataIndex: 'contactNumber',
-      align: 'center',
-      key: 'contactNumber',
-    },
-    {
-      title: 'Address',
-      dataIndex: 'address',
-      align: 'center',
-      key: 'address',
-    },
-    {
-        title: 'Skills',
-        dataIndex: 'skills',
-        align: 'center',
-        key: 'skills',
-        render: tags => (
-          <>
-            {tags.map((tag,index) => {
-              let color = 'geekblue';
-              return (
-                <Tag color={color} key={index}>
-                  {tag.toUpperCase()}
-                </Tag>
-              );
-            })}
-          </>
-        ),
-    },
-    {
-        title: 'Department',
-        dataIndex: 'department',
-        align: 'center',
-        key: 'department',
-    },
-    {
-        title: 'Designation',
-        dataIndex: 'designation',
-        align: 'center',
-        key: 'designation',
-    },
-    {
-        title: 'Action',
-        align: 'center',
-        key: 'action',
-        render: v => <Button>Edit</Button>
-    },
-    
-];
-
 // export const EmployeeReducer = (state, action) => {
 //     switch (action.type) {
 //       case 'init':
@@ -133,7 +77,12 @@ const columns = [
 export const Employee = (props) => {
     const [ user ] = useContext(User.context);
     const [ lstemp, setLstemp ] = useState([]);
+    const [ popup, setPopup ] = useState({open: false, data: {}});
+    const [ form ] = Form.useForm();
     useEffect(()=>{
+        // reset form
+        console.log(popup.open)
+        if(!popup.open) form.setFieldsValue({});
         // get employee
         const getData = async () => {
             const res = await getRequest('temp', user.api_token);
@@ -145,13 +94,167 @@ export const Employee = (props) => {
         // getData();
     },[])
 
+    const onFinish = async values => {
+        console.log(values)
+        try {
+          // post employee 
+        } catch (e) { 
+            message(e);
+        }
+      };
+    
+    const onFinishFailed = errorInfo => {
+        console.log('Failed:', errorInfo);
+    };
     // columns = lstemp
     return (
         <>
             <Table 
                 dataSource={dataSource} 
-                columns={columns} 
+                columns={
+                    [
+                        {
+                          title: 'Name',
+                          dataIndex: 'name',
+                          align: 'center',
+                          key: 'name',
+                        },
+                        {
+                          title: 'Phone',
+                          dataIndex: 'contactNumber',
+                          align: 'center',
+                          key: 'contactNumber',
+                        },
+                        {
+                          title: 'Address',
+                          dataIndex: 'address',
+                          align: 'center',
+                          key: 'address',
+                        },
+                        {
+                            title: 'Skills',
+                            dataIndex: 'skills',
+                            align: 'center',
+                            key: 'skills',
+                            render: tags => (
+                              <>
+                                {tags.map((tag,index) => {
+                                  let color = 'geekblue';
+                                  return (
+                                    <Tag color={color} key={index}>
+                                      {tag.toUpperCase()}
+                                    </Tag>
+                                  );
+                                })}
+                              </>
+                            ),
+                        },
+                        {
+                            title: 'Department',
+                            dataIndex: 'department',
+                            align: 'center',
+                            key: 'department',
+                        },
+                        {
+                            title: 'Designation',
+                            dataIndex: 'designation',
+                            align: 'center',
+                            key: 'designation',
+                        },
+                        {
+                            title: 'Action',
+                            align: 'center',
+                            key: 'action',
+                            render: v => <Button onClick={()=>{
+                                setPopup({open: true, data:v});
+                                form.setFieldsValue(v);
+                            }}>Edit</Button>
+                        },
+                        
+                    ]
+                } 
             />; 
+            <Modal
+                centered
+                closable={false}
+                maskClosable={false}
+                title= {popup.data.name ? `Edit ${popup.data.name}`: 'Edit' }
+                key='modal_update'
+                width='70%' 
+                visible={popup.open}
+                forceRender
+                keyboard
+                okText={'Confirm'}
+                onOk={()=>{form.submit()}}
+                cancelText='Close'
+                onCancel={() => {setPopup({open:false, data:{}})}}
+            >
+                <Form
+                    form={form}
+                    onFinish={onFinish}
+                    onFinishFailed={onFinishFailed}
+                    labelCol={{
+                        span: 6,
+                    }}
+                    wrapperCol={{
+                        span: 12,
+                    }}
+                    layout="horizontal"
+                >
+                    <Row gutter={16}>
+                        <Col xs={22} sm={22} md={12}>
+                            <Form.Item label="Email" name="email">
+                                <Input />
+                            </Form.Item>
+                            <Form.Item label="Name" name="name">
+                                <Input />
+                            </Form.Item>
+                            <Form.Item label="Phone" name="contactNumber">
+                                <Input />
+                            </Form.Item>
+                            <Form.Item label="Address" name="address">
+                                <Input />
+                            </Form.Item>
+                            <Form.Item label="Hotel" name="hotel">
+                                <Select>
+                                    <Select.Option value="1">Hotel 1</Select.Option>
+                                    <Select.Option value="2">Hotel 2</Select.Option>
+                                    <Select.Option value="3">Hotel 3</Select.Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col xs={22} sm={22} md={12}>
+                            {/* <Form.Item label="Birthdate" name="dateOfBirth">
+                                <DatePicker />
+                            </Form.Item> */}
+                            <Form.Item label="Role" name="role">
+                                <Select>
+                                    <Select.Option value="1">Manager</Select.Option>
+                                    <Select.Option value="2">Employee</Select.Option>
+                                    <Select.Option value="3">Intership</Select.Option>
+                                </Select>
+                            </Form.Item>
+                            <Form.Item label="Department" name="department">
+                                <Input />
+                            </Form.Item>
+                            <Form.Item label="Designation" name="designation">
+                                <Input />
+                            </Form.Item>
+                            <Form.Item label="Type" name="type">
+                                <Select
+                                    mode="tags"
+                                    placeholder="Choose skill"
+                                >
+                                    <Select.Option value="1">English</Select.Option>
+                                    <Select.Option value="2">Chinese</Select.Option>
+                                    <Select.Option value="3">France</Select.Option>
+                                    <Select.Option value="4">Other</Select.Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                </Form>
+            </Modal>
         </>
     )
 }
