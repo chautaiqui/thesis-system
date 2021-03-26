@@ -6,6 +6,7 @@ import { Table, Tag, Modal } from 'antd';
 import {
     Form, Input, Button, Radio, Select, DatePicker, message, Row, Col
 } from 'antd';
+import { FormProvider } from 'antd/lib/form/context';
 const dataSource = [
     {
         email: "employee1.5@gmail.com",
@@ -82,7 +83,6 @@ export const Employee = (props) => {
     useEffect(()=>{
         // reset form
         console.log(popup.open)
-        if(!popup.open) form.setFieldsValue({});
         // get employee
         const getData = async () => {
             const res = await getRequest('temp', user.api_token);
@@ -187,7 +187,7 @@ export const Employee = (props) => {
                 okText={'Confirm'}
                 onOk={()=>{form.submit()}}
                 cancelText='Close'
-                onCancel={() => {setPopup({open:false, data:{}})}}
+                onCancel={() => {setPopup({open:false, data:{}}); form.resetFields()}}
             >
                 <Form
                     form={form}
