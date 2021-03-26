@@ -21,3 +21,5 @@ Notice: `Node version <= 14`
 ### Real api login
 
 Account: Test@gmail.com - 123456
+
+https://github.com/coreybutler/nvm-windows -> node version
