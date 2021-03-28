@@ -3,15 +3,23 @@ import React from 'react';
 import { RocketOutlined, UsergroupAddOutlined, DashboardOutlined,
   AreaChartOutlined, TeamOutlined, ToolOutlined, HomeOutlined, SelectOutlined, GifOutlined
 } from '@ant-design/icons';
-
+import { createFromIconfontCN } from '@ant-design/icons';
 import { Employee } from './employee';
+import { Hotel } from './hotel';
 import { Addemployee } from './addemployee';
+import { Attendance } from './attendance';
+const IconFont = createFromIconfontCN({
+  scriptUrl: '//at.alicdn.com/t/font_8d5l8fzk5b87iudi.js',
+});
+
+
+
 const Todo = () => {
   return <h1>To Do</h1>
 }
 
 const subPages1 = [
-  { path: '/dashboard', label: (<><DashboardOutlined style={{paddingLeft:10}}/> Dashboard </>), component: Todo, permissions: '' },
+  { path: '/hotel', label: (<><DashboardOutlined style={{paddingLeft:10}}/> Hotel </>), component: Hotel, permissions: '' },
   { path: '/employee', label: (<><TeamOutlined style={{paddingLeft:10}}/> Employee </>), component: Employee, permissions: '' },
   { path: '/2', label: (<><UsergroupAddOutlined style={{paddingLeft:10}}/> Add Employee </>), component: Addemployee, permissions: '' },
   { path: '/3', label: (<><ToolOutlined style={{paddingLeft:10}}/> Edit Hotel </>), component: Todo, permissions: '' },
@@ -25,7 +33,10 @@ const subPages2 = [
 const subPages3 = [
   {path: '/9', label: (<><AreaChartOutlined /> Inventory Report </>), component: Todo, permissions: ''},
 ];
-export const routerPages = [...subPages1, ...subPages2];
+const subPages4 = [
+  {path: '/attendance', label: (<><GifOutlined /> Attendance </>), component: Attendance, permissions: ''},
+];
+export const routerPages = [...subPages1, ...subPages2, ...subPages3, ...subPages4];
 
 export const menuPages = [
   {
@@ -39,6 +50,10 @@ export const menuPages = [
   {
     label: 'Report',
     children: subPages3
+  },
+  {
+    label: 'Employee',
+    children: subPages4
   }
 ];
 
