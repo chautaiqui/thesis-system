@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { User } from '@pkg/reducers';
-import { getRequest } from '@pkg/api';
+import { _getRequest } from '@pkg/api';
 
 import { Table, Tag, Modal } from 'antd';
 import {
     Form, Input, Button, Radio, Select, DatePicker, message, Row, Col
 } from 'antd';
 import { FormProvider } from 'antd/lib/form/context';
+import { MultiSelect } from '../../commons';
 const dataSource = [
     {
         email: "employee1.5@gmail.com",
@@ -85,13 +86,13 @@ export const Employee = (props) => {
         console.log(popup.open)
         // get employee
         const getData = async () => {
-            const res = await getRequest('temp', user.api_token);
+            const res = await _getRequest('https://hotel-hrms.herokuapp.com','hotel', '', {}, ['605c71d6dd9f6b0015132de2','employee']);
             if (!res.success) {
                 message.error('This is an error message'); // param = res.error
             }
-            setLstemp(res.data);
+            setLstemp(res.result.employees);
         }
-        // getData();
+        getData();
     },[])
 
     const onFinish = async values => {
@@ -106,11 +107,12 @@ export const Employee = (props) => {
     const onFinishFailed = errorInfo => {
         console.log('Failed:', errorInfo);
     };
-    // columns = lstemp
+    // dataSource = lstemp
     return (
         <>
             <Table 
-                dataSource={dataSource} 
+                loading={lstemp.length === 0}
+                dataSource={lstemp} 
                 columns={
                     [
                         {
@@ -224,7 +226,7 @@ export const Employee = (props) => {
                             </Form.Item>
                         </Col>
                         <Col xs={22} sm={22} md={12}>
-                            {/* <Form.Item label="Birthdate" name="dateOfBirth">
+                            {/* <Form.Item label="Birthday" name="dateOfBirth">
                                 <DatePicker />
                             </Form.Item> */}
                             <Form.Item label="Role" name="role">
@@ -240,16 +242,18 @@ export const Employee = (props) => {
                             <Form.Item label="Designation" name="designation">
                                 <Input />
                             </Form.Item>
-                            <Form.Item label="Type" name="type">
-                                <Select
-                                    mode="tags"
-                                    placeholder="Choose skill"
-                                >
-                                    <Select.Option value="1">English</Select.Option>
-                                    <Select.Option value="2">Chinese</Select.Option>
-                                    <Select.Option value="3">France</Select.Option>
-                                    <Select.Option value="4">Other</Select.Option>
-                                </Select>
+                            <Form.Item 
+                                label="Skills" name="skills"
+                                getValueFromEvent={v => {
+                                    console.log(v)
+                                    return v;
+                                }}
+                            >
+                                <MultiSelect
+                                    maxTag={3}
+                                    listValue={[{label: 'japanese', value: 'japanese'},{label: 'english', value: 'english'},{label: 'other', value: 'other'}]}
+                                    placeholder={'choose skill'}
+                                />
                             </Form.Item>
                         </Col>
                     </Row>
