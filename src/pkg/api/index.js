@@ -129,13 +129,17 @@ const _putRequest = async(apiDomain, fn, data, id) => {
   if (!id) return { success: false, error: '' };
   try {
     let _h = new Headers()
-    _h.append("Content-Type", "text/plain;charset=UTF-8");
+    _h.append("Content-Type", "text/plain;charset=UTF-8")
+    _h.append('Authorization','')
+    _h.append("Access-Control-Allow-Headers", "x-access-token, Origin, Content-Type, Accept")
+
     var url = `${apiDomain}/api/${fn}/${id}`;
     
     let re = await fetch(url, {
       method: 'PUT',
       body: JSON.stringify(data),
-      headers: _h
+      headers: _h,
+      mode: 'no-cors'
     })
     if(!re.ok) return {success: false, error: 'Api error'}
     let _re = await re.json();

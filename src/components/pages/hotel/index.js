@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { User } from '@pkg/reducers';
-import { _getRequest } from '@pkg/api';
+import { _getRequest, _putRequest } from '@pkg/api';
 
 import { Table, Tag, Modal } from 'antd';
 import {
@@ -56,7 +56,8 @@ export const Hotel = (props) => {
             let re = await _getRequest('https://hotel-hrms.herokuapp.com', 'hotel')
             console.log(re)
             if (!re.success) {
-                message.error('This is an error message'); // param = res.error
+                message.error('This is an error message');
+                return // param = res.error
             }
             setLstemp(re.result.hotels);
         }
@@ -64,9 +65,12 @@ export const Hotel = (props) => {
     },[])
 
     const onFinish = async values => {
-        console.log(values)
+        console.log(values);
+        console.log(popup.data.id)
         try {
-          // post employee 
+            // post employee
+            let re = await _putRequest('https://hotel-hrms.herokuapp.com', 'hotel', values, popup.data.id);
+            console.log(re)
         } catch (e) { 
             message(e);
         }
