@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { User } from '@pkg/reducers';
-import { _getRequest } from '@pkg/api';
+import { _getRequest, _putRequest } from '@pkg/api';
 
 import { Table, Tag, Modal } from 'antd';
 import {
     Form, Input, Button, Radio, Select, DatePicker, message, Row, Col
 } from 'antd';
+import { filerColumn } from '../../commons';
 import { FormProvider } from 'antd/lib/form/context';
 import { MultiSelect } from '../../commons';
 const dataSource = [
@@ -91,16 +92,22 @@ export const Employee = (props) => {
                 message.error('This is an error message'); // param = res.error
             }
             setLstemp(res.result.employees);
+            
         }
         getData();
     },[])
 
     const onFinish = async values => {
         console.log(values)
+        const employee = lstemp.find(item => item.email === values.email)
+        console.log(employee, employee.id)
         try {
-          // post employee 
+           // post employee
+            // const res = _putRequest('https://hotel-hrms.herokuapp.com', 'employee', values, employee.id)
+            // console.log(res)
+            // window.location.reload()
         } catch (e) { 
-            message(e);
+            message.error(e);
         }
       };
     
@@ -111,27 +118,33 @@ export const Employee = (props) => {
     return (
         <>
             <Table 
+                rowKey='id'
                 loading={lstemp.length === 0}
                 dataSource={lstemp} 
                 columns={
                     [
                         {
-                          title: 'Name',
-                          dataIndex: 'name',
-                          align: 'center',
-                          key: 'name',
+                            title: 'Name',
+                            dataIndex: 'name',
+                            align: 'center',
+                            key: 'name',
+                            ...filerColumn([], 'name'),
+                            onFilter: (value, record) =>
+                                record.name
+                                    ? record.name.toString().toLowerCase().includes(value.toLowerCase())
+                                    : '',
                         },
                         {
-                          title: 'Phone',
-                          dataIndex: 'contactNumber',
-                          align: 'center',
-                          key: 'contactNumber',
+                            title: 'Phone',
+                            dataIndex: 'contactNumber',
+                            align: 'center',
+                            key: 'contactNumber',
                         },
                         {
-                          title: 'Address',
-                          dataIndex: 'address',
-                          align: 'center',
-                          key: 'address',
+                            title: 'Address',
+                            dataIndex: 'address',
+                            align: 'center',
+                            key: 'address',
                         },
                         {
                             title: 'Skills',
@@ -167,7 +180,7 @@ export const Employee = (props) => {
                             title: 'Action',
                             align: 'center',
                             key: 'action',
-                            render: v => <Button onClick={()=>{
+                            render: (v,r) => <Button type='primary' onClick={()=>{
                                 setPopup({open: true, data:v});
                                 form.setFieldsValue(v);
                             }}>Edit</Button>
@@ -182,12 +195,12 @@ export const Employee = (props) => {
                 maskClosable={false}
                 title= {popup.data.name ? `Edit ${popup.data.name}`: 'Edit' }
                 key='modal_update'
-                width='70%' 
+                width='90%' 
                 visible={popup.open}
                 forceRender
                 keyboard
                 okText={'Confirm'}
-                onOk={()=>{form.submit()}}
+                onOk={()=>{form.submit();setPopup({open:false, data:{}});}}
                 cancelText='Close'
                 onCancel={() => {setPopup({open:false, data:{}}); form.resetFields()}}
             >
@@ -199,14 +212,14 @@ export const Employee = (props) => {
                         span: 6,
                     }}
                     wrapperCol={{
-                        span: 12,
+                        span: 14
                     }}
                     layout="horizontal"
                 >
                     <Row gutter={16}>
                         <Col xs={22} sm={22} md={12}>
                             <Form.Item label="Email" name="email">
-                                <Input />
+                                <Input disabled/>
                             </Form.Item>
                             <Form.Item label="Name" name="name">
                                 <Input />
@@ -214,10 +227,10 @@ export const Employee = (props) => {
                             <Form.Item label="Phone" name="contactNumber">
                                 <Input />
                             </Form.Item>
-                            <Form.Item label="Address" name="address">
+                            <Form.Item label="Address">
                                 <Input />
                             </Form.Item>
-                            <Form.Item label="Hotel" name="hotel">
+                            <Form.Item label="Hotel">
                                 <Select>
                                     <Select.Option value="1">Hotel 1</Select.Option>
                                     <Select.Option value="2">Hotel 2</Select.Option>
@@ -229,21 +242,21 @@ export const Employee = (props) => {
                             {/* <Form.Item label="Birthday" name="dateOfBirth">
                                 <DatePicker />
                             </Form.Item> */}
-                            <Form.Item label="Role" name="role">
+                            <Form.Item label="Role">
                                 <Select>
                                     <Select.Option value="1">Manager</Select.Option>
                                     <Select.Option value="2">Employee</Select.Option>
                                     <Select.Option value="3">Intership</Select.Option>
                                 </Select>
                             </Form.Item>
-                            <Form.Item label="Department" name="department">
+                            <Form.Item label="Department" name='department'>
                                 <Input />
                             </Form.Item>
-                            <Form.Item label="Designation" name="designation">
+                            <Form.Item label="Designation">
                                 <Input />
                             </Form.Item>
                             <Form.Item 
-                                label="Skills" name="skills"
+                                label="Skills"
                                 getValueFromEvent={v => {
                                     console.log(v)
                                     return v;
