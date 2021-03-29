@@ -6,6 +6,7 @@ import { Table, Tag, Modal } from 'antd';
 import {
     Form, Input, Button, Radio, Select, DatePicker, message, Row, Col
 } from 'antd';
+import { filerColumn } from '../../commons';
 import { FormProvider } from 'antd/lib/form/context';
 import { MultiSelect } from '../../commons';
 const dataSource = [
@@ -79,27 +80,33 @@ export const Hotel = (props) => {
     return (
         <>
             <Table 
+                rowKey='id'
                 loading={lstemp.length === 0}
                 dataSource={lstemp} 
                 columns={
                     [
                         {
-                          title: 'Name',
-                          dataIndex: 'name',
-                          align: 'center',
-                          key: 'name',
+                            title: 'Name',
+                            dataIndex: 'name',
+                            align: 'center',
+                            key: 'name',
+                            ...filerColumn([], 'name'),
+                            onFilter: (value, record) =>
+                                record.name
+                                    ? record.name.toString().toLowerCase().includes(value.toLowerCase())
+                                    : '',
                         },
                         {
-                          title: 'description',
-                          dataIndex: 'description',
-                          align: 'center',
-                          key: 'description',
+                            title: 'description',
+                            dataIndex: 'description',
+                            align: 'center',
+                            key: 'description',
                         },
                         {
-                          title: 'Address',
-                          dataIndex: 'address',
-                          align: 'center',
-                          key: 'address',
+                            title: 'Address',
+                            dataIndex: 'address',
+                            align: 'center',
+                            key: 'address',
                         },
                         {
                             title: 'Phone',
@@ -147,7 +154,7 @@ export const Hotel = (props) => {
                     onFinish={onFinish}
                     onFinishFailed={onFinishFailed}
                     labelCol={{
-                        span: 6,
+                        span: 8,
                     }}
                     wrapperCol={{
                         span: 12,
@@ -155,7 +162,7 @@ export const Hotel = (props) => {
                     layout="horizontal"
                 >
                     <Row gutter={16}>
-                        <Col xs={22} sm={22} md={12}>
+                        <Col xs={22} sm={22} md={24}>
                             <Form.Item label="Name" name="name">
                                 <Input />
                             </Form.Item>
