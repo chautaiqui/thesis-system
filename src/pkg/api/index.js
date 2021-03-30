@@ -20,6 +20,38 @@ const postRequest = async (fn, body) => {
     return { success: false, error: e };
   }
 }
+
+const _getRequest = async (apiDomain ,fn, api_token='', meta = {}, extend = []) => {
+  try {
+    let _h = new Headers()
+    // _h.append('authorization',api_token);
+    _h.append("Content-Type", "text/plain;charset=UTF-8")
+    delete meta.fields;
+    delete meta.total;  
+    let queryString = '';
+    for (let x in meta ) {
+      if (!x || !meta[x]) continue;
+      queryString += `&${x}=${encodeURIComponent(meta[x])}`;
+    }
+    const ex = extend.length === 0 ? '' : '/' + extend.join('/');
+    var url = `${apiDomain}/api/${fn}${ex}?${queryString.slice(1)}`;
+    console.log(url)
+    let re = await fetch(url, {
+        method: 'GET',
+        headers: _h
+    })
+    if(!re.ok) return {success: false, error: 'Api error'}
+    let _re = await re.json();
+    // if(_re.status === 401) return window.location.reload()
+    // if(_re.status === 403) return {success: true, result: {data: []}}
+    // if(_re.status !== 200) return {success: false, error: _re.message || 'Api ok but smt error'}
+    
+    return {success: true, result: _re} // result {data, meta}
+  } catch (e) {
+    return { success: false, error: e };
+  }
+}
+
 const getRequest = async (fn, api_token, meta = {}, extend = []) => {
   try {
     let _h = new Headers()
@@ -93,6 +125,27 @@ const putRequest = async(fn, api_token, data, id) => {
     return { success: false, error: e };
   }
 }
+const _putRequest = async(apiDomain, fn, data, id) => {
+  if (!id) return { success: false, error: '' };
+  try {
+    let _h = new Headers()
+    _h.append("Content-Type", "text/plain;charset=UTF-8");
+    var url = `${apiDomain}/api/${fn}/${id}`;
+    console.log(url)
+    let re = await fetch(url, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+      headers: _h
+    })
+    console.log(re)
+    // if(!re.ok) return {success: false, error: 'Api error'}
+    // let _re = await re.json();
+    // // if(_re.status !== 200) return {success: false, error: _re.message || 'Api ok but smt error'}
+    // return {success: true, result: _re}
+  } catch (e) {
+    return { success: false, error: e };
+  }
+}
 
 const signin = {
   withPw: (email, password) => postRequest('login', { email, password }),
@@ -128,6 +181,6 @@ const putData = {
   accounts: (api_token, data) => putRequest('accounts', api_token, data, data.id)
 }
 
-export { signin, fetchData, postData, putData, getRequest };
+export { signin, fetchData, postData, putData, getRequest, _getRequest, _putRequest};
 
  

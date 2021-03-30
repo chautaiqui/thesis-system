@@ -272,7 +272,7 @@ export const MultiSelect = (props) => {
 
 	let showTag = false;
 	if (selected.length > maxTag) showTag = true;
-	// console.log(JSON.stringify(selected))
+	console.log(selected)
 	React.useEffect(() => {
 		if (onChange) {
 		  	onChange(selected);
