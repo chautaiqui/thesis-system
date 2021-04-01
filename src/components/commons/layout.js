@@ -80,7 +80,8 @@ const AdminLayout = props => {
                 key={menuItemGroupKey}
                 title={menuItemGroup.label}
               >
-                {menuItemGroup.children.filter(p => user.isAdmin || user.permissions.indexOf(p.permissions) > -1).map(menuItem => 
+                {/* {menuItemGroup.children.filter(p => user.isAdmin || user.permissions.indexOf(p.permissions) > -1).map(menuItem =>  */}
+                {menuItemGroup.children.map(menuItem => 
                   <Menu.Item
                     key={menuItem.path}
                   >

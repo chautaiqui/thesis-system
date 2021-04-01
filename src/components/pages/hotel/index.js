@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { User } from '@pkg/reducers';
-<<<<<<< HEAD
 import { _getRequest } from '@pkg/api';
-=======
-import { _getRequest, _putRequest } from '@pkg/api';
->>>>>>> 41a9fb724437c4000cfb60b724c35fa641405ba0
 
 import { Table, Tag, Modal } from 'antd';
 import {
@@ -13,10 +9,7 @@ import {
 import { filerColumn } from '../../commons';
 import { FormProvider } from 'antd/lib/form/context';
 import { MultiSelect } from '../../commons';
-<<<<<<< HEAD
 import { _putRequest } from '../../../pkg/api';
-=======
->>>>>>> 41a9fb724437c4000cfb60b724c35fa641405ba0
 const dataSource = [
     {
         "id": "605c71d6dd9f6b0015132de2",

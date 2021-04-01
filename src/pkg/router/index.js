@@ -22,7 +22,8 @@ const RouterContainer = () => {
             <Home /> 
             {/* Nhay vao trang dashboard */}
           </Route>
-          {routerPages.filter(p =>_user.isAdmin || _user.permissions.indexOf(p.permissions) > -1).map(p => (
+          {/* {routerPages.filter(p =>_user.isAdmin || _user.permissions.indexOf(p.permissions) > -1).map(p => ( */}
+          {routerPages.map(p => (
             // <Route path={`${p.path}/:param`} key={`${p.path}/:param`}>
             <Route path={p.path} key={p.path}>
               <p.component />

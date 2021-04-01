@@ -129,7 +129,7 @@ const _putRequest = async(apiDomain, fn, data, id) => {
   if (!id) return { success: false, error: '' };
   try {
     let _h = new Headers()
-    _h.append("Content-Type", "text/plain;charset=UTF-8");
+    _h.append("Content-Type", "application/json");
     var url = `${apiDomain}/api/${fn}/${id}`;
     console.log(url)
     let re = await fetch(url, {
@@ -138,10 +138,10 @@ const _putRequest = async(apiDomain, fn, data, id) => {
       headers: _h
     })
     console.log(re)
-    // if(!re.ok) return {success: false, error: 'Api error'}
-    // let _re = await re.json();
-    // // if(_re.status !== 200) return {success: false, error: _re.message || 'Api ok but smt error'}
-    // return {success: true, result: _re}
+    if(!re.ok) return {success: false, error: 'Api error'}
+    let _re = await re.json();
+    // if(_re.status !== 200) return {success: false, error: _re.message || 'Api ok but smt error'}
+    return {success: true, result: _re}
   } catch (e) {
     return { success: false, error: e };
   }

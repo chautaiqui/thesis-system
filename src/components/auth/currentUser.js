@@ -9,7 +9,8 @@ const CurrentUser = props => {
   const onLogin = (user, email, api_token) => {
     dispatchUser({ user, email, api_token, type: 'LOGIN' });
   }
-  return _user.roles ? children : <Login onLogin={onLogin} />;
+  // return _user.roles ? children : <Login onLogin={onLogin} />;
+  return children;
 }
 
 export default User.provider(CurrentUser);
