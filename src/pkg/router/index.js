@@ -10,7 +10,6 @@ import { Row } from 'antd';
 import Layout from '@components/commons/layout';
 import { routerPages } from '@components/pages';
 import { User } from '@pkg/reducers';
-// TODO 
 // 1. filter by permissions
 const RouterContainer = () => {
   const [ _user ] = useContext(User.context);
@@ -20,10 +19,10 @@ const RouterContainer = () => {
         <Switch>
           <Route exact path='/'>
             <Home /> 
-            {/* Nhay vao trang dashboard */}
+            {/* home =dashboard */}
           </Route>
-          {/* {routerPages.filter(p =>_user.isAdmin || _user.permissions.indexOf(p.permissions) > -1).map(p => ( */}
-          {routerPages.map(p => (
+          {routerPages.filter(p =>_user.permissions.indexOf(p.permissions) > -1).map(p => (
+          // {routerPages.map(p => (
             // <Route path={`${p.path}/:param`} key={`${p.path}/:param`}>
             <Route path={p.path} key={p.path}>
               <p.component />

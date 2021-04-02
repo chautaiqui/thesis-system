@@ -8,7 +8,7 @@ import Input from 'antd/lib/input';
 import Button from 'antd/lib/button';
 
 import { messageError } from '@components/commons';
-import { signin } from '@api';
+import { signin, _postRequest } from '@api';
 
 const Login = props => {
   const { onLogin } = props;
@@ -17,16 +17,16 @@ const Login = props => {
 
   // check current token
   useEffect(() => {
-    const { email, api_token } = localStorage;
+    const { email, password } = localStorage;
     const checkUser = async () => {
       try {
-        const _r = await signin.withToken(email, api_token);
+        const _r = await _postRequest('auth/signin',{email:email, password: password});
         if (!_r.success) {
           localStorage.removeItem('email');
           localStorage.removeItem('api_token');
           setCheck(true);
         }
-        onLogin(_r.result.data, email, api_token);
+        onLogin(_r.result, email, password); 
       } catch (e) {
         console.log('checkToken', e);
         delete localStorage.api_token;
@@ -34,7 +34,7 @@ const Login = props => {
       }
     }
     if (!check) {
-      if (email && api_token) checkUser();
+      if (email && password) checkUser();
       else setCheck(true);
     }
   }, [check, onLogin]);
@@ -42,11 +42,9 @@ const Login = props => {
   const onFinish = async values => {
     try {
       const { email, password } = values;
-      const _r = await signin.withPw(email, password);
+      const _r = await _postRequest('auth/signin',{email:email, password: password});
       if (!_r.success) return messageError(_r.error);
-      const _r2 = await signin.withToken(email, _r.result.api_token);
-      if (!_r2.success) return messageError(_r2.error);
-      onLogin(_r2.result.data, email, _r.result.api_token);
+      onLogin(_r.result, email, password); 
      } catch (e) { 
       messageError(e);
     }

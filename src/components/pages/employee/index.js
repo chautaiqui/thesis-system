@@ -87,7 +87,7 @@ export const Employee = (props) => {
         console.log(popup.open)
         // get employee
         const getData = async () => {
-            const res = await _getRequest('https://hotel-hrms.herokuapp.com','hotel', '', {}, ['605c71d6dd9f6b0015132de2','employee']);
+            const res = await _getRequest('hotel', {}, ['605c71d6dd9f6b0015132de2','employee']);
             if (!res.success) {
                 message.error('This is an error message'); // param = res.error
             }
@@ -103,7 +103,7 @@ export const Employee = (props) => {
         console.log(employee, employee.id)
         try {
            // post employee
-            // const res = _putRequest('https://hotel-hrms.herokuapp.com', 'employee', values, employee.id)
+            const res = _putRequest('employee', values, employee.id)
             // console.log(res)
             // window.location.reload()
         } catch (e) { 

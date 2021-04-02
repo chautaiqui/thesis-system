@@ -18,6 +18,10 @@ You will also see any lint errors in the console.
 
 Notice: `Node version <= 14`
 
-### Real api login
+### Hotel api login
 
-Account: Test@gmail.com - 123456
+Account: admin, employee, manager in Database
+
+
+### Nvm for windows
+https://github.com/coreybutler/nvm-windows

@@ -9,28 +9,6 @@ import {
 import { filerColumn } from '../../commons';
 import { FormProvider } from 'antd/lib/form/context';
 import { MultiSelect } from '../../commons';
-const dataSource = [
-    {
-        "id": "605c71d6dd9f6b0015132de2",
-        "name": "My Le",
-        "description": "none",
-        "contactNumber": "0912",
-        "image": "placholder.jpg",
-        "address": "Phuoc Long, Binhf Phuoc",
-        "timeIn": "2021-03-25T11:14:32.012Z",
-        "timeOut": "2021-03-25T11:14:32.012Z"
-    },
-    {
-        "id": "605c73c348e7a0001538d0a9",
-        "name": "Hoa Hong",
-        "description": "nonenonenenoasi",
-        "contactNumber": "0910291209",
-        "image": "1616671681653JPEG_example_flower.jpg",
-        "address": "KTX khu A",
-        "timeIn": "2021-03-25T11:23:58.604Z",
-        "timeOut": "2021-03-25T11:23:58.604Z"
-    }
-]
 
 // export const EmployeeReducer = (state, action) => {
 //     switch (action.type) {
@@ -53,7 +31,7 @@ export const Hotel = (props) => {
         console.log(popup.open)
         // get employee
         const getData = async () => {
-            let re = await _getRequest('https://hotel-hrms.herokuapp.com', 'hotel')
+            let re = await _getRequest('hotel')
             console.log(re)
             if (!re.success) {
                 message.error('This is an error message'); // param = res.error
@@ -67,11 +45,11 @@ export const Hotel = (props) => {
         console.log(values, popup.data)
         try {
           // post employee 
-        //   let re = await _putRequest('https://hotel-hrms.herokuapp.com', 'hotel', values, popup.data.id);
-          let re = await _postRequest('https://hotel-hrms.herokuapp.com/api/auth/signin', {
-                email: "quict@gmail",
-                password: "88888888"
-          });
+          let re = await _putRequest('hotel', values, popup.data.id);
+            // let re = await _postRequest('/auth/signin', {
+            //         email: "quict@gmail",
+            //         password: "88888888"
+            // });
         } catch (e) { 
             message(e);
         }

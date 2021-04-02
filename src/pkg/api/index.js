@@ -3,6 +3,80 @@
 // const _promise = obj => new Promise(resolve => setTimeout(() => resolve(obj), 1000));
 
 const apiDomain = 'https://a.adsplay.xyz';
+const api_Domain = 'https://hotel-hrms.herokuapp.com';
+
+const _getRequest = async (fn, options = {}, extend = []) => {
+  try {
+    let _h = new Headers()
+    // _h.append('authorization',api_token);
+    _h.append("Content-Type", "text/plain;charset=UTF-8")
+    delete options.fields;
+    delete options.total;  
+    let queryString = '';
+    for (let x in options ) {
+      if (!x || !options[x]) continue;
+      queryString += `&${x}=${encodeURIComponent(options[x])}`;
+    }
+    const ex = extend.length === 0 ? '' : '/' + extend.join('/');
+    var url = `${api_Domain}/api/${fn}${ex}?${queryString.slice(1)}`;
+    let re = await fetch(url, {
+        method: 'GET',
+        headers: _h
+    })
+    if(!re.ok) return {success: false, error: 'Api error'}
+    let _re = await re.json();
+    // if(_re.status === 401) return window.location.reload()
+    // if(_re.status === 403) return {success: true, result: {data: []}}
+    // if(_re.status !== 200) return {success: false, error: _re.message || 'Api ok but smt error'}
+    
+    return {success: true, result: _re};
+  } catch (e) {
+    return { success: false, error: e };
+  }
+}
+
+const _postRequest = async (fn, body) => {
+  try {
+    let _h = new Headers();
+    _h.append('content-type', 'application/json');
+    let url = `${api_Domain}/api/${fn}`
+    let _r = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: _h
+    });
+    _r = await _r.json();
+    if (_r.message) return { success: false, error: _r.message };
+    // if (!_r.ok) return { success: false, error: 'Api error' };
+    // if (_r.status !== 200)  return { success: false, error: _r.message || 'Api ok but smt error' };
+    return { success: true, result: _r };
+  } catch(e) {
+    return { success: false, error: e };
+  }
+}
+
+const _putRequest = async(fn, data, id) => {
+  if (!id) return { success: false, error: '' };
+  try {
+    let _h = new Headers()
+    _h.append("Content-Type", "application/json");
+    var url = `${api_Domain}/api/${fn}/${id}`;
+    console.log(url)
+    let re = await fetch(url, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+      headers: _h
+    })
+    console.log(re)
+    if(!re.ok) return {success: false, error: 'Api error'}
+    let _re = await re.json();
+    // if(_re.status !== 200) return {success: false, error: _re.message || 'Api ok but smt error'}
+    return {success: true, result: _re}
+  } catch (e) {
+    return { success: false, error: e };
+  }
+}
+
 const postRequest = async (fn, body) => {
   try {
     let _h = new Headers();
@@ -17,54 +91,6 @@ const postRequest = async (fn, body) => {
     if (_r.status !== 200)  return { success: false, error: _r.message || 'Api ok but smt error' };
     return { success: true, result: _r };
   } catch(e) {
-    return { success: false, error: e };
-  }
-}
-const _postRequest = async (url, body) => {
-  try {
-    let _h = new Headers();
-    _h.append('content-type', 'application/json');
-    let _r = await fetch(url, {
-      method: 'POST',
-      body: JSON.stringify(body),
-      headers: _h
-    });
-    if (!_r.ok) return { success: false, error: 'Api error' };
-    _r = await _r.json();
-    if (_r.status !== 200)  return { success: false, error: _r.message || 'Api ok but smt error' };
-    return { success: true, result: _r };
-  } catch(e) {
-    return { success: false, error: e };
-  }
-}
-
-const _getRequest = async (apiDomain ,fn, api_token='', meta = {}, extend = []) => {
-  try {
-    let _h = new Headers()
-    // _h.append('authorization',api_token);
-    _h.append("Content-Type", "text/plain;charset=UTF-8")
-    delete meta.fields;
-    delete meta.total;  
-    let queryString = '';
-    for (let x in meta ) {
-      if (!x || !meta[x]) continue;
-      queryString += `&${x}=${encodeURIComponent(meta[x])}`;
-    }
-    const ex = extend.length === 0 ? '' : '/' + extend.join('/');
-    var url = `${apiDomain}/api/${fn}${ex}?${queryString.slice(1)}`;
-    console.log(url)
-    let re = await fetch(url, {
-        method: 'GET',
-        headers: _h
-    })
-    if(!re.ok) return {success: false, error: 'Api error'}
-    let _re = await re.json();
-    // if(_re.status === 401) return window.location.reload()
-    // if(_re.status === 403) return {success: true, result: {data: []}}
-    // if(_re.status !== 200) return {success: false, error: _re.message || 'Api ok but smt error'}
-    
-    return {success: true, result: _re} // result {data, meta}
-  } catch (e) {
     return { success: false, error: e };
   }
 }
@@ -134,27 +160,6 @@ const putRequest = async(fn, api_token, data, id) => {
       body: JSON.stringify(data),
       headers: _h
     })
-    if(!re.ok) return {success: false, error: 'Api error'}
-    let _re = await re.json();
-    // if(_re.status !== 200) return {success: false, error: _re.message || 'Api ok but smt error'}
-    return {success: true, result: _re}
-  } catch (e) {
-    return { success: false, error: e };
-  }
-}
-const _putRequest = async(apiDomain, fn, data, id) => {
-  if (!id) return { success: false, error: '' };
-  try {
-    let _h = new Headers()
-    _h.append("Content-Type", "application/json");
-    var url = `${apiDomain}/api/${fn}/${id}`;
-    console.log(url)
-    let re = await fetch(url, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-      headers: _h
-    })
-    console.log(re)
     if(!re.ok) return {success: false, error: 'Api error'}
     let _re = await re.json();
     // if(_re.status !== 200) return {success: false, error: _re.message || 'Api ok but smt error'}

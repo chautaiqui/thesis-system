@@ -1,4 +1,4 @@
-import React, { useReducer, createContext } from 'react';
+import React, { useReducer, createContext, useContext } from 'react';
 // import { useHistory } from 'react-router-dom';
 
 const UserContext = createContext();
@@ -8,16 +8,27 @@ const UserProvider = ({ children }) => {
     switch (action.type) {
       case 'LOGIN':
         (action.email && localStorage.setItem('email', action.email));
-        (action.api_token && localStorage.setItem('api_token', action.api_token));
+        (action.password && localStorage.setItem('password', action.password));
         const _u = action.user || {};
-        _u.roles = Array.isArray(_u.roles) ? _u.roles.slice(0) : [];
-        _u.permissions = _u.roles.reduce((res, role) => [...res, ...role.permissions], []);
-        _u.isAdmin = _u.roles.some(role => role.name.toLowerCase() === 'admin');
-        _u.api_token = action.api_token;
+        console.log(_u)
+        // _u.roles = Array.isArray(_u.roles) ? _u.roles.slice(0) : [];
+        // _u.permissions = _u.roles.reduce((res, role) => [...res, ...role.permissions], []);
+        // _u.isAdmin = _u.roles.some(role => role.name.toLowerCase() === 'admin');
+        // _u.api_token = action.api_token;
+        // _u.role => [permissions]
+        if(_u.role) {
+          if(_u.role === 'admin') {
+            _u.permissions = ['hotel', 'employee', 'add_employee', 'edit_hotel', 'room', 'form_resquest', 'booking', 'voucher', 'report', 'attendance'];
+          } else if (_u.role === 'employee') {
+            _u.permissions = ['booking', 'voucher', 'report', 'attendance'];
+          } else {
+            _u.permissions = ['hotel', 'employee', 'add_employee', 'edit_hotel', 'room', 'form_resquest', 'booking', 'voucher', 'report'];
+          }
+        }
         return _u;
       case 'LOGOUT':
         localStorage.removeItem('email');
-        localStorage.removeItem('api_token');
+        localStorage.removeItem('password');
         return {};
       default: return state;
     }
