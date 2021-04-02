@@ -1,71 +1,91 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { User } from '@pkg/reducers';
+import React, { useEffect, useReducer } from 'react';
+// import { User } from '@pkg/reducers';
 import { _getRequest, _putRequest, _postRequest } from '@pkg/api';
 
 import { Table, Tag, Modal } from 'antd';
 import {
-    Form, Input, Button, Radio, Select, DatePicker, message, Row, Col
+    Form, Input, Button, message, Row, Col
 } from 'antd';
 import { filerColumn } from '../../commons';
-import { FormProvider } from 'antd/lib/form/context';
-import { MultiSelect } from '../../commons';
+// import { MultiSelect } from '../../commons';
 
-// export const EmployeeReducer = (state, action) => {
-//     switch (action.type) {
-//       case 'init':
-//         return { ...state, searchFields: extractSearch(action.data)}
-//       case 'get_employee':
-//         return { ...state, searchFields: action.data };
-//       default:
-//         return state;
-//     } 
-// }
-
+const HotelReducer = (state, action) => {
+    switch (action.type) {
+        case 'GET_DATA_SUCCESS':
+            return { ...state, data: action.data, behavior: 'stall' }
+        case 'GET_DATA_ERROR':
+            return { ...state, data: [], behavior: 'stall' };
+        case 'OPEN_POPUP':
+            return { ...state, popup: action.popup, behavior: 'stall' };
+        case 'CLOSE_POPUP':
+            return { ...state, popup: action.popup, behavior: 'stall' };
+        case 'RELOAD':
+            return { ...state, behavior: 'init', popup: action.popup };
+        default:
+            return state;
+    } 
+}
 export const Hotel = (props) => {
-    const [ user ] = useContext(User.context);
-    const [ lstemp, setLstemp ] = useState([]);
-    const [ popup, setPopup ] = useState({open: false, data: {}});
+    const [ state, dispatch ]= useReducer(HotelReducer, {
+        behavior: 'init',
+        data: [],
+        popup: {open: false, data: {}}
+    });
+    const { data, popup, behavior } = state;
     const [ form ] = Form.useForm();
-    useEffect(()=>{
-        // reset form
-        console.log(popup.open)
-        // get employee
-        const getData = async () => {
-            let re = await _getRequest('hotel')
-            console.log(re)
+    
+    const getData = async () => {
+        try {
+            let re = await _getRequest('hotel');
             if (!re.success) {
-                message.error('This is an error message'); // param = res.error
+                message.error(re.error); // param = res.error
             }
-            setLstemp(re.result.hotels);
+            // setLstemp(re.result.hotels);
+            dispatch({type:'GET_DATA_SUCCESS', data: re.result.hotels});
+        } catch (e) {
+            message(e);
+            dispatch({type: 'GET_DATA_ERROR'});
         }
-        getData();
-    },[])
+    }
+
+    useEffect(() => {
+        switch (state.behavior) {
+            case 'init':
+                getData();
+                return;
+            case 'stall':
+                return ;
+            default:
+                break;
+        }
+    }, [state.behavior])
 
     const onFinish = async values => {
-        console.log(values, popup.data)
         try {
-          // post employee 
-          let re = await _putRequest('hotel', values, popup.data.id);
-            // let re = await _postRequest('/auth/signin', {
-            //         email: "quict@gmail",
-            //         password: "88888888"
-            // });
+            // post employee 
+            let re = await _putRequest('hotel', values, popup.data.id);
+            if(re.success) {
+                message.success(re.result.message);
+                // dispatch({type: 'CLOSE_POPUP', popup: {open:false, data:{}}})
+                dispatch({type: 'RELOAD', popup: {open:false, data:{}}});
+                form.resetFields();
+            }
         } catch (e) { 
-            message(e);
+            message.error(e);
         }
-      };
+    };
     
     const onFinishFailed = errorInfo => {
         console.log('Failed:', errorInfo);
+        message.error(errorInfo);
     };
-    // dataSource = lstemp
-    console.log(lstemp)
+    console.log(behavior)
     return (
         <>
             <Table 
                 rowKey='id'
-                loading={lstemp.length === 0}
-                dataSource={lstemp} 
+                loading={data.length === 0}
+                dataSource={data} 
                 columns={
                     [
                         {
@@ -109,7 +129,7 @@ export const Hotel = (props) => {
                             align: 'center',
                             key: 'action',
                             render: v => <Button onClick={()=>{
-                                setPopup({open: true, data:v});
+                                dispatch({type: 'OPEN_POPUP', popup: {open: true, data:v}})
                                 form.setFieldsValue(v);
                             }}>Edit</Button>
                         },
@@ -130,7 +150,10 @@ export const Hotel = (props) => {
                 okText={'Confirm'}
                 onOk={()=>{form.submit()}}
                 cancelText='Close'
-                onCancel={() => {setPopup({open:false, data:{}}); form.resetFields()}}
+                onCancel={() => {
+                    dispatch({type: 'CLOSE_POPUP', popup: {open:false, data:{}}})
+                    form.resetFields();
+                }}
             >
                 <Form
                     form={form}

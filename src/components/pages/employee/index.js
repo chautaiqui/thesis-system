@@ -1,126 +1,91 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useReducer, useEffect } from 'react';
 import { User } from '@pkg/reducers';
 import { _getRequest, _putRequest } from '@pkg/api';
 
 import { Table, Tag, Modal } from 'antd';
 import {
-    Form, Input, Button, Radio, Select, DatePicker, message, Row, Col
+    Form, Input, Button, Select, message, Row, Col
 } from 'antd';
 import { filerColumn } from '../../commons';
-import { FormProvider } from 'antd/lib/form/context';
 import { MultiSelect } from '../../commons';
-const dataSource = [
-    {
-        email: "employee1.5@gmail.com",
-        password: "1234",
-        name: "employee1",
-        dateOfBirth: "Wed Jul 09 1997 00:00:00 GMT+0700 (Indochina Time)",
-        contactNumber: "784697240",
-        address: "town123",
-        skills: [
-            "english",
-            "japanese"
-        ],
-        department: "Security",
-        designation: "Security guard"
-    },
-    {
-        email: "employee2@gmail.com",
-        password: "88888888",
-        name: "employee1",
-        dateOfBirth: "Wed Jul 09 1997 00:00:00 GMT+0700 (Indochina Time)",
-        contactNumber: "784697240",
-        address: "town",
-        skills: [
-            "english"
-        ],
-        department: "Security",
-        designation: "Security guard"
-    },
-    {
-        email: "employee3@gmail.com",
-        password: "88888888",
-        name: "employee1",
-        dateOfBirth: "Wed Jul 09 1997 00:00:00 GMT+0700 (Indochina Time)",
-        contactNumber: "784697240",
-        address: "town",
-        skills: [
-            "english"
-        ],
-        department: "Security",
-        designation: "Security guard"
-    },
-    {
-        email: "manager2@gmail.com",
-        password: "88888888",
-        name: "manager2",
-        dateOfBirth: "Wed Jul 09 1997 00:00:00 GMT+0700 (Indochina Time)",
-        contactNumber: "784697240",
-        address: "town123",
-        skills: [
-            "english",
-            "japanese"
-        ],
-        department: "None",
-        designation: "Hotel manager"
-    }
-]
 
-// export const EmployeeReducer = (state, action) => {
-//     switch (action.type) {
-//       case 'init':
-//         return { ...state, searchFields: extractSearch(action.data)}
-//       case 'get_employee':
-//         return { ...state, searchFields: action.data };
-//       default:
-//         return state;
-//     } 
-// }
+
+const EmployeeReducer = (state, action) => {
+    switch (action.type) {
+        case 'GET_DATA_SUCCESS':
+            return { ...state, data: action.data, behavior: 'stall' }
+        case 'GET_DATA_ERROR':
+            return { ...state, data: [], behavior: 'stall' };
+        case 'OPEN_POPUP':
+            return { ...state, popup: action.popup, behavior: 'stall' };
+        case 'CLOSE_POPUP':
+            return { ...state, popup: action.popup, behavior: 'stall' };
+        case 'RELOAD':
+            return { ...state, behavior: 'init', popup: action.popup };
+        default:
+            return state;
+    } 
+}
 
 export const Employee = (props) => {
-    const [ user ] = useContext(User.context);
-    const [ lstemp, setLstemp ] = useState([]);
-    const [ popup, setPopup ] = useState({open: false, data: {}});
-    const [ form ] = Form.useForm();
-    useEffect(()=>{
-        // reset form
-        console.log(popup.open)
-        // get employee
-        const getData = async () => {
+    const [ state, dispatch ]= useReducer(EmployeeReducer, {
+        behavior: 'init',
+        data: [],
+        popup: {open: false, data: {}}
+    });
+    const [ form ] = Form.useForm(); 
+    const { data, popup } = state;
+    const getData = async () => {
+        try {
             const res = await _getRequest('hotel', {}, ['605c71d6dd9f6b0015132de2','employee']);
             if (!res.success) {
-                message.error('This is an error message'); // param = res.error
+                message.error(res.error); 
             }
-            setLstemp(res.result.employees);
-            
+            dispatch({type:'GET_DATA_SUCCESS', data: res.result.employees});
+        } catch (e) {
+            message(e);
+            dispatch({type: 'GET_DATA_ERROR'});
         }
-        getData();
-    },[])
+    }
+
+    useEffect(() => {
+        switch (state.behavior) {
+            case 'init':
+                getData();
+                return;
+            case 'stall':
+                return ;
+            default:
+                break;
+        }
+    }, [state.behavior])
 
     const onFinish = async values => {
-        console.log(values)
-        const employee = lstemp.find(item => item.email === values.email)
-        console.log(employee, employee.id)
         try {
+            console.log(values)
            // post employee
-            const res = _putRequest('employee', values, employee.id)
-            // console.log(res)
-            // window.location.reload()
+            // const re = await _putRequest('employee', values, popup.data.id);
+            // console.log(re)
+            // if(re.success) {
+            //     message.success(re.result.message);
+            //     dispatch({type: 'RELOAD', popup: {open:false, data:{}}});
+            //     form.resetFields();
+            // }
         } catch (e) { 
             message.error(e);
         }
-      };
+    };
     
     const onFinishFailed = errorInfo => {
         console.log('Failed:', errorInfo);
+        message.error(errorInfo);
     };
-    // dataSource = lstemp
     return (
         <>
             <Table 
                 rowKey='id'
-                loading={lstemp.length === 0}
-                dataSource={lstemp} 
+                loading={data.length === 0}
+                dataSource={data} 
                 columns={
                     [
                         {
@@ -181,7 +146,7 @@ export const Employee = (props) => {
                             align: 'center',
                             key: 'action',
                             render: (v,r) => <Button type='primary' onClick={()=>{
-                                setPopup({open: true, data:v});
+                                dispatch({type: 'OPEN_POPUP', popup: {open: true, data:v}})
                                 form.setFieldsValue(v);
                             }}>Edit</Button>
                         },
@@ -200,9 +165,12 @@ export const Employee = (props) => {
                 forceRender
                 keyboard
                 okText={'Confirm'}
-                onOk={()=>{form.submit();setPopup({open:false, data:{}});}}
+                onOk={()=>{form.submit()}}
                 cancelText='Close'
-                onCancel={() => {setPopup({open:false, data:{}}); form.resetFields()}}
+                onCancel={() => {
+                    dispatch({type: 'CLOSE_POPUP', popup: {open:false, data:{}}})
+                    form.resetFields();
+                }}
             >
                 <Form
                     form={form}
@@ -257,8 +225,8 @@ export const Employee = (props) => {
                             </Form.Item>
                             <Form.Item 
                                 label="Skills"
+                                name="skills"
                                 getValueFromEvent={v => {
-                                    console.log(v)
                                     return v;
                                 }}
                             >

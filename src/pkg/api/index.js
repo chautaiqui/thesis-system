@@ -61,13 +61,11 @@ const _putRequest = async(fn, data, id) => {
     let _h = new Headers()
     _h.append("Content-Type", "application/json");
     var url = `${api_Domain}/api/${fn}/${id}`;
-    console.log(url)
     let re = await fetch(url, {
       method: 'PUT',
       body: JSON.stringify(data),
       headers: _h
     })
-    console.log(re)
     if(!re.ok) return {success: false, error: 'Api error'}
     let _re = await re.json();
     // if(_re.status !== 200) return {success: false, error: _re.message || 'Api ok but smt error'}
