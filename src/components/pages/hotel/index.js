@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { User } from '@pkg/reducers';
-import { _getRequest } from '@pkg/api';
+import { _getRequest, _putRequest, _postRequest } from '@pkg/api';
 
 import { Table, Tag, Modal } from 'antd';
 import {
@@ -9,7 +9,6 @@ import {
 import { filerColumn } from '../../commons';
 import { FormProvider } from 'antd/lib/form/context';
 import { MultiSelect } from '../../commons';
-import { _putRequest } from '../../../pkg/api';
 const dataSource = [
     {
         "id": "605c71d6dd9f6b0015132de2",
@@ -68,7 +67,11 @@ export const Hotel = (props) => {
         console.log(values, popup.data)
         try {
           // post employee 
-          let re = await _putRequest('https://hotel-hrms.herokuapp.com', 'hotel', values, popup.data.id);
+        //   let re = await _putRequest('https://hotel-hrms.herokuapp.com', 'hotel', values, popup.data.id);
+          let re = await _postRequest('https://hotel-hrms.herokuapp.com/api/auth/signin', {
+                email: "quict@gmail",
+                password: "88888888"
+          });
         } catch (e) { 
             message(e);
         }

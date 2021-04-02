@@ -20,6 +20,23 @@ const postRequest = async (fn, body) => {
     return { success: false, error: e };
   }
 }
+const _postRequest = async (url, body) => {
+  try {
+    let _h = new Headers();
+    _h.append('content-type', 'application/json');
+    let _r = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: _h
+    });
+    if (!_r.ok) return { success: false, error: 'Api error' };
+    _r = await _r.json();
+    if (_r.status !== 200)  return { success: false, error: _r.message || 'Api ok but smt error' };
+    return { success: true, result: _r };
+  } catch(e) {
+    return { success: false, error: e };
+  }
+}
 
 const _getRequest = async (apiDomain ,fn, api_token='', meta = {}, extend = []) => {
   try {
@@ -181,6 +198,6 @@ const putData = {
   accounts: (api_token, data) => putRequest('accounts', api_token, data, data.id)
 }
 
-export { signin, fetchData, postData, putData, getRequest, _getRequest, _putRequest};
+export { signin, fetchData, postData, putData, getRequest, _getRequest, _putRequest, _postRequest};
 
  
