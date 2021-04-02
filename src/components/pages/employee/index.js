@@ -64,13 +64,13 @@ export const Employee = (props) => {
         try {
             console.log(values)
            // post employee
-            // const re = await _putRequest('employee', values, popup.data.id);
-            // console.log(re)
-            // if(re.success) {
-            //     message.success(re.result.message);
-            //     dispatch({type: 'RELOAD', popup: {open:false, data:{}}});
-            //     form.resetFields();
-            // }
+            const re = await _putRequest('employee', values, popup.data.id);
+            console.log(re)
+            if(re.success) {
+                message.success(re.result.message);
+                dispatch({type: 'RELOAD', popup: {open:false, data:{}}});
+                form.resetFields();
+            }
         } catch (e) { 
             message.error(e);
         }
