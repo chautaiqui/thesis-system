@@ -73,8 +73,8 @@
   },
   "scripts": {
     "start": "node scripts/start.js",
-    "vbuild": "node scripts/build.js",
-    "build": "react-scripts build",
+    "build": "node scripts/build.js",
+    "vbuild": "react-scripts build",
     "test": "node scripts/test.js",
     "sass": "node-sass src/statics/sass src/statics/sass/* --source-map true --source-map-embed true --output src/statics --output-style nested",
     "wsass": "npm run sass && npm run sass -- -w"
