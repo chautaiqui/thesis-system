@@ -51,7 +51,7 @@ const AdminLayout = props => {
         <Dropdown overlay={subMenu} className='custom-submenu' trigger={['click']}>
           <div>
             <UserOutlined />
-            <span>{user ? user.email : ''}</span>
+            <span>{document.body.clientWidth < 400 ? (user.name ? user.name : 'admin') : (user ? user.email : '')}</span>
             <DownOutlined />
           </div>
         </Dropdown>

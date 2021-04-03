@@ -1,4 +1,5 @@
 import React, { useEffect, useReducer } from 'react';
+import Media from "react-media";
 // import { User } from '@pkg/reducers';
 import { _getRequest, _putRequest, _postRequest } from '@pkg/api';
 
@@ -92,76 +93,87 @@ export const Hotel = (props) => {
     };
     console.log(behavior)
     return (
-        <>
-            <Table 
+        <Media query="(min-width: 599px)">
+        {
+        matchs => {   
+            var tCol = [
+                {
+                    title: 'Name',
+                    dataIndex: 'name',
+                    align: 'center',
+                    key: 'name',
+                    ...filerColumn([], 'name'),
+                    onFilter: (value, record) =>
+                        record.name
+                            ? record.name.toString().toLowerCase().includes(value.toLowerCase())
+                            : '',
+                },
+                
+                {
+                    title: 'Phone',
+                    dataIndex: 'contactNumber',
+                    align: 'center',
+                    key: 'contactNumber',
+                    render: tags => (
+                      <>
+                        <Tag color={'blue'} key={'phone'}>
+                            {tags}
+                        </Tag>
+                      </>
+                    ),
+                },
+                {
+                    title: 'Action',
+                    align: 'center',
+                    key: 'action',
+                    render: (text, record, index) => {
+                        return (<>
+                            <Button
+                                style={{display: 'inline-block',marginLeft:4,borderRadius:'50%',background: 'white'}}
+                                size='small'
+                                onClick={()=>{
+                                    dispatch({type: 'TOOGLE_POPUP', popup: {open: true, data:record}})
+                                    form.setFieldsValue(record);             
+                                }}
+                            ><EditOutlined /></Button>
+                            <Button
+                                style={{display: 'inline-block',marginLeft:4,borderRadius:'50%',background: 'white'}}
+                                size='small'
+                                onClick={()=>{
+                                    dispatch({type: 'TOOGLE_VIEW', view: {open: true}})
+                                }}
+                            ><FolderViewOutlined /></Button>
+                        </>)
+                    }
+                },
+                
+            ]
+            var expandtable = {
+                expandedRowRender: record => <p style={{ margin: 0 }}>{record.description}</p>
+            }
+            var temp = [{
+                title: 'description',
+                dataIndex: 'description',
+                align: 'center',
+                key: 'description',
+                hideOn: ['xs', 'sm'],
+            }, 
+            {
+                title: 'Address',
+                dataIndex: 'address',
+                align: 'center',
+                key: 'address',
+            }]
+            matchs && (tCol = [...tCol,...temp])
+            matchs && (expandtable = {
+                rowExpandable: record => true
+            })
+            return <><Table 
                 rowKey='id'
                 loading={data.length === 0}
                 dataSource={data} 
-                columns={
-                    [
-                        {
-                            title: 'Name',
-                            dataIndex: 'name',
-                            align: 'center',
-                            key: 'name',
-                            ...filerColumn([], 'name'),
-                            onFilter: (value, record) =>
-                                record.name
-                                    ? record.name.toString().toLowerCase().includes(value.toLowerCase())
-                                    : '',
-                        },
-                        {
-                            title: 'description',
-                            dataIndex: 'description',
-                            align: 'center',
-                            key: 'description',
-                        },
-                        {
-                            title: 'Address',
-                            dataIndex: 'address',
-                            align: 'center',
-                            key: 'address',
-                        },
-                        {
-                            title: 'Phone',
-                            dataIndex: 'contactNumber',
-                            align: 'center',
-                            key: 'contactNumber',
-                            render: tags => (
-                              <>
-                                <Tag color={'blue'} key={'phone'}>
-                                    {tags}
-                                </Tag>
-                              </>
-                            ),
-                        },
-                        {
-                            title: 'Action',
-                            align: 'center',
-                            key: 'action',
-                            render: (text, record, index) => {
-                                return (<>
-                                    <Button
-                                        style={{display: 'inline-block',marginLeft:4,borderRadius:'50%',background: 'white'}}
-                                        size='small'
-                                        onClick={()=>{
-                                            dispatch({type: 'TOOGLE_POPUP', popup: {open: true, data:record}})
-                                            form.setFieldsValue(record);             
-                                        }}
-                                    ><EditOutlined /></Button>
-                                    <Button
-                                        style={{display: 'inline-block',marginLeft:4,borderRadius:'50%',background: 'white'}}
-                                        size='small'
-                                        onClick={()=>{
-                                            dispatch({type: 'TOOGLE_VIEW', view: {open: true}})
-                                        }}
-                                    ><FolderViewOutlined /></Button>
-                                </>)
-                            }
-                        },
-                        
-                    ]
-                } 
+                columns={tCol} 
+                expandable={expandtable}
             />; 
             <Modal
                 centered
@@ -241,7 +253,9 @@ export const Hotel = (props) => {
                         <h3 style={contentStyle}>Image hotel</h3>
                     </div>
                 </Carousel>
-            </Modal>
-        </>
+            </Modal></>
+            }
+        }
+        </Media>
     )
 }

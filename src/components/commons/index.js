@@ -7,7 +7,8 @@ import Input from 'antd/lib/input';
 import { Button, Space} from 'antd';
 import { SearchOutlined, DownOutlined, PlusOutlined, MinusOutlined} from '@ant-design/icons';
 import { Select, DatePicker, InputNumber, Row, Col, Radio, Switch } from 'antd';
-
+import { DeleteOutlined, LoadingOutlined } from '@ant-design/icons';
+import { Upload } from 'antd';
 import moment from 'moment';
 
 const { RangePicker } = DatePicker;
@@ -312,7 +313,7 @@ export const MultiSelect = (props) => {
 }
 
 export const CustomInputNumber = (props) => {
-	const {label, value, onChange} = props;
+	const {label='', value, onChange} = props;
 	const [number, setNumber] = useState(value);
 	React.useEffect(() => {
 		if (onChange) {
@@ -324,7 +325,7 @@ export const CustomInputNumber = (props) => {
 		<div>
 			<InputNumber
 				value={number}
-				style={{width: '40%'}}
+				style={{width: '60%'}}
 				formatter={value => formatter.format(value.replace(/\D+/g, ""))}
 				parser={value => value.replace(/\D+/g, "")} // \D ko phai ki tu so
 				onChange={value=>setNumber(Number(value))}
@@ -490,6 +491,77 @@ export const MultiInput = props => {
 				return <CustomInputNumber value={item} label={label[index]} key={index} onChange={v=>onChangeNumber(v, index)}/>
 			})}
 		</div>
+	)
+}
+
+
+function beforeUpload(file) {
+	const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+	if (!isJpgOrPng) {
+	  message.error('You can only upload JPG/PNG file!');
+	}
+	const isLt2M = file.size / 1024 / 1024 < 2;
+	if (!isLt2M) {
+	  message.error('Image must smaller than 2MB!');
+	}
+	return isJpgOrPng && isLt2M;
+}
+export const UploadImage = (props) => {
+	const { onChange = ()=>{} } = props;
+	const [ img, setImg ] = React.useState({loading: false, url:[]});
+
+	const upload = async (options) => {
+		const { file } = options;
+		console.log(file)
+		const data = new FormData();
+		data.append('file', file);
+		data.append('upload_preset', 'hotelmanager');
+
+		setImg(v => ({v, loading: true}));
+
+		const res = await fetch('https://api.cloudinary.com/v1_1/fpt-telecom/image/upload',{
+			method: 'POST',
+			body: data
+		})
+		const _file = await res.json();
+
+		// setImg(v=>({loading: false, url: v.url.push(_file.secure_url)}))
+		setImg({loading: false, url: [...img.url, {url:_file.secure_url, name: _file.original_filename}]})
+
+	}
+	React.useEffect(()=>{
+		onChange(img.url)
+	}, [img])
+	console.log(img)
+	return (
+		<>
+		<Upload
+			name="avatar"
+			listType="picture-card"
+			className="avatar-uploader"
+			showUploadList={false}
+			customRequest={upload}
+			beforeUpload={beforeUpload}
+		>
+			{
+			<div>
+				{img.loading ? <LoadingOutlined /> : <PlusOutlined />}
+				<div style={{ marginTop: 8 }}>Upload</div>
+			</div>
+			}
+		</Upload>
+		{
+			img.url && img.url.map((item, index) => (
+			<Row key={index}>
+				<Col>{item.name}</Col>
+				<Col><Button size="small" onClick={()=>{
+				const t = img.url.filter(i => i.name !== item.name)
+				setImg(v=>({v, url: t}))
+				}}><DeleteOutlined /></Button></Col>
+			</Row>
+			))
+		}
+		</>
 	)
 }
 export { utility };

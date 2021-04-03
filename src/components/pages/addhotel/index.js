@@ -1,21 +1,24 @@
 import React from 'react';
-
+import { UploadImage, CustomInputNumber } from '../../commons';
 import {
-    Form, Input, Button, message, Row, Col, Upload
+    Form, Input, Button, message, Row, Col
 } from 'antd';
 
 import {
     UploadOutlined
 } from '@ant-design/icons';
+import { Link } from 'react-router-dom';
 
 export const AddHotel = (props) => {
     const [ form ] = Form.useForm();
     
 
     const onFinish = async values => {
-        console.log(values)
+        console.log(values);
         try {
-          // post employee 
+          // post hotel
+          // validate values
+          // const _r = await _postRequest('/api/hotel/create',values);
         } catch (e) { 
             message(e);
         }
@@ -48,7 +51,7 @@ export const AddHotel = (props) => {
                             <Input />
                         </Form.Item>
                         <Form.Item label="Average Price" name="averagePrice">
-                            <Input />
+                            <CustomInputNumber label='VND'/>
                         </Form.Item>
                         <Form.Item label="Phone" name="contactNumber">
                             <Input />
@@ -56,11 +59,25 @@ export const AddHotel = (props) => {
                         <Form.Item label="Description" name="description">
                             <Input />
                         </Form.Item>
-                        <Form.Item label="Phone" name="contactNumber">
+                        <Form.Item label="Address" name="address">
                             <Input />
                         </Form.Item>
-                        <Form.Item label="Address" name="Address">
-                            <Input />
+                        
+                    </Col>
+
+                    <Col xs={22} sm={22} md={12}>
+                        <Form.Item
+                            name="image"
+                            label="Image"
+                            valuePropName="fileList"
+                            getValueFromEvent={(e)=>{
+                                if (Array.isArray(e)) {
+                                    return e.map(item=>item.url)[0];
+                                }
+                                return e && e.fileList;
+                            }}
+                        >
+                            <UploadImage />
                         </Form.Item>
                         <Form.Item
                             wrapperCol={{
@@ -73,24 +90,6 @@ export const AddHotel = (props) => {
                             </Button>
                         </Form.Item>
                     </Col>
-
-                    <Col xs={22} sm={22} md={12}>
-                        <Form.Item
-                            name="image"
-                            label="Image"
-                            valuePropName="fileList"
-                            getValueFromEvent={(e)=>{
-                                if (Array.isArray(e)) {
-                                    return e;
-                                }
-                                return e && e.fileList;
-                            }}
-                        >
-                            <Upload name="logo" action="/upload.do" listType="picture">
-                            <Button icon={<UploadOutlined />}>Click to upload</Button>
-                            </Upload>
-                        </Form.Item>
-                    </Col>
                 </Row>
             </Form>    
         </>
@@ -98,11 +97,3 @@ export const AddHotel = (props) => {
 }
 
 
-const MuiltiUploadImage = (props) => {
-    const {value = [], onChange} = props;
-    return (
-        <>
-        
-        </>
-    )
-}
