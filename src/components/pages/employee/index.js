@@ -37,6 +37,7 @@ export const Employee = (props) => {
     const { data, popup } = state;
     const getData = async () => {
         try {
+            // hotel id -> user (mananger)
             const res = await _getRequest('hotel', {}, ['605c71d6dd9f6b0015132de2','employee']);
             if (!res.success) {
                 message.error(res.error); 
@@ -62,7 +63,7 @@ export const Employee = (props) => {
 
     const onFinish = async values => {
         try {
-            console.log(values)
+            console.log(values);
            // post employee
             const re = await _putRequest('employee', values, popup.data.id);
             console.log(re)

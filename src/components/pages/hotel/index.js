@@ -4,8 +4,9 @@ import { _getRequest, _putRequest, _postRequest } from '@pkg/api';
 
 import { Table, Tag, Modal } from 'antd';
 import {
-    Form, Input, Button, message, Row, Col
+    Form, Input, Button, message, Row, Col, Carousel
 } from 'antd';
+import { EditOutlined, FolderViewOutlined } from '@ant-design/icons';
 import { filerColumn } from '../../commons';
 // import { MultiSelect } from '../../commons';
 
@@ -15,23 +16,33 @@ const HotelReducer = (state, action) => {
             return { ...state, data: action.data, behavior: 'stall' }
         case 'GET_DATA_ERROR':
             return { ...state, data: [], behavior: 'stall' };
-        case 'OPEN_POPUP':
+        case 'TOOGLE_POPUP':
             return { ...state, popup: action.popup, behavior: 'stall' };
-        case 'CLOSE_POPUP':
-            return { ...state, popup: action.popup, behavior: 'stall' };
+        case 'TOOGLE_VIEW':
+            return { ...state, view: action.view, behavior: 'stall' };
         case 'RELOAD':
             return { ...state, behavior: 'init', popup: action.popup };
         default:
             return state;
     } 
 }
+
+const contentStyle = {
+    height: '160px',
+    color: '#fff',
+    lineHeight: '160px',
+    textAlign: 'center',
+    background: '#364d79',
+};
+
 export const Hotel = (props) => {
     const [ state, dispatch ]= useReducer(HotelReducer, {
         behavior: 'init',
         data: [],
-        popup: {open: false, data: {}}
+        popup: {open: false, data: {}},
+        view: {open: false}
     });
-    const { data, popup, behavior } = state;
+    const { data, popup, behavior, view } = state;
     const [ form ] = Form.useForm();
     
     const getData = async () => {
@@ -128,10 +139,25 @@ export const Hotel = (props) => {
                             title: 'Action',
                             align: 'center',
                             key: 'action',
-                            render: v => <Button onClick={()=>{
-                                dispatch({type: 'OPEN_POPUP', popup: {open: true, data:v}})
-                                form.setFieldsValue(v);
-                            }}>Edit</Button>
+                            render: (text, record, index) => {
+                                return (<>
+                                    <Button
+                                        style={{display: 'inline-block',marginLeft:4,borderRadius:'50%',background: 'white'}}
+                                        size='small'
+                                        onClick={()=>{
+                                            dispatch({type: 'TOOGLE_POPUP', popup: {open: true, data:record}})
+                                            form.setFieldsValue(record);             
+                                        }}
+                                    ><EditOutlined /></Button>
+                                    <Button
+                                        style={{display: 'inline-block',marginLeft:4,borderRadius:'50%',background: 'white'}}
+                                        size='small'
+                                        onClick={()=>{
+                                            dispatch({type: 'TOOGLE_VIEW', view: {open: true}})
+                                        }}
+                                    ><FolderViewOutlined /></Button>
+                                </>)
+                            }
                         },
                         
                     ]
@@ -151,7 +177,7 @@ export const Hotel = (props) => {
                 onOk={()=>{form.submit()}}
                 cancelText='Close'
                 onCancel={() => {
-                    dispatch({type: 'CLOSE_POPUP', popup: {open:false, data:{}}})
+                    dispatch({type: 'TOOGLE_POPUP', popup: {open:false, data:{}}})
                     form.resetFields();
                 }}
             >
@@ -184,6 +210,37 @@ export const Hotel = (props) => {
                         </Col>
                     </Row>
                 </Form>
+            </Modal>
+            <Modal
+                centered
+                closable={false}
+                maskClosable={false}
+                // title= {popup.data.name ? `View hotel${popup.data.name}`: 'View hotel' }
+                key='modal_view'
+                width='70%' 
+                visible={view.open}
+                maskClosable={false}
+                keyboard={true} // esc to onCancel
+                forceRender
+                footer={
+                    <Button onClick={()=>dispatch({type: 'TOOGLE_VIEW', view: {open: false}})}>Close</Button>
+                }    
+                onCancel={()=>dispatch({type: 'TOOGLE_VIEW', view: {open: false}}) }
+            >
+                <Carousel autoplay>
+                    <div>
+                        <h3 style={contentStyle}>Image hotel</h3>
+                    </div>
+                    <div>
+                        <h3 style={contentStyle}>Image hotel</h3>
+                    </div>
+                    <div>
+                        <h3 style={contentStyle}>Image hotel</h3>
+                    </div>
+                    <div>
+                        <h3 style={contentStyle}>Image hotel</h3>
+                    </div>
+                </Carousel>
             </Modal>
         </>
     )

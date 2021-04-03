@@ -18,11 +18,11 @@ const UserProvider = ({ children }) => {
         // _u.role => [permissions]
         if(_u.role) {
           if(_u.role === 'admin') {
-            _u.permissions = ['hotel', 'employee', 'add_employee', 'edit_hotel', 'room', 'form_resquest', 'booking', 'voucher', 'report', 'attendance'];
+            _u.permissions = ['hotel', 'add_hotel', 'inventory_report', 'employee', 'add_employee', 'room', 'edit_hotel', 'booking', 'voucher', 'report', 'attendance', 'form_resquest', 'account', 'working_shift'];
           } else if (_u.role === 'employee') {
-            _u.permissions = ['booking', 'voucher', 'report', 'attendance'];
+            _u.permissions = ['attendance', 'form_resquest', 'account', 'working_shift'];
           } else {
-            _u.permissions = ['hotel', 'employee', 'add_employee', 'edit_hotel', 'room', 'form_resquest', 'booking', 'voucher', 'report'];
+            _u.permissions = ['employee', 'add_employee', 'room', 'edit_hotel', 'booking', 'voucher', 'report'];
           }
         }
         return _u;
