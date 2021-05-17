@@ -13,12 +13,18 @@ import { User } from '@pkg/reducers';
 // 1. filter by permissions
 const RouterContainer = () => {
   const [ _user ] = useContext(User.context);
+  const a = routerPages[0]
+  console.log(a)
   return (
     <Router>
       <Layout>
         <Switch>
           <Route exact path='/'>
             <Home /> 
+            {/* home =dashboard */}
+          </Route>
+          <Route exact path='/test'>
+            <a.component viewOnly />
             {/* home =dashboard */}
           </Route>
           {routerPages.filter(p =>_user.permissions.indexOf(p.permissions) > -1).map(p => (

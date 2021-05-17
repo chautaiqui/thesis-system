@@ -564,4 +564,62 @@ export const UploadImage = (props) => {
 		</>
 	)
 }
+
+
+
+export const CustomUpload = (props) => {
+	const [imgs, setImgs] = useState([])
+	const { onChange = () => {} } = props;
+	
+	const beforeUpload = (file) => {
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+    if (!isJpgOrPng) {
+      message.error('You can only upload JPG/PNG file!');
+    }
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      message.error('Image must smaller than 2MB!');
+    }
+    return isJpgOrPng && isLt2M;
+  }
+  React.useEffect(()=>{
+		onChange(imgs);
+	},[imgs])
+  const upload = async (options) => {
+		const { file } = options;
+		setImgs([...imgs, file]);
+	}
+	console.log(imgs)
+	return <><Upload
+		name="avatar"
+		listType="picture-card"
+		className="avatar-uploader"
+		showUploadList={false}
+		customRequest={upload}
+		beforeUpload={beforeUpload}
+	>
+		{
+		<div>
+			<PlusOutlined />
+			<div style={{ marginTop: 8 }}>Upload</div>
+		</div>
+		}
+	</Upload>
+	{imgs.length !==0 && (<div>
+		{
+			imgs.map((item, index) => {
+				return <div key={index}>
+					<p>{item.name}</p>
+					<Button
+						size="small" 
+						onClick={()=>{
+							var newImgs = imgs.filter(i => i.uid !== item.uid)
+							setImgs(newImgs)
+						}}><DeleteOutlined /></Button>
+				</div>
+			})
+		}
+	</div>)}
+	</>
+}
 export { utility };

@@ -20,9 +20,9 @@ const UserProvider = ({ children }) => {
           if(_u.role === 'admin') {
             _u.permissions = ['hotel', 'add_hotel', 'inventory_report', 'employee', 'add_employee', 'room', 'edit_hotel', 'booking', 'voucher', 'report', 'attendance', 'form_resquest', 'account', 'working_shift'];
           } else if (_u.role === 'employee') {
-            _u.permissions = ['attendance', 'form_resquest', 'account', 'working_shift'];
+            _u.permissions = ['attendance', 'form_resquest', 'account', 'working_shift', 'salary', 'booking', 'room', 'facility'];
           } else {
-            _u.permissions = ['employee', 'add_employee', 'room', 'edit_hotel', 'booking', 'voucher', 'report'];
+            _u.permissions = ['employee', 'add_employee', 'room', 'edit_hotel', 'voucher', 'report'];
           }
         }
         return _u;

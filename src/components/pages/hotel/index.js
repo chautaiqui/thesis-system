@@ -55,7 +55,7 @@ export const Hotel = (props) => {
             // setLstemp(re.result.hotels);
             dispatch({type:'GET_DATA_SUCCESS', data: re.result.hotels});
         } catch (e) {
-            message(e);
+            message.error(e);
             dispatch({type: 'GET_DATA_ERROR'});
         }
     }
@@ -93,7 +93,7 @@ export const Hotel = (props) => {
     };
     console.log(behavior)
     return (
-        <Media query="(min-width: 599px)">
+        <Media query="(min-width: 799px)">
         {
         matchs => {   
             var tCol = [
@@ -168,7 +168,8 @@ export const Hotel = (props) => {
             matchs && (expandtable = {
                 rowExpandable: record => true
             })
-            return <><Table 
+            return <>
+            {props.viewOnly && 'test'}<Table 
                 rowKey='id'
                 loading={data.length === 0}
                 dataSource={data} 
@@ -227,7 +228,7 @@ export const Hotel = (props) => {
                 centered
                 closable={false}
                 maskClosable={false}
-                // title= {popup.data.name ? `View hotel${popup.data.name}`: 'View hotel' }
+                title= { 'Preview' }
                 key='modal_view'
                 width='70%' 
                 visible={view.open}

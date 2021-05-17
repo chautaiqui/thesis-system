@@ -8,7 +8,7 @@ import Input from 'antd/lib/input';
 import Button from 'antd/lib/button';
 
 import { messageError } from '@components/commons';
-import { signin, _postRequest } from '@api';
+import { _postRequest } from '@api';
 
 const Login = props => {
   const { onLogin } = props;
@@ -20,7 +20,7 @@ const Login = props => {
     const { email, password } = localStorage;
     const checkUser = async () => {
       try {
-        const _r = await _postRequest('auth/signin',{email:email, password: password});
+        const _r = await _postRequest('auth/login',{email:email, password: password});
         if (!_r.success) {
           localStorage.removeItem('email');
           localStorage.removeItem('api_token');
@@ -42,7 +42,7 @@ const Login = props => {
   const onFinish = async values => {
     try {
       const { email, password } = values;
-      const _r = await _postRequest('auth/signin',{email:email, password: password});
+      const _r = await _postRequest('auth/login',{email:email, password: password});
       if (!_r.success) return messageError(_r.error);
       onLogin(_r.result, email, password); 
      } catch (e) { 
