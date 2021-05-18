@@ -2,16 +2,18 @@ import React from 'react';
 
 import { RocketOutlined, UsergroupAddOutlined, DashboardOutlined,FileAddOutlined, LineChartOutlined,
   AreaChartOutlined, TeamOutlined, ToolOutlined, HomeOutlined, SelectOutlined, GifOutlined, 
-  GiftOutlined, FieldTimeOutlined
+  GiftOutlined, FieldTimeOutlined, GroupOutlined, UserOutlined, BarcodeOutlined, CalculatorOutlined
 } from '@ant-design/icons';
 import { createFromIconfontCN } from '@ant-design/icons';
 import { Employee } from './employee';
 import { Hotel } from './hotel';
 import { Addemployee } from './addemployee';
 import { AddHotel } from './addhotel';
-import { Attendance } from './attendance';
 import { Room } from './room';
 import { Facility } from './facility';
+import { Account } from './account';
+import { WorkingShift } from './workingshift';
+import { Attendance } from './attendance';
 
 const IconFont = createFromIconfontCN({
   scriptUrl: '//at.alicdn.com/t/font_8d5l8fzk5b87iudi.js',
@@ -36,13 +38,13 @@ const subPages2 = [
   { path: '/report', label: (<><LineChartOutlined style={{paddingLeft:10}}/> Report </>), component: Todo, permissions: 'report'},
 ];
 const subPages3 = [
-  { path: '/attendance', label: (<><FieldTimeOutlined style={{paddingLeft:10}}/> Attendance </>), component: Attendance, permissions: 'attendance'},
-  { path: '/formresquest', label: (<><RocketOutlined style={{paddingLeft:10}} rotate={45}/> Form Resquest </>), component: Todo, permissions: 'form_resquest' },
-  { path: '/account', label: (<><RocketOutlined style={{paddingLeft:10}} rotate={45}/> Account </>), component: Todo, permissions: 'account' },
-  { path: '/workingshift', label: (<><RocketOutlined style={{paddingLeft:10}} rotate={45}/> Working Shift </>), component: Todo, permissions: 'working_shift' },
   { path: '/room', label: (<><HomeOutlined style={{paddingLeft:10}}/> Room </>), component: Room, permissions: 'room' },
-  { path: '/facility', label: (<><HomeOutlined style={{paddingLeft:10}}/> Facility </>), component: Facility, permissions: 'facility' },
-  { path: '/salary', label: (<><HomeOutlined style={{paddingLeft:10}}/> Salary </>), component: Todo, permissions: 'salary' },
+  { path: '/facility', label: (<><GroupOutlined style={{paddingLeft:10}}/> Facility </>), component: Facility, permissions: 'facility' },
+  { path: '/account', label: (<><UserOutlined style={{paddingLeft:10}} rotate={45}/> Account </>), component: Account, permissions: 'account' },
+  { path: '/workingshift', label: (<><RocketOutlined style={{paddingLeft:10}} rotate={45}/> Working Shift </>), component: WorkingShift, permissions: 'working_shift' },
+  { path: '/attendance', label: (<><BarcodeOutlined style={{paddingLeft:10}}/> Attendance </>), component: Attendance, permissions: 'attendance'},
+  { path: '/formresquest', label: (<><RocketOutlined style={{paddingLeft:10}} rotate={45}/> Form Resquest </>), component: Todo, permissions: 'form_resquest' },
+  { path: '/salary', label: (<><CalculatorOutlined style={{paddingLeft:10}}/> Salary </>), component: Todo, permissions: 'salary' },
   { path: '/booking', label: (<><SelectOutlined style={{paddingLeft:10}}/> Booking </>), component: Todo, permissions: 'booking'},
 ];
 

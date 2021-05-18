@@ -38,7 +38,7 @@ const RoomReducer = (state, action) => {
 export const Room = props => {
   const [ _user ] = useContext(User.context);
   
-  const [ state, dispatch ]= useReducer(RoomReducer, {
+  const [ state, dispatch ] = useReducer(RoomReducer, {
     behavior: 'init',
     data: [],
     data_room_type: [],
@@ -152,7 +152,7 @@ export const Room = props => {
           icon={<PlusCircleOutlined/>}
           onClick={()=>{
             dispatch({type: 'TOOGLE_POPUP', popup: {open: true, data:{}}})
-            form.setFieldsValue({});             
+            form.resetFields();             
           }}
           >Add Room
         </Button>
@@ -277,7 +277,7 @@ export const Room = props => {
                       status: v.status
                     }
                     const res_2 = await axios.put(`https://hotel-lv.herokuapp.com/api/room/${popup.data._id}`, newRoom,{headers: myHeaders})
-                    message.success('Create room sucessfully')
+                    message.success('Update room sucessfully')
                     dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}}) 
                     console.log('khac')
                   } else {
@@ -289,7 +289,7 @@ export const Room = props => {
                     }
                     const res_2 = await axios.put(`https://hotel-lv.herokuapp.com/api/room/${popup.data._id}`, newRoom,{headers: myHeaders})
                     console.log(res_2)
-                    message.success('Create room sucessfully')
+                    message.success('Update room sucessfully')
                     dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}})
                   }
                 } catch (error) {

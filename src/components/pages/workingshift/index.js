@@ -1,6 +1,9 @@
-import React from 'react';
+import React, {useEffect, useContext} from 'react';
+import 'antd/dist/antd.css';
+import './workingshift.style.css';
 import { Calendar, Badge } from 'antd';
-import "./index.css";
+
+
 function getListData(value) {
   let listData;
   switch (value.date()) {
@@ -21,6 +24,10 @@ function getListData(value) {
       listData = [
         { type: 'warning', content: 'This is warning event' },
         { type: 'success', content: 'This is very long usual event。。....' },
+        { type: 'error', content: 'This is error event 1.' },
+        { type: 'error', content: 'This is error event 2.' },
+        { type: 'error', content: 'This is error event 3.' },
+        { type: 'error', content: 'This is error event 4.' },
       ];
       break;
     default:
@@ -57,19 +64,8 @@ function monthCellRender(value) {
   ) : null;
 }
 
-export const CalendarCustom = (props) => (
-    <Calendar 
-        dateCellRender={
-            dateCellRender
-        } 
-        monthCellRender={
-            (v) => {
-                return getMonthData(v) ? (
-                    <div className="notes-month">
-                        <section>{getMonthData(v)}</section>
-                        <span>Backlog number</span>
-                    </div>
-                ) :null
-            }
-        } />
-)
+export const WorkingShift = props => {
+  return <>
+    <Calendar dateCellRender={dateCellRender} monthCellRender={monthCellRender} />
+  </>
+}
