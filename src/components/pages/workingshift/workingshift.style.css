@@ -1,3 +1,7 @@
+.btn {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
 .events {
   margin: 0;
   padding: 0;
@@ -16,4 +20,7 @@
 }
 .notes-month section {
   font-size: 28px;
+}
+.selected {
+  background: greenyellow;
 }

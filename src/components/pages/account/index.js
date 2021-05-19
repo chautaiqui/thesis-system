@@ -80,7 +80,7 @@ export const Account = props => {
           window.location.reload();
         }  
       } catch (e) {
-        message.error(e.response.message || 'Something well wrong!');
+        message.error(e.response.message ? e.response.message : 'Something well wrong!');
       }
     }
     up();
