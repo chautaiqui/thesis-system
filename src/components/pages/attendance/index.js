@@ -1,13 +1,18 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState, useRef, useEffect, useContext } from 'react';
 import QRCode from 'qrcode';
+import { User } from '@pkg/reducers';
+
 import { _getRequest } from '@api';
 import QrReader from 'react-qr-reader';
 import './attendance.style.css';
 import { Button, Row, Col, message } from 'antd';
+import { History } from './history'
 import axios from 'axios';
 export const Attendance = props => {
+  const [ _user, dispatchUser ] = useContext(User.context);
   const [scanResultFile, setScanResultFile] = useState('');
-  const [ scan, setScan ] = useState(true);
+  const [ scan, setScan ] = useState(false);
+  const [ attendence, setAttendence ] = useState(false);
   const qrRef = useRef(null);
   const handleErrorFile = (error) => {
     console.log(error);
@@ -38,8 +43,22 @@ export const Attendance = props => {
         console.log(res)
         if(res.status === 200){
           console.log('data: ', res.data)
-          // post api attendance
-          message.success('co shift id roi');
+          if (res.data.employeeList.includes(_user.auth._id)) {
+            console.log('co ca')
+            // post api diem danh
+            const att = await axios.post(`https://hotel-lv.herokuapp.com/api/attendance/${res.data._id}/${_user.auth._id}`, {
+              "hotel-shift": res.data._id,
+              employee: _user.auth._id
+            })
+            console.log(att);
+            if(res.status === 200) {
+              message.success('Attendance success');
+              setAttendence(true)
+            }
+          } else {
+            console.log('You are not in shift')
+            setAttendence(true)
+          }
           setScan(false)
         } else {
           message.error('QRCode error url')
@@ -67,8 +86,8 @@ export const Attendance = props => {
           <img src={imageUrl} alt="img"/>
       </a>) : null
     } */}
-
-    <Row gutter={[16,16]}>
+    <History employeeid={_user.auth._id}/>
+    { !attendence && (<Row gutter={[16,16]}>
       <Col xs={24} sm={24} md={12} lg={12} xl={12}>
         <Button className="btn" type="primary" onClick={onScanFile}>Scan Qr Code</Button>
         <QrReader
@@ -79,10 +98,9 @@ export const Attendance = props => {
           onScan={handleScanFile}
           legacyMode
         />
-        <h3>Scanned Code: {scanResultFile}</h3>
       </Col>
       <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-        <h3>Qr Code Scan by camera</h3>
+        <Button className="btn" type="primary" onClick={()=>{setScan(!scan)}}>Toogle Camera</Button>
         { scan && (<QrReader
           delay={300}
           style={{width: '100%'}}
@@ -90,6 +108,6 @@ export const Attendance = props => {
           onScan={handleScanWebCam}
         />)}
       </Col>
-    </Row>
+    </Row>)}
   </>
 }

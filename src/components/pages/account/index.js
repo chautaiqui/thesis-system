@@ -1,7 +1,7 @@
 import React, { useContext, useEffect} from 'react';
 import { Space, Form, Input, Button, DatePicker, Avatar, Select, Tabs, message } from 'antd';
 import { User } from '@pkg/reducers';
-import { CustomUpload } from '../../commons';
+import { CustomUpload, filterDatePicker } from '../../commons';
 import moment from 'moment';
 import { _getRequest, _putRequest, _postRequest } from '@api';
 import axios from 'axios';
@@ -34,7 +34,6 @@ export const Account = props => {
   const [ form_pass ] = Form.useForm();
 
   useEffect(()=>{
-    console.log(moment(_user.auth.birthday))
     form.setFieldsValue({
       email: _user.auth.email,
       availableDayoffNumber: _user.auth.availableDayoffNumber,
@@ -60,7 +59,6 @@ export const Account = props => {
         phone: v.phone,
         baseSalary: v.baseSalary,
         address: v.address,
-        skills: v.skills,
         img: v.img[0] || undefined
       }
       var fd = new FormData();
@@ -69,19 +67,21 @@ export const Account = props => {
           fd.append(key, value)
         }
       }
-      console.log(fd)
-      // var myHeaders = new Headers(); 
-      // myHeaders.append('Content-Type', 'multipart/form-data; boundary=<calculated when request is sent>');
-      // try {
-      //   const res = await axios.put(`https://hotel-lv.herokuapp.com/api//employee/${_user.auth._id}`, fd, {headers: myHeaders})
-      //   console.log(res)
-      //   if(res.status === 200){
-      //     message.success('Change successfully, system will be auto relogin after a second');
-      //     window.location.reload();
-      //   }  
-      // } catch (e) {
-      //   message.error(e.response.message || 'Something well wrong!');
-      // }
+      v.skills.forEach(item => {
+        fd.append('skills', item)
+      })
+      var myHeaders = new Headers(); 
+      myHeaders.append('Content-Type', 'multipart/form-data; boundary=<calculated when request is sent>');
+      try {
+        const res = await axios.put(`https://hotel-lv.herokuapp.com/api//employee/${_user.auth._id}`, fd, {headers: myHeaders})
+        console.log(res)
+        if(res.status === 200){
+          message.success('Change successfully, system will be auto relogin after a second');
+          window.location.reload();
+        }  
+      } catch (e) {
+        message.error(e.response.message || 'Something well wrong!');
+      }
     }
     up();
   }
@@ -171,13 +171,22 @@ export const Account = props => {
                     phone: _user.auth.phone,
                     baseSalary: _user.auth.baseSalary,
                     address: _user.auth.address,
-                    skills: _user.auth.skills,
+                    // skills: _user.auth.skills,
                     password: v.new_password
                   }
+                  var fd = new FormData();
+                  for (const [key, value] of Object.entries(data)){
+                    if(value) {
+                      fd.append(key, value)
+                    }
+                  }
+                  _user.auth.skills.forEach(item => {
+                    fd.append('skills', item)
+                  })
                   var myHeaders = new Headers(); 
                   myHeaders.append('Content-Type', 'multipart/form-data; boundary=<calculated when request is sent>');
                   try {
-                    const res1 = await axios.put(`https://hotel-lv.herokuapp.com/api//employee/${_user.auth._id}`, data, {headers: myHeaders})
+                    const res1 = await axios.put(`https://hotel-lv.herokuapp.com/api//employee/${_user.auth._id}`, filterDatePicker, {headers: myHeaders})
                     console.log(res1)
                     if(res.success && res1.status === 200){
                       message.success('Change successfully, system will be auto relogin after a second');

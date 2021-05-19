@@ -14,6 +14,8 @@ import { Facility } from './facility';
 import { Account } from './account';
 import { WorkingShift } from './workingshift';
 import { Attendance } from './attendance';
+import { Booking } from './booking';
+import { Salary } from './salary';
 
 const IconFont = createFromIconfontCN({
   scriptUrl: '//at.alicdn.com/t/font_8d5l8fzk5b87iudi.js',
@@ -43,9 +45,9 @@ const subPages3 = [
   { path: '/account', label: (<><UserOutlined style={{paddingLeft:10}} rotate={45}/> Account </>), component: Account, permissions: 'account' },
   { path: '/workingshift', label: (<><RocketOutlined style={{paddingLeft:10}} rotate={45}/> Working Shift </>), component: WorkingShift, permissions: 'working_shift' },
   { path: '/attendance', label: (<><BarcodeOutlined style={{paddingLeft:10}}/> Attendance </>), component: Attendance, permissions: 'attendance'},
+  { path: '/booking', label: (<><SelectOutlined style={{paddingLeft:10}}/> Booking </>), component: Booking, permissions: 'booking'},
   { path: '/formresquest', label: (<><RocketOutlined style={{paddingLeft:10}} rotate={45}/> Form Resquest </>), component: Todo, permissions: 'form_resquest' },
-  { path: '/salary', label: (<><CalculatorOutlined style={{paddingLeft:10}}/> Salary </>), component: Todo, permissions: 'salary' },
-  { path: '/booking', label: (<><SelectOutlined style={{paddingLeft:10}}/> Booking </>), component: Todo, permissions: 'booking'},
+  { path: '/salary', label: (<><CalculatorOutlined style={{paddingLeft:10}}/> Salary </>), component: Salary, permissions: 'salary' },
 ];
 
 export const routerPages = [...subPages1, ...subPages2, ...subPages3];
