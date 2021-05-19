@@ -89,7 +89,7 @@ export const Account = props => {
      <Space direction="vertical" align='center'>
         <Tabs defaultActiveKey="1">
           <TabPane tab="Infomation" key="1">
-            <Avatar src={_user.auth.img} size={100} style={{marginBottom: 10}}/>
+            <div style={{display: 'flex', justifyContent: 'center'}}><Avatar src={_user.auth.img} size={100} style={{marginBottom: 10}}/></div>
             <Form
               form={form}
               {...formItemLayout}
