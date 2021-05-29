@@ -228,7 +228,7 @@ export const Hotel = () => {
 		}
 		action();
 	}
-	console.log(view)
+	// console.log(view)
 	return  <>
 		<Button 
 			type="primary" 
