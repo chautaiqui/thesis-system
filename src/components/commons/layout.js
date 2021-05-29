@@ -67,20 +67,19 @@ const AdminLayout = props => {
           }}
           className={`custom-siderbar ${!isShow?'hide-sidebar':''}`}
         >
-          <Menu
+          {/* <Menu
             theme='dark'
             mode='inline'
             defaultSelectedKeys={window.location.pathname}
             // selectedKeys={[current]}
             // onClick={this.handleMenuClick}
           >
-            {menuPages.map((menuItemGroup, menuItemGroupKey) => (
-              <Menu.ItemGroup
-                className='custom-header-group'
-                key={menuItemGroupKey}
-                title={menuItemGroup.label}
+            {menuPages.map((menuItemGroup, menuItemGroupKey) => ( */}
+              <Menu
+                theme='dark'
+                defaultSelectedKeys={window.location.pathname}
               >
-                {menuItemGroup.children.filter(p => user.permissions.indexOf(p.permissions) > -1).map(menuItem => 
+                {menuPages.filter(p => user.permissions.indexOf(p.permissions) > -1).map(menuItem => 
                 // {menuItemGroup.children.map(menuItem => 
                   <Menu.Item
                     key={menuItem.path}
@@ -90,9 +89,7 @@ const AdminLayout = props => {
                     </Link>
                   </Menu.Item>
                 )}
-              </Menu.ItemGroup>
-            ))}
-          </Menu>
+              </Menu>
         </Layout.Sider>
         <Layout.Content className='custom-content'>
           {children}

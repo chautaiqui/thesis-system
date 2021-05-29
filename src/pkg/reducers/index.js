@@ -18,7 +18,7 @@ const UserProvider = ({ children }) => {
         // _u.role => [permissions]
         if(_u.role) {
           if(_u.role === 'admin') {
-            _u.permissions = ['hotel', 'add_hotel', 'inventory_report', 'employee', 'add_employee', 'room', 'edit_hotel', 'booking', 'voucher', 'report', 'attendance', 'form_resquest', 'account', 'working_shift'];
+            _u.permissions = ['hotel', 'manager', 'inventory_report', 'admin', 'blog'];
           } else if (_u.role === 'employee') {
             _u.permissions = ['attendance', 'form_resquest', 'account', 'working_shift', 'salary', 'booking', 'room', 'facility'];
           } else {

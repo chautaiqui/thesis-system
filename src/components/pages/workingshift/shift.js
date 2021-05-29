@@ -163,7 +163,7 @@ export const Shift = props => {
         </div>
         <div>
           <label>timeInOut</label>
-          <p>{popup.data.shifts ? popup.data.shifts.timeInOut :  'empty' }</p>
+          <p>{popup.data ? popup.data.timeInOut :  'empty' }</p>
         </div>
       </div>
     </Modal>

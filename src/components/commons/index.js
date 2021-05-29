@@ -6,7 +6,7 @@ import * as utility from './utility';
 import Input from 'antd/lib/input';
 import { Button, Space} from 'antd';
 import { SearchOutlined, DownOutlined, PlusOutlined, MinusOutlined} from '@ant-design/icons';
-import { Select, DatePicker, InputNumber, Row, Col, Radio, Switch } from 'antd';
+import { Select, DatePicker, InputNumber, Row, Col, Radio, Switch, Divider } from 'antd';
 import { DeleteOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Upload } from 'antd';
 import moment from 'moment';
@@ -622,4 +622,149 @@ export const CustomUpload = (props) => {
 	</div>)}
 	</>
 }
+
+export const CustomUploadListImg = (props) => {
+	const [imgs, setImgs] = useState([])
+	const { onChange = () => {} } = props;
+	
+	const beforeUpload = (file) => {
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+    if (!isJpgOrPng) {
+      message.error('You can only upload JPG/PNG file!');
+    }
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      message.error('Image must smaller than 2MB!');
+    }
+    return isJpgOrPng && isLt2M;
+  }
+  React.useEffect(()=>{
+		onChange(imgs);
+	},[imgs])
+  const upload = async (options) => {
+		const { file } = options;
+		setImgs([...imgs, file]);
+	}
+	console.log(imgs)
+	return <><Upload
+		name="avatar"
+		listType="picture-card"
+		className="avatar-uploader"
+		showUploadList={false}
+		customRequest={upload}
+		beforeUpload={beforeUpload}
+	>
+		{
+		<div>
+			<PlusOutlined />
+			<div style={{ marginTop: 8 }}>Upload</div>
+		</div>
+		}
+	</Upload>
+	{imgs.length !==0 && (<div>
+		{
+			imgs.map((item, index) => {
+				return <div key={index}>
+					<img src={URL.createObjectURL(item)} style={{maxWidth: '100%'}} alt="img-list"/>
+					<Button
+						size="small" 
+						onClick={()=>{
+							var newImgs = imgs.filter(i => i.uid !== item.uid)
+							setImgs(newImgs)
+						}}><DeleteOutlined /></Button>
+				</div>
+			})
+		}
+	</div>)}
+	</>
+}
+
+export const CustomUploadImg = (props) => {
+  const { value , onChange = () => {}} = props;
+  const [imgs, setImgs] = useState([]);
+	const beforeUpload = (file) => {
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+    if (!isJpgOrPng) {
+      message.error('You can only upload JPG/PNG file!');
+    }
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      message.error('Image must smaller than 2MB!');
+    }
+    return isJpgOrPng && isLt2M;
+  }
+  React.useEffect(()=>{
+		if(imgs.length!==0) onChange(imgs[0]);
+		return;
+	},[imgs, onChange])
+  const upload = (options) => {
+		const { file } = options;
+		setImgs([file]);
+	}
+  return (
+    <Upload
+      name="avatar"
+      listType="picture-card"
+      className="avatar-uploader"
+      showUploadList={false}
+      customRequest={upload}
+      beforeUpload={beforeUpload}
+    >
+      {imgs.length !== 0 ? (
+        <img src={URL.createObjectURL(imgs[0])} style={{maxWidth: '100%'}} alt="img-list"/>
+      ) : (
+        value  ? <img src={value} style={{maxWidth: '100%'}} alt="imglist"/> : <p>Upload</p>
+      )}
+    </Upload>
+  )
+}
+
+export const DynamicSelect = props => {
+	const { value = [], onChange = ()=> {} } = props;
+	const [ data, setData ] = useState({
+		items: [],
+    name: '',
+	})
+	const onNameChange = event => {
+    setData({
+      ...data, name: event.target.value
+    });
+  };
+	const addItem = () => {
+    const { items, name } = data;
+    setData({
+      items: [...items, name || `New item`],
+      name: '',
+    });
+  };
+	return (
+		<Select
+			// style={{ width: 240 }}
+			placeholder="Select"
+			dropdownRender={menu => (
+				<div>
+					{menu}
+					<Divider style={{ margin: '4px 0' }} />
+					<div style={{ display: 'flex', flexWrap: 'nowrap', padding: 4 }}>
+						<Input style={{ flex: 'auto' }} value={data.name} onChange={onNameChange} />
+						<a
+							style={{ flex: 'none', padding: '4px', display: 'block', cursor: 'pointer' }}
+							onClick={addItem}
+						>
+							<PlusOutlined /> Add item
+						</a>
+					</div>
+				</div>
+			)}
+			mode='tags'
+			maxTagCount={3}
+			value={value}
+			onChange={onChange}
+		>
+			{data.items.map(item => (
+				<Option key={item}>{item}</Option>
+			))}
+		</Select>
+	)}
+
 export { utility };

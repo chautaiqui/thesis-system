@@ -1,8 +1,4 @@
-// import Login from "../../components/auth/login";
 
-// const _promise = obj => new Promise(resolve => setTimeout(() => resolve(obj), 1000));
-
-// const apiDomain = 'https://a.adsplay.xyz';
 const api_Domain = 'https://hotel-lv.herokuapp.com';
 
 const _getRequest = async (fn, options = {}, extend = []) => {
@@ -75,6 +71,45 @@ const _putRequest = async(fn, data, id) => {
   }
 }
 
-export { _getRequest, _putRequest, _postRequest};
+const putMethod = async(fn, data, id) => {
+  try {
+    let _h = new Headers()
+    _h.append("Content-Type", "application/json");
+    var url = `${api_Domain}/api/${fn}/${id}`;
+    let re = await fetch(url, {
+      method: 'PUT',
+      body: data,
+      headers: _h
+    })
+    console.log(re)
+    if(!re.ok) return {success: false, error: 'Api error'}
+    let _re = await re.json();
+    // if(_re.status !== 200) return {success: false, error: _re.message || 'Api ok but smt error'}
+    return {success: true, result: _re}
+  } catch (e) {
+    return { success: false, error: e };
+  }
+}
+const postmethod = async (fn, body) => {
+  try {
+    let _h = new Headers();
+    _h.append('content-type', 'application/x-www-form-urlencoded');
+    let url = `${api_Domain}/api/${fn}`
+    let _r = await fetch(url, {
+      method: 'POST',
+      body: body,
+      headers: _h
+    });
+    _r = await _r.json();
+    console.log(_r)
+    if (_r.message) return { success: false, error: _r.message };
+    // if (!_r.ok) return { success: false, error: 'Api error' };
+    // if (_r.status !== 200)  return { success: false, error: _r.message || 'Api ok but smt error' };
+    return { success: true, result: _r };
+  } catch(e) {
+    return { success: false, error: e };
+  }
+}
+export { _getRequest, _putRequest, _postRequest, putMethod, postmethod};
 
  

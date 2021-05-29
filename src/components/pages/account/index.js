@@ -186,7 +186,7 @@ export const Account = props => {
                   var myHeaders = new Headers(); 
                   myHeaders.append('Content-Type', 'multipart/form-data; boundary=<calculated when request is sent>');
                   try {
-                    const res1 = await axios.put(`https://hotel-lv.herokuapp.com/api//employee/${_user.auth._id}`, filterDatePicker, {headers: myHeaders})
+                    const res1 = await axios.put(`https://hotel-lv.herokuapp.com/api//employee/${_user.auth._id}`, fd, {headers: myHeaders})
                     console.log(res1)
                     if(res.success && res1.status === 200){
                       message.success('Change successfully, system will be auto relogin after a second');

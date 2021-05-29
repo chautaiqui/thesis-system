@@ -58,9 +58,11 @@ export const Room = props => {
       // const res = await _getRequest(`hotel/${_user.auth.hotel}/room`);
       if (!res_room.success) {
           message.error(res_room.error); // param = res.error
+          return;
       }
       if (!res_roomtype.success) {
         message.error(res_roomtype.error); // param = res.error
+        return;
       }
       dispatch({type:'GET_DATA_SUCCESS', data: res_room.result.rooms, data_room_type: res_roomtype.result});
     } catch (e) {

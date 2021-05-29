@@ -1,14 +1,16 @@
 import React from 'react';
 
-import { RocketOutlined, UsergroupAddOutlined, DashboardOutlined,FileAddOutlined, LineChartOutlined,
+import { RocketOutlined, UsergroupAddOutlined, ContainerOutlined,FileAddOutlined, LineChartOutlined,
   AreaChartOutlined, TeamOutlined, ToolOutlined, HomeOutlined, SelectOutlined, GifOutlined, 
-  GiftOutlined, FieldTimeOutlined, GroupOutlined, UserOutlined, BarcodeOutlined, CalculatorOutlined
+  GiftOutlined, FontColorsOutlined, GroupOutlined, UserOutlined, BarcodeOutlined, CalculatorOutlined
 } from '@ant-design/icons';
 import { createFromIconfontCN } from '@ant-design/icons';
 import { Employee } from './employee';
 import { Hotel } from './hotel';
+import { AdminInfo } from './admin';
+import { Blog } from './blog';
 import { Addemployee } from './addemployee';
-import { AddHotel } from './addhotel';
+import { Manager } from './manager';
 import { Room } from './room';
 import { Facility } from './facility';
 import { Account } from './account';
@@ -29,9 +31,11 @@ const Todo = () => {
 
 const subPages1 = [
   { path: '/hotel', label: (<><HomeOutlined style={{paddingLeft:10}}/> Hotel </>), component: Hotel, permissions: 'hotel' },
-  { path: '/addhotel', label: (<><FileAddOutlined style={{paddingLeft:10}}/> Add Hotel  </>), component: AddHotel, permissions: 'add_hotel' },
+  { path: '/manager', label: (<><TeamOutlined style={{paddingLeft:10}}/> Manager  </>), component: Manager, permissions: 'manager' },
+  { path: '/admin', label: (<><FontColorsOutlined style={{paddingLeft:10}}/> Admin  </>), component: AdminInfo, permissions: 'admin' },
+  { path: '/blog', label: (<><ContainerOutlined style={{paddingLeft:10}}/> Blog  </>), component: Blog, permissions: 'blog' },
   { path: '/inventoryreport', label: (<><AreaChartOutlined style={{paddingLeft:10}}/> Inventory Report </>), component: Todo, permissions: 'inventory_report'},
-];
+];                              
 const subPages2 = [
   { path: '/employee', label: (<><TeamOutlined style={{paddingLeft:10}}/> Employee </>), component: Employee, permissions: 'employee' },
   { path: '/addemployee', label: (<><UsergroupAddOutlined style={{paddingLeft:10}}/> Add Employee </>), component: Addemployee, permissions: 'add_employee' },
@@ -51,19 +55,20 @@ const subPages3 = [
 ];
 
 export const routerPages = [...subPages1, ...subPages2, ...subPages3];
+export const menuPages = [...subPages1, ...subPages2, ...subPages3];
 
-export const menuPages = [
-  {
-    label: 'Admin',
-    children: subPages1
-  },
-  {
-    label: 'Manage',
-    children: subPages2
-  },
-  {
-    label: 'Employee',
-    children: subPages3
-  },
-];
+// export const menuPages = [
+//   {
+//     label: 'Admin',
+//     children: subPages1
+//   },
+//   {
+//     label: 'Manage',
+//     children: subPages2
+//   },
+//   {
+//     label: 'Employee',
+//     children: subPages3
+//   },
+// ];
 
