@@ -1,3 +1,4 @@
+import axios from 'axios';
 
 const api_Domain = 'https://hotel-lv.herokuapp.com';
 
@@ -72,44 +73,42 @@ const _putRequest = async(fn, data, id) => {
 }
 
 const putMethod = async(fn, data, id) => {
+  if(!id) {
+    return { success: false, error: 'Id not found'}
+  }
   try {
-    let _h = new Headers()
-    _h.append("Content-Type", "application/json");
-    var url = `${api_Domain}/api/${fn}/${id}`;
-    let re = await fetch(url, {
-      method: 'PUT',
-      body: data,
-      headers: _h
-    })
-    console.log(re)
-    if(!re.ok) return {success: false, error: 'Api error'}
-    let _re = await re.json();
-    // if(_re.status !== 200) return {success: false, error: _re.message || 'Api ok but smt error'}
-    return {success: true, result: _re}
+    var myHeaders = new Headers(); 
+    myHeaders.append('Content-Type', 'multipart/form-data; boundary=<calculated when request is sent>');
+    let url = `${api_Domain}/api/${fn}/${id}`
+    const res = await axios.put(url, data, {headers: myHeaders, validateStatus: (status) => { return (status >= 200 && status < 500) || status == 400; }})
+    // console.log(res)
+    if(res.status >=200 && res.status < 300) {
+      return { success: true, result: res.data}
+    } 
+    if(res.status >= 400) {
+      return { success: false, error: res.data.message }
+    }
   } catch (e) {
-    return { success: false, error: e };
+    return { success: false, error: ''}
   }
 }
-const postmethod = async (fn, body) => {
+const postMethod = async (fn, body) => {
   try {
-    let _h = new Headers();
-    _h.append('content-type', 'application/x-www-form-urlencoded');
+    var myHeaders = new Headers(); 
+    myHeaders.append('Content-Type', 'multipart/form-data; boundary=<calculated when request is sent>');
     let url = `${api_Domain}/api/${fn}`
-    let _r = await fetch(url, {
-      method: 'POST',
-      body: body,
-      headers: _h
-    });
-    _r = await _r.json();
-    console.log(_r)
-    if (_r.message) return { success: false, error: _r.message };
-    // if (!_r.ok) return { success: false, error: 'Api error' };
-    // if (_r.status !== 200)  return { success: false, error: _r.message || 'Api ok but smt error' };
-    return { success: true, result: _r };
-  } catch(e) {
-    return { success: false, error: e };
+    const res = await axios.post(url, body, {headers: myHeaders, validateStatus: (status) => { return (status >= 200 && status < 500) || status == 400; }})
+    console.log(res)
+    if(res.status >=200 && res.status < 300) {
+      return { success: true, result: res.data}
+    } 
+    if(res.status >= 400) {
+      return { success: false, error: res.data.message }
+    }
+  } catch (e) {
+    return { success: false, error: e}
   }
 }
-export { _getRequest, _putRequest, _postRequest, putMethod, postmethod};
+export { _getRequest, _putRequest, _postRequest, putMethod, postMethod};
 
  

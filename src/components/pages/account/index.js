@@ -1,7 +1,7 @@
 import React, { useContext, useEffect} from 'react';
 import { Space, Form, Input, Button, DatePicker, Avatar, Select, Tabs, message } from 'antd';
 import { User } from '@pkg/reducers';
-import { CustomUpload, filterDatePicker } from '../../commons';
+import { CustomUpload } from '../../commons';
 import moment from 'moment';
 import { _getRequest, _putRequest, _postRequest } from '@api';
 import axios from 'axios';

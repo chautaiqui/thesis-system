@@ -30,6 +30,10 @@ const UserProvider = ({ children }) => {
         localStorage.removeItem('email');
         localStorage.removeItem('password');
         return {};
+      case 'UPDATE':
+        const _r = action.user || {};
+        const _a = {...state, auth: {...state.auth, ..._r}}
+        return _a
       default: return state;
     }
   }, {});

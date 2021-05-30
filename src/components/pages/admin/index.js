@@ -1,10 +1,9 @@
 import React, {useContext, useEffect} from 'react'
-import { Row, Col, Tabs, Space, Form, Input, Button, DatePicker, message } from 'antd';
+import { Tabs, Space, Form, Input, Button, DatePicker, message } from 'antd';
 import { User } from '@pkg/reducers';
 import { CustomUploadImg } from '../../commons';
 import moment from 'moment';
-import { _getRequest, _putRequest, _postRequest } from '@api';
-import axios from 'axios';
+import { _getRequest, postMethod, putMethod, _postRequest } from '@api';
 const formItemLayout = {
   labelCol: {
     xs: { span: 24 },
@@ -43,8 +42,29 @@ export const AdminInfo = (props) => {
       img: user.auth.img,
     })
   },[user])
-  const onFinish = (values) => {
-    console.log(values)
+  const updateInfo = (values) => {
+    console.log(values);
+    var data = new FormData();
+    if(values.birthday) data.append('birthday', values.birthday.format( 'DD-MM-YYYY', 'DD/MM/YYYY' ));
+    if(typeof values.img === 'object') data.append('img', values.img);
+    var temp = {...values, birthday: undefined, img: undefined}
+		for (const [key, value] of Object.entries(temp)){
+			if(value) {
+				data.append(key, value)
+			}
+		}
+    const update = async () => {
+      const res = await putMethod('admin', data, user.auth._id)
+      if(res.success) {
+        message.success("Update infomation success!");
+        dispatchUser({
+          type: 'UPDATE', user: res.result
+        })
+      } else {
+        message.error(res.error)
+      }
+    }
+    update();
   }
   const changePassword = (v)=>{
     const validate = async () => {
@@ -62,25 +82,39 @@ export const AdminInfo = (props) => {
           fd.append(key, value)
         }
       }
-      var myHeaders = new Headers(); 
-      myHeaders.append('Content-Type', 'multipart/form-data; boundary=<calculated when request is sent>');
-      try {
-        const res1 = await axios.put(`https://hotel-lv.herokuapp.com/api/admin/${user.auth._id}`, fd, {headers: myHeaders})
-        console.log(res1)
-        if(res.success && res1.status === 200){
-          message.success('Change successfull!');
-          // dispatchUser({ user: res.result, email: res.result.auth.email, password: v.new_password, type: 'LOGIN' })
-          // window.location.reload();
-          localStorage.setItem('password', v.new_password);
-        }  
-      } catch (e) {
-        message.error(e.response.message || 'Something well wrong!');
+      console.log(user.aut)
+      const resChange = await putMethod('admin', fd, user.auth._id);
+      if(resChange.success) {
+        message.success('Change successfull!');
+        localStorage.setItem('password', v.new_password);
+        form_pass.resetFields();
+      } else {
+        message.error(resChange.error)
       }
     }
     validate();
   }
   const addAdmin = (values) => {
     console.log(values);
+    var data = new FormData();
+    if(values.birthday) data.append('birthday', values.birthday.format( 'DD-MM-YYYY', 'DD/MM/YYYY' ));
+    if(typeof values.img === 'object') data.append('img', values.img);
+    var temp = {...values, birthday: undefined, img: undefined}
+		for (const [key, value] of Object.entries(temp)){
+			if(value) {
+				data.append(key, value)
+			}
+		}
+    const add = async () => {
+      const res = await postMethod('admin/create', data)
+      if(res.success) {
+        message.success("Add admin success!");
+        form_add.resetFields();
+      } else {
+        message.error(res.error)
+      }
+    }
+    add();
   }
   return (
   <div style={{width: '100%', display: 'flex', justifyContent: 'center'}}>
@@ -91,7 +125,7 @@ export const AdminInfo = (props) => {
               form={form}
               {...formItemLayout}
               name="info"
-              onFinish={onFinish}
+              onFinish={updateInfo}
             >
               <Form.Item name="email" label="Email">
                 <Input disabled/>
@@ -212,7 +246,7 @@ export const AdminInfo = (props) => {
               </Form.Item>
               <Form.Item {...tailFormItemLayout}>
                 <Button type="primary" htmlType="submit">
-                  Add
+                  Add admin
                 </Button>
               </Form.Item>
             </Form>

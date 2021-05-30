@@ -1,11 +1,10 @@
 import React, {useContext, useReducer, useEffect} from 'react';
-import { Button, Table, Modal, Form, Input, Row, Col, InputNumber, DatePicker, message, Popover } from 'antd';
+import { Button, Table, Modal, Form, Input, Row, Col, InputNumber, DatePicker, message, Popover, Drawer, Select } from 'antd';
 import { PlusCircleOutlined, EditOutlined, CheckOutlined } from '@ant-design/icons';
 import {Carousel} from '3d-react-carousal';
 import { User } from '@pkg/reducers';
 import { CustomUploadImg, filerColumn, DynamicSelect } from '../../commons';
-import { _getRequest } from '@api';
-import axios from 'axios';
+import { _getRequest, postMethod, putMethod } from '@api';
 import moment from 'moment';
 const { confirm } = Modal;
 
@@ -13,7 +12,18 @@ const layout = {
 	labelCol: { span: 8 },
 	wrapperCol: { span: 16 },
 };
-
+const tailFormItemLayout = {
+  wrapperCol: {
+    xs: {
+      span: 24,
+      offset: 0,
+    },
+    sm: {
+      span: 16,
+      offset: 8,
+    },
+  },
+};
 const ManagerReducer = (state, action) => {
   switch (action.type) {
       case 'GET_DATA_SUCCESS':
@@ -25,7 +35,7 @@ const ManagerReducer = (state, action) => {
       case 'TOOGLE_VIEW':
 				return { ...state, view: action.view, behavior: 'stall' };
       case 'RELOAD':
-				return { ...state, behavior: 'init', popup: action.popup };
+				return { ...state, behavior: 'init', popup: action.popup, view: action.view };
       default:
 				return state;
   } 
@@ -35,12 +45,13 @@ const initState = {
 	data: [],
 	hotel: [],
 	popup: {open: false, data: {}},
-	view: {open: false, img: []},
+	view: {open: false, data: {}},
 }
 
 export const Manager = () => {
 	const [ _user ] = useContext(User.context);
 	const [ state, dispatch ] = useReducer(ManagerReducer, initState);
+	const [ loading, setLoading ] = React.useState(false);
 	const [ form ] = Form.useForm();
 	const col = [
 		{
@@ -101,7 +112,7 @@ export const Manager = () => {
 			key: 'address',
 			render: (text, record, index)=>{
 				return [
-					record.address. length > 15? (<Popover key="0" content={record.address}trigger="hover">
+					record.address. length > 15? (<Popover key="0" content={record.address}trigger="hover" style={{ width: '50%' }}>
 						{record.address.slice(0,15) + '...'}
 					</Popover>) : record.address
 				]
@@ -115,7 +126,13 @@ export const Manager = () => {
 				if(record.hotel) {
 					return <p>{record.hotel.name}</p>
 				} else {
-					return <Button type={'primary'} shape={"round"}>Sethotel</Button>
+					return <Button type={'primary'} shape={"round"} 
+						onClick={()=>{
+							dispatch({
+								type: 'TOOGLE_VIEW', view: {open: true, data: record}
+							})
+						}}
+					>Sethotel</Button>
 				}
 			}
 		},
@@ -152,6 +169,7 @@ export const Manager = () => {
 			title: 'Do you confirm last time?',
 			icon: <CheckOutlined />,
 			onOk() {
+				setLoading(true);
 				form.submit();
 			}
 		});
@@ -189,17 +207,12 @@ export const Manager = () => {
 
 	const onFinish = (values) => {
 		console.log(values)
-
 		// validate();
 		var format = /[A-Za-z0-9_]@[A-Za-z0-9_]+\.[A-Za-z0-9_]/;
 		if (!format.test(values.email)) {
 			message.error("Email error format!");
 			return;
 		}
-    if (values.phone.length < 9 || values.phone.length > 11) {
-      message.error("Phone error!");
-			return;
-    }
 		var data = new FormData();
 		if(values.birthday) {
 			data.append('birthday', values.birthday.format('DD-MM-YYYY', 'DD/MM/YYYY' ));
@@ -211,30 +224,31 @@ export const Manager = () => {
 			}
 		}
 		// axios
-		var myHeaders = new Headers(); 
-		myHeaders.append('Content-Type', 'multipart/form-data; boundary=<calculated when request is sent>');
 		const action = async () => {
 			try {
 				if(popup.data._id) {
 					// update
-					if(Array.isArray(values.skills)){
+					console.log(values.skills, Array.isArray(values.skills))
+					if(Array.isArray(values.skills) && values.skills.length > 1){
 						values.skills.forEach(i=>{
 							data.append('skills', i)
 						})
-					}
+					} 
 					if(typeof values.img === 'object') {
 						data.append('img', values.img)
 					}
-					const res = await axios.put(`https://hotel-lv.herokuapp.com/api/manager/${popup.data._id}`, data, {headers: myHeaders})
-					if(res.status === 200){
+					const res = await putMethod('manager', data, popup.data._id);
+					if(res.success){
 						message.success('Update hotel successfully!');
+						setLoading(false);
 						dispatch({
-							type: 'RELOAD', popup: {open: false, data: {}}
+							type: 'RELOAD', popup: {open: false, data: {}}, view: {open:false, data: {}}
 						})
 						form.resetFields();
 					} 
 					else {
-						message.error('Something error')
+						setLoading(false);
+						message.error(res.error);
 					}
 				} else {
 					// create -> post
@@ -243,23 +257,25 @@ export const Manager = () => {
 						obj[key] = value;
 					});
 					var newData = { ...obj, skills: values.skills}
-					const res = await axios.post(`https://hotel-lv.herokuapp.com/api/manager/create`, newData)
-					console.log(res)
-					if(res.status === 201){
+					const res = await postMethod('manager/create', newData);
+					if(res.success){
 						message.success('Create hotel successfully!');
+						setLoading(false);
 						dispatch({
-							type: 'RELOAD', popup: {open: false, data: {}}
+							type: 'RELOAD', popup: {open: false, data: {}}, view: {open:false, data: {}}
 						})
-					} 
+					} else {
+						setLoading(false);
+						message.error(res.error)
+					}
 				}
 			} catch (e) {
-				console.log(e.response)
-				message.error(e)
+				setLoading(false);
+				message.error('Something error')
 			}
 		}
 		action();
 	}
-	console.log(view)
 	return  <>
 		<Button 
 			type="primary" 
@@ -288,22 +304,6 @@ export const Manager = () => {
 			}}
 			scroll={{ x: 992 }} 
 		/>
-		<Modal title="Image Hotel" 
-			visible={view.open} 
-			footer={null}
-			keyboard
-			closable
-			onCancel={()=>{
-				dispatch({
-					type: 'TOOGLE_VIEW', view: {open: false, data: []}
-				})
-			}}
-		>
-			<Carousel slides={
-				view.data ? view.data.map((i, index)=><img src={i} alt={index} />) : []
-			}
-			autoplay={true} interval={5000}/>
-		</Modal>
 		<Modal 
 			centered
 			width='90%'
@@ -311,18 +311,29 @@ export const Manager = () => {
 			maskClosable={false}
 			title={ popup.data._id ? popup.data.name : "Create manager"}
 			visible={popup.open} 
-			okText='Confirm'
-			cancelText='Close'
+			// okText='Confirm'
+			// cancelText='Close'
 			onOk={showConfirm} 
 			onCancel={()=>{
 				dispatch({type: 'TOOGLE_POPUP', popup: {open:false, data:{}}})
 					form.resetFields();
 			}}
+			footer={
+				<div>
+					<Button shape='round' type='primary' onClick={showConfirm} loading={loading}>Confirm</Button>
+					<Button shape='round' onClick={()=>{
+						setLoading(false);
+						dispatch({type: 'TOOGLE_POPUP', popup: {open:false, data:{}}})
+						form.resetFields();
+					}}>Close</Button>
+				</div>
+			}
 		>
 			<Form
 			 {...layout}
 			 form={form} name="hotel-form"
 			 onFinish={onFinish}
+			 onFinishFailed={()=>{setLoading(false)}}
 			>
 				<Row gutter={[16,16]}>
 					<Col xs={24} sm={12} md={12} lg={12} xl={12}>
@@ -384,5 +395,71 @@ export const Manager = () => {
 				</Row>
 			</Form>
 		</Modal>
+		<Drawer
+			title={ `Set hotel for ${state.view.data.name}` ||"Set hotel" }
+			placement={'right'}
+			closable={false}
+			onClose={()=>{
+				dispatch({
+					type: 'TOOGLE_VIEW', view: {open:false, data: {}}
+				})
+			}}
+			visible={state.view.open}
+			key={'left'}
+			width={300}
+			footer={
+				<Button onClick={()=>{
+					dispatch({
+						type: 'TOOGLE_VIEW', view: {open:false, data: {}}
+					})
+				}}>Close</Button>
+			}
+		>
+			<Form
+				{...layout}
+				name="sethotel-form"
+				onFinish={(values)=>{
+					setLoading(true);
+					const setmanager = async () => {
+						const res = await putMethod('hotel', {manager: state.view.data._id}, `${values.hotel}/change-manager`);
+						if(res.success) {
+							message.success('Set hotel for manager successfully!');
+							setLoading(false);
+							dispatch({type: 'RELOAD', popup: {open: false, data: {}}, view: {open:false, data: {}}})
+						} else {
+							setLoading(false);
+							message.error(res.error);
+						}
+					}
+					setmanager();
+				}}
+			>
+				<Form.Item
+					label="Name"
+				>
+					<Input value={ state.view.data.name ||'manager'} disabled label={'Manager'}/>
+				</Form.Item>
+				<Form.Item 
+					name='hotel' label='Hotel'
+					rules={[{ required: true, message: 'Please choose hotel' }]}
+				>	
+				<Select 
+					placeholder={"Choose hotel available"}
+					allowClear
+					showSearch
+					notFoundContent={'Not Found'}
+					options={state.hotel.map(item=>({label: item.name, value: item._id}))}
+					filterOption={(inputValue, options) => {
+						return options.label.toLowerCase().includes(inputValue.toLowerCase())
+					}}
+				/>
+				</Form.Item>
+				<Form.Item {...tailFormItemLayout}>
+					<Button type="primary" htmlType="submit" loading={loading}>
+						Set
+					</Button>
+				</Form.Item>
+			</Form>
+		</Drawer>
 	</>
 }

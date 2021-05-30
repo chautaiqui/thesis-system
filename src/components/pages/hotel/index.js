@@ -5,8 +5,7 @@ import {Carousel} from '3d-react-carousal';
 import { User } from '@pkg/reducers';
 import { cities } from '../../commons/city';
 import { CustomUploadListImg, filerColumn } from '../../commons';
-import { _getRequest, postmethod } from '@api';
-import axios from 'axios';
+import { _getRequest, postMethod, putMethod } from '@api';
 const { confirm } = Modal;
 
 const layout = {
@@ -40,6 +39,7 @@ const initState = {
 export const Hotel = () => {
 	const [ _user ] = useContext(User.context);
 	const [ state, dispatch ] = useReducer(HotelReducer, initState);
+	const [ loading, setLoading ] = React.useState(false);
 	const [ form ] = Form.useForm();
 	const col = [
 		{
@@ -89,7 +89,7 @@ export const Hotel = () => {
 			key: 'description', 
 			render: (text, record, index)=>{
 				return [
-					record.description. length > 30? (<Popover key="0" content={record.description}trigger="hover">
+					record.description. length > 30? (<Popover key="0" content={record.description}trigger="hover" style={{ width: '50%' }}>
 						{record.description.slice(0,30) + '...'}
 					</Popover>) : record.description
 				]
@@ -133,6 +133,7 @@ export const Hotel = () => {
 			title: 'Do you confirm last time?',
 			icon: <CheckOutlined />,
 			onOk() {
+				setLoading(true);
 				form.submit();
 			}
 		});
@@ -194,36 +195,36 @@ export const Hotel = () => {
 			try {
 				if(popup.data._id) {
 					// update
-					const res = await axios.put(`https://hotel-lv.herokuapp.com/api/hotel/${popup.data._id}`, data, {headers: myHeaders})
-					if(res.status === 200){
+					const res = await putMethod('hotel', data, popup.data._id);
+					if(res.success) {
 						message.success('Update hotel successfully!');
+						setLoading(false);
 						dispatch({
 							type: 'RELOAD', popup: {open: false, data: {}}
 						})
 						form.resetFields();
-					} 
-					// const res = await putMethod('hotel', data, popup.data._id);
+					} else {
+						setLoading(false);
+						message.error(res.error)
+					}
 				} else {
-					// post
 					data.append("timeIn",values.time[0].format("HH:mm"))
 					data.append("timeOut",values.time[1].format("HH:mm"))
-					// const res = await axios.post(`https://hotel-lv.herokuapp.com/api/hotel/create`, data, {headers: myHeaders})
-					// console.log(res)
-					// if(res.status === 201){
-					// 	message.success('Create hotel successfully!');
-					// 	dispatch({
-					// 		type: 'RELOAD', popup: {open: false, data: {}}
-					// 	})
-					// } 
-					const res = await postmethod('hotel/create', data);
+					const res = await postMethod('hotel/create', data);
+					if(res.success) {
 						message.success('Create hotel successfully!');
+						setLoading(false);
 						dispatch({
 							type: 'RELOAD', popup: {open: false, data: {}}
 						})
-
+					} else {
+						setLoading(false);
+						message.error(res.error);
+					}
 				}
 			} catch (e) {
-				message.error(e)
+				setLoading(false);
+				message.error('Something error!');
 			}
 		}
 		action();
@@ -280,8 +281,16 @@ export const Hotel = () => {
 			maskClosable={false}
 			title="Hotel" 
 			visible={popup.open} 
-			okText='Confirm'
-			cancelText='Close'
+			footer={
+				<div>
+					<Button shape='round' type='primary' onClick={showConfirm} loading={loading}>Confirm</Button>
+					<Button shape='round' onClick={()=>{
+						setLoading(false);
+						dispatch({type: 'TOOGLE_POPUP', popup: {open:false, data:{}}});
+						form.resetFields();
+					}}>Close</Button>
+				</div>
+			}
 			onOk={showConfirm} 
 			onCancel={()=>{
 				dispatch({type: 'TOOGLE_POPUP', popup: {open:false, data:{}}})
@@ -292,6 +301,7 @@ export const Hotel = () => {
 			 {...layout}
 			 form={form} name="hotel-form"
 			 onFinish={onFinish}
+			 onFinishFailed={()=>{setLoading(false)}}
 			>
 				<Row gutter={[16,16]}>
 					<Col xs={24} sm={12} md={12} lg={12} xl={12}>
