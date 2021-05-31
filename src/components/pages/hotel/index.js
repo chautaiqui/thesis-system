@@ -65,6 +65,9 @@ export const Hotel = () => {
 			dataIndex: 'averagePrice',
 			align: 'center',
 			key: 'averagePrice', 
+			render: (text, record, index) => {
+				return record.averagePrice.avgValue
+			}
 		},
 		{
 			title: 'Phone',
@@ -310,19 +313,6 @@ export const Hotel = () => {
 						>
 							<Input />
 						</Form.Item>
-						<Form.Item name='capacity' label="Capacity"
-							rules={[{ required: true, message: 'Capacity empty!' }]}
-						>
-							<Input />
-						</Form.Item>
-						{/* <Form.Item name='averagePrice' label="Price"
-							rules={[{ required: true, message: 'Price empty!' }]}
-						>
-							<InputNumber 
-								formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-								parser={value => value.replace(/\$\s?|(,*)/g, '')}
-							/>
-						</Form.Item> */}
 						<Form.Item name='phone' label="Phone"
 							rules={[{ required: true, message: 'Phone empty!' }]}
 						>
