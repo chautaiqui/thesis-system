@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react'
+import React, {useContext, useEffect, useState } from 'react'
 import { Tabs, Space, Form, Input, Button, DatePicker, message } from 'antd';
 import { User } from '@pkg/reducers';
 import { CustomUploadImg } from '../../commons';
@@ -29,6 +29,7 @@ const tailFormItemLayout = {
 const { TabPane } = Tabs;
 export const AdminInfo = (props) => {
   const [ user, dispatchUser ] = useContext(User.context);
+  const [loading, setLoading] = useState(false);
   const [ form ] = Form.useForm();
   const [ form_pass ] = Form.useForm();
   const [ form_add ] = Form.useForm();
@@ -44,6 +45,7 @@ export const AdminInfo = (props) => {
   },[user])
   const updateInfo = (values) => {
     console.log(values);
+    setLoading(true);
     var data = new FormData();
     if(values.birthday) data.append('birthday', values.birthday.format( 'DD-MM-YYYY', 'DD/MM/YYYY' ));
     if(typeof values.img === 'object') data.append('img', values.img);
@@ -57,6 +59,7 @@ export const AdminInfo = (props) => {
       const res = await putMethod('admin', data, user.auth._id)
       if(res.success) {
         message.success("Update infomation success!");
+        setLoading(false)
         dispatchUser({
           type: 'UPDATE', user: res.result
         })
@@ -68,6 +71,7 @@ export const AdminInfo = (props) => {
   }
   const changePassword = (v)=>{
     const validate = async () => {
+      setLoading(true)
       const res = await _postRequest('auth/login',{email:user.auth.email, password: v.current_password});
       if(!res.success) {
         message.error("Password error!");
@@ -82,10 +86,10 @@ export const AdminInfo = (props) => {
           fd.append(key, value)
         }
       }
-      console.log(user.aut)
       const resChange = await putMethod('admin', fd, user.auth._id);
       if(resChange.success) {
         message.success('Change successfull!');
+        setLoading(false)
         localStorage.setItem('password', v.new_password);
         form_pass.resetFields();
       } else {
@@ -96,6 +100,7 @@ export const AdminInfo = (props) => {
   }
   const addAdmin = (values) => {
     console.log(values);
+    setLoading(true);
     var data = new FormData();
     if(values.birthday) data.append('birthday', values.birthday.format( 'DD-MM-YYYY', 'DD/MM/YYYY' ));
     if(typeof values.img === 'object') data.append('img', values.img);
@@ -109,6 +114,7 @@ export const AdminInfo = (props) => {
       const res = await postMethod('admin/create', data)
       if(res.success) {
         message.success("Add admin success!");
+        setLoading(false);
         form_add.resetFields();
       } else {
         message.error(res.error)
@@ -126,6 +132,7 @@ export const AdminInfo = (props) => {
               {...formItemLayout}
               name="info"
               onFinish={updateInfo}
+              onFinishFailed={()=>{setLoading(false)}}
             >
               <Form.Item name="email" label="Email">
                 <Input disabled/>
@@ -146,7 +153,7 @@ export const AdminInfo = (props) => {
                 <CustomUploadImg />
               </Form.Item>
               <Form.Item {...tailFormItemLayout}>
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" htmlType="submit" loading={loading}>
                   Update
                 </Button>
               </Form.Item>
@@ -167,6 +174,7 @@ export const AdminInfo = (props) => {
               }}
               name="password"
               onFinish={changePassword}
+              onFinishFailed={()=>{setLoading(false)}}
             >
               <Form.Item name="current_password" label="Current Password"
                 rules={[
@@ -213,7 +221,7 @@ export const AdminInfo = (props) => {
                 <Input.Password />
               </Form.Item>
               <Form.Item {...tailFormItemLayout}>
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" htmlType="submit" loading={loading}>
                   Change
                 </Button>
               </Form.Item>
@@ -225,6 +233,7 @@ export const AdminInfo = (props) => {
               {...formItemLayout}
               name="info"
               onFinish={addAdmin}
+              onFinishFailed={()=>{setLoading(false)}}
             >
               <Form.Item name="email" label="Email" rules={[{ required: true, message: 'Email empty!' }]}>
                 <Input />
@@ -245,7 +254,7 @@ export const AdminInfo = (props) => {
                 <CustomUploadImg />
               </Form.Item>
               <Form.Item {...tailFormItemLayout}>
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" htmlType="submit" loading={loading}>
                   Add admin
                 </Button>
               </Form.Item>

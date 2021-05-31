@@ -169,7 +169,6 @@ export const Manager = () => {
 			title: 'Do you confirm last time?',
 			icon: <CheckOutlined />,
 			onOk() {
-				setLoading(true);
 				form.submit();
 			}
 		});
@@ -208,6 +207,7 @@ export const Manager = () => {
 	const onFinish = (values) => {
 		console.log(values)
 		// validate();
+		setLoading(true);
 		var format = /[A-Za-z0-9_]@[A-Za-z0-9_]+\.[A-Za-z0-9_]/;
 		if (!format.test(values.email)) {
 			message.error("Email error format!");
@@ -229,7 +229,7 @@ export const Manager = () => {
 				if(popup.data._id) {
 					// update
 					console.log(values.skills, Array.isArray(values.skills))
-					if(Array.isArray(values.skills) && values.skills.length > 1){
+					if(Array.isArray(values.skills) && values.skills.length > 0){
 						values.skills.forEach(i=>{
 							data.append('skills', i)
 						})

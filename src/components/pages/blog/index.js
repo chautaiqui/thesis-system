@@ -18,8 +18,9 @@ export const Blog = props => {
   const [ popup, setPopup ] = useState({open: false, data: {}});
   const [ draw, setDraw ] = useState({open: false, data: {}});
   const [ loading, setLoading ] = useState(false);
-  const [ form ] = Form.useForm();
-  const [ form_blog ] = Form.useForm();
+  const [ form ] = Form.useForm(); // form search blog
+  const [ form_update ] = Form.useForm(); // form of blog update
+  const [ form_create ] = Form.useForm(); // form of blog create
   useEffect(()=>{
     const getData = async() => {
       const res = await _getRequest('blog');
@@ -33,23 +34,28 @@ export const Blog = props => {
   useEffect(()=>{
     if(popup.open) {
       console.log(popup.data)
-      form_blog.setFieldsValue({
+      form_update.setFieldsValue({
         title: popup.data.title,
         content: popup.data.content,
         img: popup.data.img
       });
     }
-    if(draw.open) {
-      form_blog.resetFields();
-    }
-  }, [popup, draw])
+  }, [popup])
   const showConfirm = () => {
 		Modal.confirm({
 			title: 'Do you confirm your blog?',
 			icon: <CheckOutlined />,
 			onOk() {
-        setLoading(true)
-				form_blog.submit();
+				form_update.submit();
+			}
+		});
+	}
+  const showConfirm_1 = () => {
+		Modal.confirm({
+			title: 'Do you confirm your blog?',
+			icon: <CheckOutlined />,
+			onOk() {
+				form_create.submit();
 			}
 		});
 	}
@@ -57,9 +63,10 @@ export const Blog = props => {
     console.log(values);
   }
   const updateBlog = (values) => {
-    console.log(values);
+    console.log(values, draw.open);
+    setLoading(true)
 		var data = new FormData();
-    for (const [key, value] of Object.entries(data)){
+    for (const [key, value] of Object.entries(values)){
 			if(value) {
 				data.append(key, value)
 			}
@@ -145,7 +152,7 @@ export const Blog = props => {
             <Button shape='round' onClick={()=>{
               setLoading(false);
               setPopup({open:false, data:{}})
-              form_blog.resetFields();
+              form_update.resetFields();
             }}>Close</Button>
           </div>
         }
@@ -158,7 +165,7 @@ export const Blog = props => {
         <Form
           onFinish={updateBlog}
           name="blog_form"
-          form={form_blog}
+          form={form_update}
         >
           <Form.Item name="title">
             <EditText className='custom-input'/>
@@ -189,22 +196,22 @@ export const Blog = props => {
         }
       >
         <Form
-          onFinish={(value)=>{setLoading(true);updateBlog(value)}}
-          name="blog_form"
-          form={form_blog}
+          onFinish={updateBlog}
+          name="add_blog_form"
+          form={form_create}
           {...layout}
         >
           <Form.Item name="title" label="Title">
-            <EditText className='custom-input'/>
+            <Input />
           </Form.Item>
           <Form.Item name="img" label="Img">
             <CustomUploadImg/>
           </Form.Item>
           <Form.Item name="content" label="Content">
-            <EditTextarea className='custom-input' rows={15}/>
+            <Input.TextArea />
           </Form.Item>
           <Form.Item>
-          <Button type="primary" htmlType="submit" shape="round" loading={loading}>
+          <Button type="primary" onClick={showConfirm_1} shape="round" loading={loading}>
             Add
           </Button>
         </Form.Item>

@@ -38,8 +38,6 @@ const subPages1 = [
 ];                              
 const subPages2 = [
   { path: '/employee', label: (<><TeamOutlined style={{paddingLeft:10}}/> Employee </>), component: Employee, permissions: 'employee' },
-  { path: '/addemployee', label: (<><UsergroupAddOutlined style={{paddingLeft:10}}/> Add Employee </>), component: Addemployee, permissions: 'add_employee' },
-  { path: '/edithotel', label: (<><ToolOutlined style={{paddingLeft:10}}/> Edit Hotel </>), component: Todo, permissions: 'edit_hotel' },
   { path: '/voucher', label: (<><GiftOutlined style={{paddingLeft:10}}/> Voucher </>), component: Todo, permissions: 'voucher'},
   { path: '/report', label: (<><LineChartOutlined style={{paddingLeft:10}}/> Report </>), component: Todo, permissions: 'report'},
 ];
