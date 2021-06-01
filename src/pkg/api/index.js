@@ -21,7 +21,6 @@ const _getRequest = async (fn, options = {}, extend = []) => {
         headers: _h
     })
     console.log(re)
-    // if(!re.ok) return {success: false, error: 'Api error'}
     let _re = await re.json();
     // if(_re.status === 401) return window.location.reload()
     // if(_re.status === 403) return {success: true, result: {data: []}}
