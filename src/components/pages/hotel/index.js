@@ -1,5 +1,5 @@
 import React, {useContext, useReducer, useEffect} from 'react';
-import { Button, Table, Modal, Form, Input, Row, Col, Select, Popover, message, TimePicker, InputNumber } from 'antd';
+import { Button, Table, Modal, Form, Input, Row, Col, Select, Popover, message, TimePicker } from 'antd';
 import { PlusCircleOutlined, PlayCircleOutlined, EditOutlined, CheckOutlined } from '@ant-design/icons';
 import {Carousel} from '3d-react-carousal';
 import { User } from '@pkg/reducers';
@@ -16,17 +16,17 @@ const layout = {
 const HotelReducer = (state, action) => {
   switch (action.type) {
       case 'GET_DATA_SUCCESS':
-				return { ...state, data: action.data, behavior: 'stall' }
+		return { ...state, data: action.data, behavior: 'stall' }
       case 'GET_DATA_ERROR':
-				return { ...state, data: [], behavior: 'stall' };
+		return { ...state, data: [], behavior: 'stall' };
       case 'TOOGLE_POPUP':
-				return { ...state, popup: action.popup, behavior: action.behavior };
+		return { ...state, popup: action.popup, behavior: action.behavior };
       case 'TOOGLE_VIEW':
-				return { ...state, view: action.view, behavior: 'stall' };
+		return { ...state, view: action.view, behavior: 'stall' };
       case 'RELOAD':
-				return { ...state, behavior: 'init', popup: action.popup };
+		return { ...state, behavior: 'init', popup: action.popup };
       default:
-				return state;
+		return state;
   } 
 }
 const initState = {

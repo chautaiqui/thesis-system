@@ -14,7 +14,7 @@ const layout = {
 	wrapperCol: { span: 16 },
 };
 
-const EmployeeReducer = (state, action) => {
+const VoucherReducer = (state, action) => {
   switch (action.type) {
       case 'GET_DATA_SUCCESS':
 		return { ...state, data: action.data, behavior: 'stall' }
@@ -32,13 +32,13 @@ const EmployeeReducer = (state, action) => {
 }
 const initState = {
 	behavior: 'init',
-	data: [],
+	data: {voucher: [], roomType: []},
 	popup: {open: false, data: {}},
 }
 
-export const Employee = () => {
+export const Voucher = () => {
 	const [ user ] = useContext(User.context);
-	const [ state, dispatch ] = useReducer(EmployeeReducer, initState);
+	const [ state, dispatch ] = useReducer(VoucherReducer, initState);
 	const [ loading, setLoading ] = React.useState(false);
 	const [ form ] = Form.useForm();
 	const col = [
@@ -149,13 +149,19 @@ export const Employee = () => {
 			return;
 		}
 		try {
-			const res = await _getRequest(`hotel/${user.auth.hotel}/employee`);
+			const res = await _getRequest(`hotel/${user.auth.hotel}/voucher`);
+			console.log(`hotel/${user.auth.hotel}/roomtype`)
+			const res1 = await _getRequest(`hotel/${user.auth.hotel}/roomtype`);
 			if(!res.success) {
 				message.error(res.error);
 				return;
 			}
+			if(!res1.success) {
+				message.error(res1.error);
+				return;
+			}
 			dispatch({
-				type: 'GET_DATA_SUCCESS', data: res.result.employees
+				type: 'GET_DATA_SUCCESS', data: { voucher: res.result.vouchers, roomType: res1.result.roomTypes}
 			});
 		} catch (e) {
 			message.error(e);
@@ -240,7 +246,7 @@ export const Employee = () => {
 		}
 		action();
 	}
-	console.log(popup)
+	console.log(data)
 	return  <>
 		<Button 
 			type="primary" 
@@ -252,15 +258,15 @@ export const Employee = () => {
 					type: 'TOOGLE_POPUP', popup: {open: true, data: {}}
 				})       
 			}}
-			>Add Employee
+			>Add Voucher
 		</Button>		
 		<Table 
 			rowKey='_id'
-			title={() => 'Employee'}
+			title={() => 'Voucher'}
 			bordered
 			tableLayout="auto"
 			style={{marginTop: 10}}
-			dataSource={data} 
+			dataSource={data.voucher} 
 			columns={col} 	
 			pagination={{
 				pageSize: 10,

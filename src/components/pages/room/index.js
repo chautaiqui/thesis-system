@@ -1,12 +1,12 @@
-import React, {useReducer, useEffect, useContext } from 'react';
+import React, {useReducer, useEffect, useContext, useState } from 'react';
 import { User } from '@pkg/reducers';
-import { _getRequest, _putRequest } from '@api';
 import { filerColumn } from '../../commons';
 import axios from 'axios';
 
 import { Space, Button, Table, Modal, message, Form, DatePicker, Input, Select, InputNumber } from 'antd';
-import { PlusCircleOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { PlusCircleOutlined, EditOutlined, HighlightOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { CustomUpload } from '../../commons';
+import { _getRequest, postMethod, putMethod } from '@api';
 
 const { RangePicker } = DatePicker;
 const layout = {
@@ -18,7 +18,7 @@ const RoomReducer = (state, action) => {
   console.log(action)
   switch (action.type) {
       case 'GET_DATA_SUCCESS':
-          return { ...state, data: action.data, data_room_type: action.data_room_type, behavior: 'stall' }
+          return { ...state, data: action.data, data_room_type: action.data_room_type, facility: action.facility, behavior: 'stall' }
       case 'GET_DATA_ERROR':
           return { ...state, data: [], behavior: 'stall' };
       case 'TOOGLE_POPUP':
@@ -37,17 +37,18 @@ const RoomReducer = (state, action) => {
 
 export const Room = props => {
   const [ _user ] = useContext(User.context);
-  
+  const [loading,setLoading] = useState(false); 
   const [ state, dispatch ] = useReducer(RoomReducer, {
     behavior: 'init',
     data: [],
     data_room_type: [],
+    facility: [],
     popup: {open: false, data: {}},
     roomType: {open: false, data: {}},
     view: {open: false}
   });
 
-  const { data, popup, roomType, behavior, view, data_room_type } = state;
+  const { data, popup, roomType, behavior, facility, data_room_type } = state;
   const [ form ] = Form.useForm();
   const [ rt_form ] = Form.useForm();
 
@@ -55,6 +56,7 @@ export const Room = props => {
     try {
       const res_room = await _getRequest(`hotel/${_user.auth.hotel}/room`);
       const res_roomtype = await _getRequest(`hotel/${_user.auth.hotel}/roomtype`);
+      const res_facility = await _getRequest(`/hotel/${_user.auth.hotel}/facilitytype`);
       // const res = await _getRequest(`hotel/${_user.auth.hotel}/room`);
       if (!res_room.success) {
           message.error(res_room.error); // param = res.error
@@ -64,7 +66,11 @@ export const Room = props => {
         message.error(res_roomtype.error); // param = res.error
         return;
       }
-      dispatch({type:'GET_DATA_SUCCESS', data: res_room.result.rooms, data_room_type: res_roomtype.result});
+      if(!res_facility.success) {
+        message.error(res_facility.error);
+        return;
+      }
+      dispatch({type:'GET_DATA_SUCCESS', data: res_room.result.rooms, data_room_type: res_roomtype.result.roomTypes, facility: res_facility.result.facilititypes});
     } catch (e) {
         message.error(e);
     }
@@ -121,12 +127,11 @@ export const Room = props => {
             form.setFieldsValue({
               name: r.name,
               status: r.status,
+              facilities: r.facilities.map(item=>({facility: item.facility.name, amount: item.amount})),
               roomType: r.roomType.name,
               price: r.roomType.price,
               capacity: r.roomType.capacity,
-
             });             
-            console.log(r)
         }}
         ><EditOutlined /></Button>
     }
@@ -134,18 +139,121 @@ export const Room = props => {
 
   useEffect(() => {
     switch (state.behavior) {
-        case 'init':
-            getData();
-            return;
-        case 'stall':
-            return ;
-        default:
-            break;
+      case 'init':
+        getData();
+        return;
+      case 'stall':
+        return ;
+      default:
+        break;
     }
   }, [state.behavior])
 
-  console.log(state)
-
+  console.log(state);
+  const actionRoomtype = (values)=>{
+    // setLoading(true)
+    console.log(values);
+    console.log(state.roomType.data);
+    if(state.roomType.data._id) {
+      // update
+      console.log('update roomtype');
+      const update = async () => {
+        const res = await putMethod('roomType', values, popup.data._id);
+        if(res.success) {
+          // setLoading(false);
+          dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}})
+          rt_form.resetFields();
+        } else {
+          message.error(res.error);
+          // setLoading(false)
+          return;
+        }
+      }
+      // update();
+    } else {
+      console.log('add roomtype');
+      // add 
+      const add = async () => {
+        const res = await postMethod(`/hotel/${_user.auth.hotel}/create-roomtype`, values);
+        if(res.success) {
+          setLoading(false);
+          message.success('Add roomtype successfully!')
+          dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}})
+          rt_form.resetFields();
+        } else {
+          message.error(res.error);
+          setLoading(false)
+          return;
+        }
+      }
+      add();
+    }
+  }
+  const actionRoom = (v)=>{
+    console.log(v)
+    const room = async() => {
+      const data = {
+        name: v.name,
+        roomType: v.roomType,
+        status: v.status,
+        facilities: v.facilities
+      }
+      if(popup.data.name) {
+        // update -> update roomtype, room
+        console.log('update: ',popup.data)
+        const res = await putMethod('room',data, popup.data._id);
+        if(res.success) {
+          message.success('Update room successfully!');
+          dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}}) 
+          return;
+        }
+        // try {
+        //   console.log(data_room_type);
+        //   const nameRoomType = data_room_type.map(item => item.name);
+        //   if(!nameRoomType.includes(v.roomType)){
+        //     const res = await axios.put(`https://hotel-lv.herokuapp.com/api/roomtype/${popup.data.roomType._id}`, newRoomType, {headers: myHeaders})
+        //     var newRoom = {
+        //       name: v.name,
+        //       roomType: res.data.roomType,
+        //       status: v.status
+        //     }
+        //     const res_2 = await axios.put(`https://hotel-lv.herokuapp.com/api/room/${popup.data._id}`, newRoom,{headers: myHeaders})
+        //     message.success('Update room sucessfully')
+        //     dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}}) 
+        //     console.log('khac')
+        //   } else {
+        //     console.log('da co')
+        //     var newRoom = {
+        //       name: v.name,
+        //       roomType: v.roomType,
+        //       status: v.status
+        //     }
+        //     const res_2 = await axios.put(`https://hotel-lv.herokuapp.com/api/room/${popup.data._id}`, newRoom,{headers: myHeaders})
+        //     console.log(res_2)
+        //     message.success('Update room sucessfully')
+        //     dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}})
+        //   }
+        // } catch (error) {
+        //   message.error( error.response.data.message ||"Some field well wrong");
+        // }
+      } else {
+        // create
+        // console.log('create', data);
+        const add = async () => {
+          const res = await postMethod(`hotel/${_user.auth.hotel}/create-room`, data);
+          if (res.success) {
+            message.success('Create room sucessfully');
+            dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}})
+          } else {
+            message.error(res.error);
+            return;
+          }
+        }
+        add();
+      }
+    }
+    room();
+  }
   return (<>
       <Space>
         <Button 
@@ -163,8 +271,8 @@ export const Room = props => {
           shape="round" 
           icon={<PlusCircleOutlined/>}
           onClick={()=>{
+            rt_form.resetFields();
             dispatch({type: 'TOOGLE_POPUP_ROOMTYPE', roomType: {open: true, data:{}}})
-            // rt_form.setFieldsValue({});             
           }}
           >Add Room Type
         </Button>
@@ -225,7 +333,23 @@ export const Room = props => {
           dataIndex: 'price',
           align: 'center',
           key: 'price', 
-        }]}
+        },{
+          title: 'Edit',
+          align: 'center',
+          key: 'edit', 
+          render: (text, record, index) => <Button type="primary" shape="circle" icon={<HighlightOutlined />}
+            onClick={()=>{
+              rt_form.setFieldsValue({
+                name: record.name,
+                capacity: record.capacity,
+                price: record.price,
+              })
+              console.log(record)
+              dispatch({type: 'TOOGLE_POPUP_ROOMTYPE', roomType: {open: true, data:record}})
+            }}
+          ></Button>
+        }
+        ]}
         style={{marginTop: 10}}
       />
       <Modal 
@@ -250,65 +374,7 @@ export const Room = props => {
         <Form
           {...layout} 
           form={form} name="room-form"
-          onFinish={(v)=>{
-            console.log(v)
-            var myHeaders = new Headers(); 
-            myHeaders.append('Content-Type', 'multipart/form-data; boundary=<calculated when request is sent>');
-            const room = async() => {
-              const data = {
-                name: v.name,
-                roomType: v.roomType,
-                status: v.status
-              }
-              if(popup.data.name) {
-                // update
-                console.log('update: ',popup.data)
-                var newRoomType = {
-                  name: v.roomType,
-                  capacity: v.capacity,
-                  price: v.price
-                }
-                try {
-                  console.log(data_room_type);
-                  const nameRoomType = data_room_type.map(item => item.name);
-                  if(!nameRoomType.includes(v.roomType)){
-                    const res = await axios.put(`https://hotel-lv.herokuapp.com/api/roomtype/${popup.data.roomType._id}`, newRoomType, {headers: myHeaders})
-                    var newRoom = {
-                      name: v.name,
-                      roomType: res.data.roomType,
-                      status: v.status
-                    }
-                    const res_2 = await axios.put(`https://hotel-lv.herokuapp.com/api/room/${popup.data._id}`, newRoom,{headers: myHeaders})
-                    message.success('Update room sucessfully')
-                    dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}}) 
-                    console.log('khac')
-                  } else {
-                    console.log('da co')
-                    var newRoom = {
-                      name: v.name,
-                      roomType: v.roomType,
-                      status: v.status
-                    }
-                    const res_2 = await axios.put(`https://hotel-lv.herokuapp.com/api/room/${popup.data._id}`, newRoom,{headers: myHeaders})
-                    console.log(res_2)
-                    message.success('Update room sucessfully')
-                    dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}})
-                  }
-                } catch (error) {
-                  message.error( error.response.data.message ||"Some field well wrong");
-                }
-              } else {
-                // create
-                axios.post("https://hotel-lv.herokuapp.com/api/hotel/60a210c1f09c8100155c4ef7/create-room", data, {headers: myHeaders})
-                .then(res => { // then print response status
-                  console.log(res)
-                  message.success('Create room sucessfully')
-                  dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}})
-                })
-              }
-            }
-            room();
-          }}
+          onFinish={actionRoom}
         >
           <Form.Item name='name' label="Name">
             <Input />
@@ -334,61 +400,100 @@ export const Room = props => {
             <Input />
           </Form.Item>
           )}
-          {/* <Form.Item
-            name='file'
-            getValueFromEvent={value => {
-              return value;
-            }}
+          <Form.Item
+            label="Facility"
           >
-            <CustomUpload />
-          </Form.Item> */}
-          {/* <Form.Item name='time'>
-            <RangePicker
-              showTime={{ format: 'HH:mm' }}
-              format="YYYY-MM-DD HH:mm"
-            />
-          </Form.Item> */}
-          {/* <Form.Item >
-            <Button type='primary' htmlType="submit">Submit</Button>
-          </Form.Item>   */}
+              <Form.List 
+                name='facilities'
+              >
+                {(fields, { add, remove }) => (
+                  <>
+                    {fields.map(({ key, name, fieldKey, ...restField }) => (
+                      <Space key={key} style={{ display: 'flex'}} size={'small'}>
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'facility']}
+                          fieldKey={[fieldKey, 'facility']}
+                          rules={[{ required: true, message: 'Missing facility' }]}
+                        >
+                          <Select 
+                            placeholder="facility" 
+                            options={state.facility ? state.facility.reduce((cur,next)=>{
+                              var t = next.facilities.reduce((c,n)=>[...c,n],[])
+                              return [...cur,...t]
+                              },[])
+                              .map(item => ({label: item.name, value: item.name})) : []
+                            }
+                            allowClear
+                            showSearch
+                            filterOption={(inputValue, options) => {
+                              return options.label.toLowerCase().includes(inputValue.toLowerCase())
+                            }}
+                            notFoundContent={'Not found item'}
+                          />
+                        </Form.Item>
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'amount']}
+                          fieldKey={[fieldKey, 'amount']}
+                          rules={[{ required: true, message: 'Missing amount' }]}
+                        >
+                          <InputNumber
+                            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                            parser={value => value.replace(/\$\s?|(,*)/g, '')}
+                            style={{width: '50%'}}
+                          />
+                        </Form.Item>
+                        <Form.Item><MinusCircleOutlined onClick={() => remove(name)} /></Form.Item>
+                      </Space>
+                    ))}
+                    <Form.Item>
+                      <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                        Add attribute
+                      </Button>
+                    </Form.Item>
+                  </>
+                )}
+              </Form.List>
+          </Form.Item>
         </Form>
       </Modal>
       <Modal 
         centered
         closable={false}
         maskClosable={false}
-        title= {'Room Type'}
+        title= {roomType.data._id ? 'Update Room Type' : 'Add Room Type'}
         key='modal_roomtype'
         width='70%' 
         visible={roomType.open}
         forceRender
         keyboard
-        okText={'Confirm'}
+        footer={
+          <div>
+            <Button shape='round' type='primary' onClick={()=>{
+              rt_form.submit();
+              dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}} )
+            }} loading={loading}>Confirm</Button>
+            <Button shape='round' onClick={()=>{
+              setLoading(false);
+              dispatch({type: 'TOOGLE_POPUP_ROOMTYPE', roomType: {open:false, data:{}}})
+              rt_form.resetFields();
+            }}>Close</Button>
+          </div>
+        }
         onOk={()=>{
-            rt_form.submit()
-            dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}})
+            
           }
         }
         cancelText='Close'
         onCancel={() => {
-            dispatch({type: 'TOOGLE_POPUP_ROOMTYPE', roomType: {open:false, data:{}}})
             // roomType.resetFields();
         }} 
       >
         <Form 
           {...layout}
           form={rt_form} name="roomtype-form"
-          onFinish={(v)=>{
-            console.log(v, typeof v.price)
-            var myHeaders = new Headers(); 
-            myHeaders.append('Content-Type', 'multipart/form-data; boundary=<calculated when request is sent>');
-            axios.post("https://hotel-lv.herokuapp.com/api/hotel/60a210c1f09c8100155c4ef7/create-roomtype", v, {headers: myHeaders})
-              .then(res => { // then print response status
-                console.log(res)
-                message.success("Create room type succesfullly!")
-              })
-            
-          }}
+          onFinish={actionRoomtype}
         >
           <Form.Item name='name' label="Name"
             rules={[
@@ -406,7 +511,11 @@ export const Room = props => {
               message: 'Please input capacity of room type!',
             }]}
           >
-            <InputNumber />
+            <InputNumber 
+              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              parser={value => value.replace(/\$\s?|(,*)/g, '')}
+              style={{width: '50%'}}
+            />
           </Form.Item>
           <Form.Item name='price' label="Price"
             rules={[
@@ -415,7 +524,11 @@ export const Room = props => {
               message: 'Please input price of room type!',
             }]}
           >
-            <InputNumber />
+            <InputNumber 
+              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              parser={value => value.replace(/\$\s?|(,*)/g, '')}
+              style={{width: '50%'}}
+            />
           </Form.Item>
         </Form>
       </Modal>

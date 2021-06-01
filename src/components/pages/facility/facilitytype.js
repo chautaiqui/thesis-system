@@ -1,8 +1,9 @@
-import React, { useReducer, useEffect } from 'react';
+import React, { useReducer, useEffect, useState } from 'react';
 import { Input, List, message, Button, Form, Modal, Row, Col, Table, Select } from 'antd';
 import { HighlightOutlined, PlusCircleOutlined, EditOutlined } from '@ant-design/icons';
 import axios from 'axios';
-import { _getRequest } from '@api';
+import { _getRequest, postMethod, putMethod } from '@api';
+import { merge } from 'lodash';
 
 const layout = {
   labelCol: { span: 8 },
@@ -10,18 +11,17 @@ const layout = {
 };
 
 const FacilityReducer = (state, action) => {
-  console.log(action)
   switch (action.type) {
-      case 'GET_DATA_SUCCESS':
-          return { ...state, data: action.data, behavior: 'stall' }
-      case 'RELOAD':
-          return { ...state, behavior: 'init'};
-      case 'TOOGLE_POPUP': 
-        return { ...state, facility: action.facility, behavior: action.behavior}
-        case 'TOOGLE_POPUP_FACILITY': 
-        return { ...state, facs: action.facs, behavior: action.behavior}
-      default:
-          return state;
+    case 'GET_DATA_SUCCESS':
+      return { ...state, data: action.data, behavior: 'stall' }
+    case 'RELOAD':
+      return { ...state, behavior: 'init'};
+    case 'TOOGLE_POPUP': 
+      return { ...state, facility: action.facility, behavior: action.behavior}
+    case 'TOOGLE_POPUP_FACILITY': 
+      return { ...state, facs: action.facs, behavior: action.behavior}
+    default:
+      return state;
   } 
 }
 
@@ -31,24 +31,24 @@ export const FacilityType = props => {
   const [ form_update ] = Form.useForm();
   const [ form_facility ] = Form.useForm();
   const [ state, dispatch ] = useReducer(FacilityReducer, { data: [], facility: {open:false, data:{}}, behavior: 'init', facs: {open:false, data:{}}})
+  const [ loading, setLoading ] = useState(false);
+  const [ load, setLoad ] = useState(false);
   const add = async(name) => {
-    try {
-      var myHeaders = new Headers(); 
-      myHeaders.append('Content-Type', 'multipart/form-data; boundary=<calculated when request is sent>');
-      const res = await axios.post(`https://hotel-lv.herokuapp.com/api/hotel/${hotelid}/create-facilitytype`, 
-        {
-          name: name
-        }, {headers: myHeaders})
-      console.log(res);
+    setLoading(true);
+    const res = await postMethod(`hotel/${hotelid}/create-facilitytype`, {name: name});
+    if (res.success){
       message.success("Create new facility type")
       form.resetFields();
       dispatch({type:'RELOAD'});
-    } catch (error) {
-      message.error(error.response)
-    } 
+      setLoading(false);
+      return;
+    } else {
+      message.error(res.error);
+      setLoading(false);
+      return
+    }
   }
   const getData = async () => {
-    console.log('3')
     try {
       const res = await _getRequest(`hotel/${hotelid}/facilitytype`);
       if (!res.success) {
@@ -62,13 +62,13 @@ export const FacilityType = props => {
   }
   useEffect(() => {
     switch (state.behavior) {
-        case 'init':
-            getData();
-            return;
-        case 'stall':
-            return ;
-        default:
-            break;
+      case 'init':
+          getData();
+          return;
+      case 'stall':
+          return ;
+      default:
+          break;
     }
   }, [state.behavior])
   console.log(state.data)
@@ -90,7 +90,7 @@ export const FacilityType = props => {
             <Input />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" shape="round">
+            <Button type="primary" htmlType="submit" shape="round" loading={loading}>
               Add facility type
             </Button>
           </Form.Item>
@@ -103,6 +103,7 @@ export const FacilityType = props => {
               <List.Item.Meta
                 title={item.name}
               />
+              <div style={{marginRight: 20}}>{item.amount}</div>
               <Button type="primary" shape="circle" icon={<HighlightOutlined />} onClick={()=>{
                   form_update.setFieldsValue({name: item.name});
                   dispatch({type: 'TOOGLE_POPUP', facility: {open: true, data: item}, behavior: 'stall'});
@@ -234,15 +235,25 @@ export const FacilityType = props => {
       visible={state.facs.open}
       forceRender
       keyboard
-      okText={'Confirm'}
-      cancelText='Close'
-      onOk={()=>{
-        form_facility.submit();
-      }}
-      onCancel={() => {
-        dispatch({type: 'TOOGLE_POPUP_FACILITY', facs: {open:false, data:{}}, behavior: 'init'})
-        form_facility.resetFields();
-      }} 
+      footer={
+				<div>
+					<Button shape='round' type='primary' loading={load} onClick={()=>{
+            form_facility.submit();
+          }} loading={loading}>Confirm</Button>
+					<Button shape='round' onClick={()=>{
+						setLoad(false);
+						dispatch({type: 'TOOGLE_POPUP_FACILITY', facs: {open:false, data:{}}, behavior: 'init'})
+            form_facility.resetFields();
+					}}>Close</Button>
+				</div>
+			}
+      // onOk={()=>{
+      //   form_facility.submit();
+      // }}
+      // onCancel={() => {
+      //   dispatch({type: 'TOOGLE_POPUP_FACILITY', facs: {open:false, data:{}}, behavior: 'init'})
+      //   form_facility.resetFields();
+      // }} 
     >
       <Form
         form={form_facility}
@@ -250,39 +261,34 @@ export const FacilityType = props => {
         onFinish={(v)=>{
           console.log(v, state.facs.data)
           const uc = async () => {
-            var myHeaders = new Headers(); 
-            myHeaders.append('Content-Type', 'multipart/form-data; boundary=<calculated when request is sent>');
+            setLoad(true);
             if(state.facs.data.name) {
               //update
-              try {
-                var d = {
-                  name: v.name,
-                  amount: Number(v.amount)
-                }
-                const res = await axios.put(`https://hotel-lv.herokuapp.com/api/facility/${state.facs.data._id}`, d, {headers: myHeaders});
-                console.log(res)
+              var d = {
+                name: v.name,
+                amount: Number(v.amount)
+              }
+              const res = await putMethod('facility', d, state.facs.data._id);
+              if(res.success) {
                 message.success('Update facility sucessfully')
-              } catch (e) {
-                message.error(e.response.data.message)
-                return;
+              } else {
+                message.error(res.error);
               }
             } else {
               //create
-              try {
-                var d = {
-                  name: v.name,
-                  amount: Number(v.amount),
-                  type: v.type
-                }
-                const res = await axios.post(`https://hotel-lv.herokuapp.com/api/hotel/${hotelid}/create-facility`, d, {headers: myHeaders});
-                console.log(res)
-                message.success('Create facility sucessfully')
-              } catch (e) {
-                console.log(e.response)
-                message.error(e.response.data.message)
-                return;
+              var d = {
+                name: v.name,
+                amount: Number(v.amount),
+                type: v.type
+              };
+              var res = await postMethod(`hotel/${hotelid}/create-facility`, d);
+              if(res.success) {
+                message.success('Update facility sucessfully')
+              } else {
+                message.error(res.error);
               }
             }
+            setLoad(false);
             dispatch({type: 'TOOGLE_POPUP_FACILITY', facs:{open:false, data:{}}, behavior: 'init'})
           }
           uc();

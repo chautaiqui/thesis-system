@@ -1,9 +1,9 @@
-import React, { useContext, useEffect} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Space, Form, Input, Button, DatePicker, Avatar, Select, Tabs, message } from 'antd';
 import { User } from '@pkg/reducers';
-import { CustomUpload } from '../../commons';
+import { CustomUploadImg, DynamicSelect } from '../../commons';
 import moment from 'moment';
-import { _getRequest, _putRequest, _postRequest } from '@api';
+import { _getRequest, putMethod, postMethod } from '@api';
 import axios from 'axios';
 const formItemLayout = {
   labelCol: {
@@ -32,7 +32,7 @@ export const Account = props => {
   const [ _user, dispatchUser ] = useContext(User.context);
   const [ form ] = Form.useForm();
   const [ form_pass ] = Form.useForm();
-
+  const [loading, setLoading] = useState(false);
   useEffect(()=>{
     form.setFieldsValue({
       email: _user.auth.email,
@@ -45,10 +45,12 @@ export const Account = props => {
       baseSalary: _user.auth.baseSalary,
       address: _user.auth.address,
       skills: _user.auth.skills,
+      img: _user.auth.img
     })
   },[_user])
   const onFinish = (v) => {
-    console.log(v) 
+    console.log(v);
+    setLoading(true);
     const up = async () => {
       var data = {
         email: v.email,
@@ -59,7 +61,7 @@ export const Account = props => {
         phone: v.phone,
         baseSalary: v.baseSalary,
         address: v.address,
-        img: v.img[0] || undefined
+        img: typeof v.img === 'object' ? v.img : undefined
       }
       var fd = new FormData();
       for (const [key, value] of Object.entries(data)){
@@ -70,20 +72,47 @@ export const Account = props => {
       v.skills.forEach(item => {
         fd.append('skills', item)
       })
-      var myHeaders = new Headers(); 
-      myHeaders.append('Content-Type', 'multipart/form-data; boundary=<calculated when request is sent>');
-      try {
-        const res = await axios.put(`https://hotel-lv.herokuapp.com/api//employee/${_user.auth._id}`, fd, {headers: myHeaders})
-        console.log(res)
-        if(res.status === 200){
-          message.success('Change successfully, system will be auto relogin after a second');
-          window.location.reload();
-        }  
-      } catch (e) {
-        message.error(e.response.message ? e.response.message : 'Something well wrong!');
+      const res = await putMethod('employee', fd, _user.auth._id);
+      if (res.success) {
+        message.success('Update information successfully');
+        setLoading(false);
+        dispatchUser({
+          type: 'UPDATE', user: res.result
+        })
+        return;
+      } else {
+        message.error(res.error);
+        return;
       }
     }
     up();
+  }
+  const changePassword = (values) => {
+    const validate = async () => {
+      setLoading(true);
+      const res = await postMethod('auth/login',{email:_user.auth.email, password: values.current_password});
+      if(!res.success) {
+        message.error("Password well wrong!");
+        setLoading(false);
+        return;
+      }
+      var data = {
+        password: values.new_password
+      }
+      const res_p = await putMethod('employee', data, _user.auth._id);
+      if(res_p.success) {
+        message.success('Change password successfully!');
+        localStorage.setItem('password', values.new_password);
+        form_pass.resetFields();
+        setLoading(false);
+        return;
+      } else {
+        message.error(res.error);
+        setLoading(false);
+        return;
+      }
+    }
+    validate();
   }
   return <div style={{width: '100%', display: 'flex', justifyContent: 'center'}}>
      <Space direction="vertical" align='center'>
@@ -112,12 +141,7 @@ export const Account = props => {
                 <Input />
               </Form.Item>
               <Form.Item name="skills" label="Skills">
-                <Select 
-                  mode={"tags"}
-                  placeholder="Select skills"
-                  maxTagCount={2}
-                  options={[{label: 'English', value: 'english'},{label: 'China', value: 'china'},{label: 'Colleague', value: 'colleague'},{label: 'High school', value: 'high school'}]}
-                />
+                <DynamicSelect />
               </Form.Item>
               <Form.Item name="department" label="Department">
                 <Input disabled/>
@@ -132,10 +156,10 @@ export const Account = props => {
                 <Input disabled/>
               </Form.Item>
               <Form.Item name="img" label="Avata">
-                <CustomUpload/>
+                <CustomUploadImg/>
               </Form.Item>
               <Form.Item {...tailFormItemLayout}>
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" htmlType="submit" loading={loading} shape={'round'}>
                   Update
                 </Button>
               </Form.Item>
@@ -155,50 +179,7 @@ export const Account = props => {
                 },
               }}
               name="password"
-              onFinish={(v)=>{
-                const validate = async () => {
-                  const res = await _postRequest('auth/login',{email:_user.auth.email, password: v.current_password});
-                  if(!res.success) {
-                    message.error("Password error!");
-                    return;
-                  }
-                  var data = {
-                    email: _user.auth.email,
-                    birthday: moment(_user.auth.birthday).format( 'DD-MM-YYYY', 'DD/MM/YYYY'),
-                    department: _user.auth.department,
-                    designation: _user.auth.designation,
-                    name: _user.auth.name,
-                    phone: _user.auth.phone,
-                    baseSalary: _user.auth.baseSalary,
-                    address: _user.auth.address,
-                    // skills: _user.auth.skills,
-                    password: v.new_password
-                  }
-                  var fd = new FormData();
-                  for (const [key, value] of Object.entries(data)){
-                    if(value) {
-                      fd.append(key, value)
-                    }
-                  }
-                  _user.auth.skills.forEach(item => {
-                    fd.append('skills', item)
-                  })
-                  var myHeaders = new Headers(); 
-                  myHeaders.append('Content-Type', 'multipart/form-data; boundary=<calculated when request is sent>');
-                  try {
-                    const res1 = await axios.put(`https://hotel-lv.herokuapp.com/api//employee/${_user.auth._id}`, fd, {headers: myHeaders})
-                    console.log(res1)
-                    if(res.success && res1.status === 200){
-                      message.success('Change successfully, system will be auto relogin after a second');
-                      dispatchUser({ user: res.result, email: res.result.auth.email, password: v.new_password, type: 'LOGIN' })
-                      window.location.reload();
-                    }  
-                  } catch (e) {
-                    message.error(e.response.message || 'Something well wrong!');
-                  }
-                }
-                validate();
-              }}
+              onFinish={changePassword}
             >
               <Form.Item name="current_password" label="Current Password"
                 rules={[
@@ -245,7 +226,7 @@ export const Account = props => {
                 <Input.Password />
               </Form.Item>
               <Form.Item {...tailFormItemLayout}>
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" htmlType="submit" loading={loading} shape="round">
                   Change
                 </Button>
               </Form.Item>

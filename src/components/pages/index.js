@@ -17,7 +17,9 @@ import { Account } from './account';
 import { WorkingShift } from './workingshift';
 import { Attendance } from './attendance';
 import { Booking } from './booking';
+import { Voucher } from './voucher';
 import { Salary } from './salary';
+import { Report } from './report';
 
 const IconFont = createFromIconfontCN({
   scriptUrl: '//at.alicdn.com/t/font_8d5l8fzk5b87iudi.js',
@@ -38,8 +40,8 @@ const subPages1 = [
 ];                              
 const subPages2 = [
   { path: '/employee', label: (<><TeamOutlined style={{paddingLeft:10}}/> Employee </>), component: Employee, permissions: 'employee' },
-  { path: '/voucher', label: (<><GiftOutlined style={{paddingLeft:10}}/> Voucher </>), component: Todo, permissions: 'voucher'},
-  { path: '/report', label: (<><LineChartOutlined style={{paddingLeft:10}}/> Report </>), component: Todo, permissions: 'report'},
+  { path: '/voucher', label: (<><GiftOutlined style={{paddingLeft:10}}/> Voucher </>), component: Voucher, permissions: 'voucher'},
+  { path: '/report', label: (<><LineChartOutlined style={{paddingLeft:10}}/> Report </>), component: Report, permissions: 'report'},
 ];
 const subPages3 = [
   { path: '/room', label: (<><HomeOutlined style={{paddingLeft:10}}/> Room </>), component: Room, permissions: 'room' },

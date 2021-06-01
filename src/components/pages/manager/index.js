@@ -239,7 +239,7 @@ export const Manager = () => {
 					}
 					const res = await putMethod('manager', data, popup.data._id);
 					if(res.success){
-						message.success('Update hotel successfully!');
+						message.success('Update manager successfully!');
 						setLoading(false);
 						dispatch({
 							type: 'RELOAD', popup: {open: false, data: {}}, view: {open:false, data: {}}
@@ -259,7 +259,7 @@ export const Manager = () => {
 					var newData = { ...obj, skills: values.skills}
 					const res = await postMethod('manager/create', newData);
 					if(res.success){
-						message.success('Create hotel successfully!');
+						message.success('Create manager successfully!');
 						setLoading(false);
 						dispatch({
 							type: 'RELOAD', popup: {open: false, data: {}}, view: {open:false, data: {}}
