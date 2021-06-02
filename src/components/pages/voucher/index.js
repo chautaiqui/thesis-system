@@ -1,6 +1,6 @@
 import React, {useContext, useReducer, useEffect} from 'react';
-import { Button, Table, Modal, Form, Input, Row, Col, Select, Popover, message, TimePicker, InputNumber, Tag, DatePicker } from 'antd';
-import { PlusCircleOutlined, PlayCircleOutlined, EditOutlined, CheckOutlined } from '@ant-design/icons';
+import { Button, Table, Modal, Form, Input, Row, Col, Select, message, DatePicker, InputNumber, Tag } from 'antd';
+import { PlusCircleOutlined, HighlightOutlined, EditOutlined, CheckOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { User } from '@pkg/reducers';
 import { cities } from '../../commons/city';
@@ -11,7 +11,7 @@ const { confirm } = Modal;
 
 const layout = {
 	labelCol: { span: 8 },
-	wrapperCol: { span: 16 },
+	wrapperCol: { span: 12 },
 };
 
 const VoucherReducer = (state, action) => {
@@ -43,93 +43,68 @@ export const Voucher = () => {
 	const [ form ] = Form.useForm();
 	const col = [
 		{
-			title: 'Name',
-			dataIndex: 'name',
+			title: 'Room type',
+			dataIndex: 'roomType',
 			align: 'center',
-			key: 'name', 
+			key: 'roomType', 
 			fixed: 'left',
-			...filerColumn([], 'name'),
-      onFilter: (value, record) =>
-          record.name
-              ? record.name.toString().toLowerCase().includes(value.toLowerCase())
-              : '',
+			render: (text, record, index) => <div>{record.roomType.name}</div>
 		},
 		{
-			title: 'Email',
-			dataIndex: 'email',
+			title: 'Status',
+			dataIndex: 'status',
 			align: 'center',
-			key: 'email', 
+			key: 'status', 
+			fixed: 'left',
+			render: (text, record, index) => <Tag color={record.status === 'available' ? "#f50" : "#87d068"}>{record.status}</Tag>
 		},
 		{
-			title: 'Birthday',
-			dataIndex: 'birthday',
+			title: 'Discount',
+			dataIndex: 'discount',
 			align: 'center',
-			key: 'birthday', 
-			render: (t,r,i) => {
-				return moment(r.birthday).format('DD-MM-YYYY')
-			}
+			key: 'discount', 
 		},
 		{
-			title: 'Phone',
-			dataIndex: 'phone',
+			title: 'Amount',
+			dataIndex: 'amount',
 			align: 'center',
-			key: 'phone', 
+			key: 'amount', 
 		},
 		{
-			title: 'Address',
-			dataIndex: 'address',
+			title: 'Start Date',
+			dataIndex: 'startDate',
 			align: 'center',
-			key: 'address',
+			key: 'startDate',
+			render: (text, record, index) => <div>{moment(record.startDate).format('DD-MM-YYYY')}</div>
 		},
 		{
-			title: 'Department',
-			dataIndex: 'department',
+			title: 'End Date',
+			dataIndex: 'endDate',
 			align: 'center',
-			key: 'department',
+			key: 'endDate',
+			render: (text, record, index) => <div>{moment(record.endDate).format('DD-MM-YYYY')}</div> 
 		},
 		{
-			title: 'Designation',
-			dataIndex: 'designation',
+			title: 'Edit',
 			align: 'center',
-			key: 'designation',
+			key: 'edit',
+			render: (text, record, index) => <Button
+				size='small'
+				type="primary" shape="circle" icon={<HighlightOutlined />}
+				onClick={()=>{
+						dispatch({type: 'TOOGLE_POPUP', popup: {open: true, data: record}, behavior: 'stall'})
+						form.setFieldsValue({
+							roomType: record.roomType.name,
+							status: record.status,
+							startDate: moment(record.startDate, 'DD-MM-YYYY HH:mm'),
+							endDate: moment(record.endDate, 'DD-MM-YYYY HH:mm'),
+							discount: record.discount,
+							amount: record.amount,
+							img: record.img
+						});             
+				}}
+			></Button>
 		},
-		{
-			title: 'Skills',
-			dataIndex: 'skills',
-			align: 'center',
-			key: 'skills',
-			render: (text, record, index) => {
-				return record.skills.length !== 0 ? (
-					record.skills.map(item => <Tag key={item}>{item}</Tag>)
-				) : (<p>No Skill</p>)
-			}
-		},
-		{
-			title: 'Action',
-			align: 'center',
-			key: 'action',
-			render: (text, record, index)=>{
-				return [
-					<Button key="1" icon={<EditOutlined />}
-						onClick={()=>{
-							dispatch({type: 'TOOGLE_POPUP', popup: {open: true, data:record}})
-							form.setFieldsValue({
-								name: record.name,
-								email: record.email,
-								birthday: moment(record.birthday),
-								phone: record.phone,
-								address: record.address,
-								department: record.department,
-								designation: record.designation,
-								skills: record.skills,
-								baseSalary: record.baseSalary,
-								img: record.img,
-							});
-						}}
-					></Button>
-				]
-			} 
-		}
 	]
 	const showConfirm = () => {
 		confirm({
@@ -180,68 +155,73 @@ export const Voucher = () => {
   }, [state.behavior])
 
 	const onFinish = (values) => {
-		console.log(values)
-		var data = new FormData();
-		if(values.skills && values.skills.length > 0) {
-			values.skills.forEach(item => {
-				data.append('skills', item)
-			})
+		const data = {
+			roomType: values.roomType,
+			status: values.status,
+			startDate: moment(values.startDate).format('DD-MM-YYYY HH:mm'),
+			endDate: moment(values.endDate).format('DD-MM-YYYY HH:mm'),
+			discount: values.discount,
+			amount: values.amount,
 		}
-		if(values.birthday) data.append('birthday', values.birthday.format( 'DD-MM-YYYY', 'DD/MM/YYYY' ))
-		if(typeof values.img === 'object') data.append('img', values.img);
-		var temp = { ...values, skills: undefined, birthday: undefined, img: undefined}
-		for (const [key, value] of Object.entries(temp)){
-			if(value) {
-				data.append(key, value)
-			}
-		}
-		// axios
+		setLoading(true);
+		// api
 		const action = async () => {
 			try {
 				if(popup.data._id) {
 					// update
 					setLoading(true);
-					const res = await putMethod('employee', data, popup.data._id);
+					var formdata = new FormData();
+					if (values.img && typeof values.img === 'object') {
+						formdata.append('img', values.img);
+					}
+					for (const [key, value] of Object.entries(data)){
+						if(value) {
+							formdata.append(key, value)
+						}
+					}
+					const res = await putMethod('voucher', formdata, popup.data._id);
 					if(res.success) {
-						message.success('Update hotel successfully!');
+						message.success('Update voucher successfully!');
 						setLoading(false);
 						dispatch({
 							type: 'RELOAD', popup: {open: false, data: {}}
 						})
 						form.resetFields();
+						return;
 					} else {
 						setLoading(false);
 						message.error(res.error)
+						return;
 					}
 				} else {
 					// create
-					setLoading(true);
-					var object = {
-						email: values.email,
-						name: values.name,
-						birthday: values.birthday.format( 'DD-MM-YYYY', 'DD/MM/YYYY' ),
-						phone: values.phone,
-						address: values.address,
-						skills: values.skills,
-						department: values.department,
-						designation: values.designation,
-						baseSalary: values.baseSalary,
-					};
-					const res = await postMethod(`hotel/${user.auth.hotel}/create-employee`, object);
+					var formdata = new FormData();
+					if (values.img && typeof values.img === 'object') {
+						formdata.append('img', values.img);
+					}
+					for (const [key, value] of Object.entries(data)){
+						if(value) {
+							formdata.append(key, value)
+						}
+					}
+					const res = await postMethod(`hotel/${user.auth.hotel}/create-voucher`, formdata);
 					if(res.success) {
-						message.success('Create employee successfully!');
+						message.success('Create voucher successfully!');
 						setLoading(false);
 						dispatch({
 							type: 'RELOAD', popup: {open: false, data: {}}
 						})
+						return;
 					} else {
 						setLoading(false);
 						message.error(res.error);
+						return;
 					}
 				}
 			} catch (e) {
 				setLoading(false);
 				message.error('Something error!');
+				return;
 			}
 		}
 		action();
@@ -285,8 +265,7 @@ export const Voucher = () => {
 			footer={
 				<div>
 					<Button shape='round' type='primary' onClick={()=>{
-						console.log('click');
-						showConfirm()
+						showConfirm();
 					}} loading={loading}>Confirm</Button>
 					<Button shape='round' onClick={()=>{
 						setLoading(false);
@@ -303,66 +282,56 @@ export const Voucher = () => {
 		>
 			<Form
 			 {...layout}
-			 form={form} name="employee-form"
+			 form={form} 
+			 name="employee-form"
 			 onFinish={onFinish}
 			 onFinishFailed={()=>{setLoading(false)}}
 			>
-				<Row gutter={[16,16]}>
-					<Col xs={24} sm={12} md={12} lg={12} xl={12}>
-						<Form.Item name='email' label="Email"
-							rules={[{ required: true, message: 'Email empty!' }]}
-						>
-							<Input disabled={popup.data._id ? true : false}/>
-						</Form.Item>
-						<Form.Item name='name' label="Name"
-							rules={[{ required: true, message: 'Name empty!' }]}
-						>
-							<Input />
-						</Form.Item>
-						<Form.Item name='birthday' label="Birthday"
-							rules={[{ required: true, message: 'Birthday empty!' }]}
-						>
-							<DatePicker />
-						</Form.Item>
-						<Form.Item name='phone' label="Phone"
-							rules={[{ required: true, message: 'Phone empty!' }]}
-						>
-							<Input />
-						</Form.Item>
-						<Form.Item name='address' label="Address"
-							rules={[{ required: true, message: 'Address empty!' }]}
-						>
-							<Input />
-						</Form.Item>
-					</Col>
-					<Col xs={24} sm={12} md={12} lg={12} xl={12}>
-						<Form.Item name='skills' label="Skills">
-							<DynamicSelect />
-						</Form.Item>
-						<Form.Item name='department' label="Department"
-							rules={[{ required: true, message: 'Department empty!' }]}
-						>
-							<Input />
-						</Form.Item>
-						<Form.Item name='designation' label="Designation"
-							rules={[{ required: true, message: 'Designation empty!' }]}
-						>
-							<Input />
-						</Form.Item>
-						<Form.Item name='baseSalary' label="BaseSalary"
-							rules={[{ required: true, message: 'baseSalary empty!' }]}
-						>
-							<InputNumber 
-								formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-								parser={value => value.replace(/\$\s?|(,*)/g, '')}
-							/>
-						</Form.Item>
-						{popup.data._id && (<Form.Item name='img' label="Img"
-						>
-							<CustomUploadImg />
-						</Form.Item>)}
-					</Col>
-				</Row>
+				<Form.Item name="roomType" label="Room type">
+					<Select 
+						placeholder="Room type" 
+						options={data.roomType.map(item => ({label: item.name, value: item.name}))}
+						allowClear
+						showSearch
+						filterOption={(inputValue, options) => {
+							return options.label.toLowerCase().includes(inputValue.toLowerCase())
+						}}
+						notFoundContent={'Not found item'}
+					/>
+				</Form.Item>
+				<Form.Item name="status" label="Status">
+					<Select 
+						placeholder="Status" 
+						options={[{name: 'available'}, {name: 'unavailable'}].map(item => ({label: item.name, value: item.name}))}
+					/>
+				</Form.Item>
+				<Form.Item name="startDate" label="Start Date">
+					<DatePicker placeholder={'Start date'}/>
+				</Form.Item>
+				<Form.Item name="endDate" label="End Date">
+					<DatePicker placeholder={'End date'}/>
+				</Form.Item>
+				<Form.Item name='discount' label="Discount"
+					rules={[{ required: true, message: 'Please input discount of voucher!'}]}
+				>
+					<InputNumber 
+						formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+						parser={value => value.replace(/\$\s?|(,*)/g, '')}
+						style={{width: '50%'}}
+					/>
+				</Form.Item>
+				<Form.Item name='amount' label="Amount"
+					rules={[{ required: true, message: 'Please input amount of voucher!'}]}
+				>
+					<InputNumber 
+						formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+						parser={value => value.replace(/\$\s?|(,*)/g, '')}
+						style={{width: '50%'}}
+					/>
+				</Form.Item>
+				<Form.Item name='img' label="Img">
+					<CustomUploadImg />
+				</Form.Item>
 			</Form>
 		</Modal>
 	</>

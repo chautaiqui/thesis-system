@@ -3,7 +3,7 @@ import { User } from '@pkg/reducers';
 import { filerColumn } from '../../commons';
 import axios from 'axios';
 
-import { Space, Button, Table, Modal, message, Form, DatePicker, Input, Select, InputNumber } from 'antd';
+import { Space, Button, Table, Modal, message, Form, DatePicker, Input, Select, InputNumber, Tabs } from 'antd';
 import { PlusCircleOutlined, EditOutlined, HighlightOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { CustomUpload } from '../../commons';
 import { _getRequest, postMethod, putMethod } from '@api';
@@ -120,8 +120,9 @@ export const Room = props => {
       align: 'center',
       key: 'update',
       render: (t,r,i) => <Button
-        style={{display: 'inline-block',marginLeft:4,borderRadius:'50%',background: 'white'}}
+        // style={{display: 'inline-block',marginLeft:4,borderRadius:'50%',background: 'white'}}
         size='small'
+        type="primary" shape="circle" icon={<HighlightOutlined />}
         onClick={()=>{
             dispatch({type: 'TOOGLE_POPUP', popup: {open: true, data:r}})
             form.setFieldsValue({
@@ -133,7 +134,7 @@ export const Room = props => {
               capacity: r.roomType.capacity,
             });             
         }}
-        ><EditOutlined /></Button>
+        ></Button>
     }
   ]
 
@@ -151,25 +152,23 @@ export const Room = props => {
 
   console.log(state);
   const actionRoomtype = (values)=>{
-    // setLoading(true)
-    console.log(values);
-    console.log(state.roomType.data);
+    setLoading(true)
     if(state.roomType.data._id) {
       // update
-      console.log('update roomtype');
       const update = async () => {
-        const res = await putMethod('roomType', values, popup.data._id);
+        const res = await putMethod('roomType', values, roomType.data._id);
         if(res.success) {
-          // setLoading(false);
+          setLoading(false);
+          message.success('Update roomtype successfully!')
           dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}})
           rt_form.resetFields();
         } else {
           message.error(res.error);
-          // setLoading(false)
+          setLoading(false)
           return;
         }
       }
-      // update();
+      update();
     } else {
       console.log('add roomtype');
       // add 
@@ -255,103 +254,107 @@ export const Room = props => {
     room();
   }
   return (<>
-      <Space>
-        <Button 
-          type="primary" 
-          shape="round" 
-          icon={<PlusCircleOutlined/>}
-          onClick={()=>{
-            dispatch({type: 'TOOGLE_POPUP', popup: {open: true, data:{}}})
-            form.resetFields();             
-          }}
-          >Add Room
-        </Button>
-        <Button 
-          type="primary" 
-          shape="round" 
-          icon={<PlusCircleOutlined/>}
-          onClick={()=>{
-            rt_form.resetFields();
-            dispatch({type: 'TOOGLE_POPUP_ROOMTYPE', roomType: {open: true, data:{}}})
-          }}
-          >Add Room Type
-        </Button>
-      </Space>
-      <Table 
-        rowKey='_id'
-        // loading={data.length === 0}
-        title={() => 'Room'}
-        dataSource={data} 
-        columns={tCol} 
-        style={{marginTop: 10}}
-        expandable={
-          {
-            expandedRowRender: record => {
-              const col = [
-                {
-                  title: 'Name',
-                  dataIndex: 'facility',
-                  align: 'center',
-                  key: 'name',  
-                  render: (text, r, index) => r.facility.name
-                },
-                {
-                  title: 'Amount',
-                  dataIndex: 'amount',
-                  align: 'center',
-                  key: 'amount',  
-                }
-              ]
-              return <Table 
-                // title="Faclity"
-                rowKey="_id"
-                dataSource={record.facilities}
-                columns={col}
-                pagination={false}
-              />
-              // return JSON.stringify(record.facilities[0])
-            }
-          }
-        }
-      />
-      <Table
-        rowKey='_id'
-        title={() => 'Room Type'}
-        dataSource={data_room_type}
-        columns={[{
-          title: 'Name',
-          dataIndex: 'name',
-          align: 'center',
-          key: 'name', 
-        }, {
-          title: 'Capacity',
-          dataIndex: 'capacity',
-          align: 'center',
-          key: 'capacity', 
-        }, {
-          title: 'Price',
-          dataIndex: 'price',
-          align: 'center',
-          key: 'price', 
-        },{
-          title: 'Edit',
-          align: 'center',
-          key: 'edit', 
-          render: (text, record, index) => <Button type="primary" shape="circle" icon={<HighlightOutlined />}
+      <Tabs defaultActiveKey="1">
+        <Tabs.TabPane tab="Room" key="1">
+          <Button 
+            type="primary" 
+            shape="round" 
+            icon={<PlusCircleOutlined/>}
             onClick={()=>{
-              rt_form.setFieldsValue({
-                name: record.name,
-                capacity: record.capacity,
-                price: record.price,
-              })
-              console.log(record)
-              dispatch({type: 'TOOGLE_POPUP_ROOMTYPE', roomType: {open: true, data:record}})
+              dispatch({type: 'TOOGLE_POPUP', popup: {open: true, data:{}}})
+              form.resetFields();             
             }}
-          ></Button>
-        }
-        ]}
-        style={{marginTop: 10}}
-      />
+            >Add Room
+          </Button>
+          <Table 
+            rowKey='_id'
+            // loading={data.length === 0}
+            title={() => 'Room'}
+            dataSource={data} 
+            columns={tCol} 
+            style={{marginTop: 10}}
+            expandable={
+              {
+                expandedRowRender: record => {
+                  const col = [
+                    {
+                      title: 'Name',
+                      dataIndex: 'facility',
+                      align: 'center',
+                      key: 'name',  
+                      render: (text, r, index) => r.facility.name
+                    },
+                    {
+                      title: 'Amount',
+                      dataIndex: 'amount',
+                      align: 'center',
+                      key: 'amount',  
+                    }
+                  ]
+                  return <Table 
+                    // title="Faclity"
+                    rowKey="_id"
+                    dataSource={record.facilities}
+                    columns={col}
+                    pagination={false}
+                  />
+                  // return JSON.stringify(record.facilities[0])
+                }
+              }
+            }
+          />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Room type" key="2">
+          <Button 
+            type="primary" 
+            shape="round" 
+            icon={<PlusCircleOutlined/>}
+            onClick={()=>{
+              rt_form.resetFields();
+              dispatch({type: 'TOOGLE_POPUP_ROOMTYPE', roomType: {open: true, data:{}}})
+            }}
+            >Add Room Type
+          </Button>
+          <Table
+            rowKey='_id'
+            title={() => 'Room Type'}
+            dataSource={data_room_type}
+            columns={[{
+              title: 'Name',
+              dataIndex: 'name',
+              align: 'center',
+              key: 'name', 
+            }, {
+              title: 'Capacity',
+              dataIndex: 'capacity',
+              align: 'center',
+              key: 'capacity', 
+            }, {
+              title: 'Price',
+              dataIndex: 'price',
+              align: 'center',
+              key: 'price', 
+            },{
+              title: 'Edit',
+              align: 'center',
+              key: 'edit', 
+              render: (text, record, index) => <Button type="primary" shape="circle" icon={<HighlightOutlined />}
+                onClick={()=>{
+                  rt_form.setFieldsValue({
+                    name: record.name,
+                    capacity: record.capacity,
+                    price: record.price,
+                  })
+                  console.log(record)
+                  dispatch({type: 'TOOGLE_POPUP_ROOMTYPE', roomType: {open: true, data:record}})
+                }}
+              ></Button>
+            }
+            ]}
+            style={{marginTop: 10}}
+          />
+        </Tabs.TabPane>   
+      </Tabs>
       <Modal 
         centered
         closable={false}
@@ -362,9 +365,18 @@ export const Room = props => {
         visible={popup.open}
         forceRender
         keyboard
-        okText={'Confirm'}
+        footer={
+          <div>
+            <Button shape='round' type='primary' onClick={()=>{
+              form.submit();
+            }} loading={loading}>Confirm</Button>
+            <Button shape='round' onClick={()=>{
+              dispatch({type: 'TOOGLE_POPUP', popup: {open:false, data:{}}})
+              form.resetFields();
+            }}>Close</Button>
+          </div>
+        }
         onOk={()=>{form.submit()}}
-        cancelText='Close'
         onCancel={() => {
             dispatch({type: 'TOOGLE_POPUP', popup: {open:false, data:{}}})
             form.resetFields();
@@ -472,7 +484,7 @@ export const Room = props => {
           <div>
             <Button shape='round' type='primary' onClick={()=>{
               rt_form.submit();
-              dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}} )
+              // dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}} )
             }} loading={loading}>Confirm</Button>
             <Button shape='round' onClick={()=>{
               setLoading(false);
