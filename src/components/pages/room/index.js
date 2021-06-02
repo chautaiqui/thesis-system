@@ -292,7 +292,8 @@ export const Room = props => {
                     }
                   ]
                   return <Table 
-                    // title="Faclity"
+                    // title="Faclity"]
+                    bordered
                     rowKey="_id"
                     dataSource={record.facilities}
                     columns={col}
@@ -317,6 +318,7 @@ export const Room = props => {
           </Button>
           <Table
             rowKey='_id'
+            tableLayout="auto"
             title={() => 'Room Type'}
             dataSource={data_room_type}
             columns={[{
@@ -392,11 +394,11 @@ export const Room = props => {
             <Input />
           </Form.Item>
           <Form.Item name='roomType' label="Room Type">
-            {/* <Select 
+            <Select 
               placeholder="Please choose room type of hotel"
               options={data_room_type.map(item => ({label: item.name, value:item.name}))}
-            /> */}
-             <Input />
+            />
+             {/* <Input /> */}
           </Form.Item>
           <Form.Item name='status' label="Status">
             <Select 
