@@ -4,7 +4,7 @@ import { PlusCircleOutlined, PlayCircleOutlined, EditOutlined, CheckOutlined } f
 import {Carousel} from '3d-react-carousal';
 import { User } from '@pkg/reducers';
 import { cities } from '../../commons/city';
-import { CustomUploadListImg, filerColumn } from '../../commons';
+import { CustomUploadListImg, filerColumn, messageError, messageSuccess } from '../../commons';
 import { _getRequest, postMethod, putMethod } from '@api';
 const { confirm } = Modal;
 
@@ -169,13 +169,8 @@ export const Hotel = () => {
   }, [state.behavior])
 
 	const onFinish = (values) => {
-		console.log(values)
+		console.log(values);
 		var data = new FormData();
-		if(values.imgs.length !== 0){
-			values.imgs.forEach(item => {
-        data.append('imgs', item)
-      })
-		} 
 		if(values.province && typeof values.province === 'number') {
 			var _p = cities.province.find(item=>Number(item.idProvince) === values.province)
 			data.append('province', _p.name)
@@ -200,7 +195,7 @@ export const Hotel = () => {
 					// update
 					const res = await putMethod('hotel', data, popup.data._id);
 					if(res.success) {
-						message.success('Update hotel successfully!');
+						messageSuccess('Update hotel successfully!');
 						setLoading(false);
 						dispatch({
 							type: 'RELOAD', popup: {open: false, data: {}}
@@ -208,26 +203,31 @@ export const Hotel = () => {
 						form.resetFields();
 					} else {
 						setLoading(false);
-						message.error(res.error)
+						messageError(res.error)
 					}
 				} else {
+					// create
+					if (values.imgs.length === 0) {
+						messageError('Choose least one image'); 
+						return;
+					}
 					data.append("timeIn",values.time[0].format("HH:mm"))
 					data.append("timeOut",values.time[1].format("HH:mm"))
 					const res = await postMethod('hotel/create', data);
 					if(res.success) {
-						message.success('Create hotel successfully!');
+						messageSuccess('Create hotel successfully!');
 						setLoading(false);
 						dispatch({
 							type: 'RELOAD', popup: {open: false, data: {}}
 						})
 					} else {
 						setLoading(false);
-						message.error(res.error);
+						messageError(res.error);
 					}
 				}
 			} catch (e) {
 				setLoading(false);
-				message.error('Something error!');
+				messageError('Something error!');
 			}
 		}
 		action();
@@ -319,7 +319,7 @@ export const Hotel = () => {
 							<Input />
 						</Form.Item>
 						{!popup.data._id && (<Form.Item name='time' label="Time In-Out"
-							rules={[{ required: true, message: 'Phone empty!' }]}
+							rules={[{ required: true, message: 'Time empty!' }]}
 						>
 							<TimePicker.RangePicker  format="HH:mm"/>
 						</Form.Item>)}
@@ -390,7 +390,7 @@ export const Hotel = () => {
 						>
 							<Input />
 						</Form.Item>
-						<Form.Item name='imgs' label="Img"
+						<Form.Item name='imgs' label="Img" required
 						>
 							<CustomUploadListImg />
 						</Form.Item>

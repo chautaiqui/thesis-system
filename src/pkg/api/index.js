@@ -80,7 +80,7 @@ const putMethod = async(fn, data, id) => {
     var myHeaders = new Headers(); 
     myHeaders.append('Content-Type', 'multipart/form-data; boundary=<calculated when request is sent>');
     let url = `${api_Domain}/api/${fn}/${id}`
-    const res = await axios.put(url, data, {headers: myHeaders, validateStatus: (status) => { return (status >= 200 && status < 500) || status == 400; }})
+    const res = await axios.put(url, data, {headers: myHeaders, validateStatus: (status) => { return (status >= 200 && status < 503) || status == 400; }})
     // console.log(res)
     if(res.status >=200 && res.status < 300) {
       return { success: true, result: res.data}
