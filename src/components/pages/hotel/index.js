@@ -193,6 +193,11 @@ export const Hotel = () => {
 			try {
 				if(popup.data._id) {
 					// update
+					if (values.imgs.length !== 0) {
+						values.imgs.forEach(item => {
+							data.append('imgs', item);
+						})
+					}
 					const res = await putMethod('hotel', data, popup.data._id);
 					if(res.success) {
 						messageSuccess('Update hotel successfully!');
@@ -209,7 +214,13 @@ export const Hotel = () => {
 					// create
 					if (values.imgs.length === 0) {
 						messageError('Choose least one image'); 
+						setLoading(false);
 						return;
+					}
+					if (values.imgs.length !== 0) {
+						values.imgs.forEach(item => {
+							data.append('imgs', item);
+						})
 					}
 					data.append("timeIn",values.time[0].format("HH:mm"))
 					data.append("timeOut",values.time[1].format("HH:mm"))
