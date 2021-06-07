@@ -1,5 +1,5 @@
 import React, { useReducer, createContext, useContext } from 'react';
-// import { useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
 const UserContext = createContext();
 
@@ -22,7 +22,7 @@ const UserProvider = ({ children }) => {
           } else if (_u.role === 'employee') {
             _u.permissions = ['attendance', 'form_resquest', 'account', 'working_shift', 'salary', 'booking'];
           } else {
-            _u.permissions = ['employee', 'facility', 'room', 'voucher', 'report', 'room', 'account'];
+            _u.permissions = ['employee', 'facility', 'room', 'voucher', 'report', 'room', 'account', 'hotelshift', 'confirmleave'];
           }
         }
         return _u;

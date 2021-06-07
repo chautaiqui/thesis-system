@@ -1,11 +1,10 @@
 import React, {useReducer, useEffect, useContext, useState } from 'react';
 import { User } from '@pkg/reducers';
 import { filerColumn } from '../../commons';
-import axios from 'axios';
 
 import { Space, Button, Table, Modal, message, Form, DatePicker, Input, Select, InputNumber, Tabs } from 'antd';
-import { PlusCircleOutlined, EditOutlined, HighlightOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { CustomUpload } from '../../commons';
+import { PlusCircleOutlined, HighlightOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+// import { CustomUpload } from '../../commons';
 import { _getRequest, postMethod, putMethod } from '@api';
 
 const { RangePicker } = DatePicker;

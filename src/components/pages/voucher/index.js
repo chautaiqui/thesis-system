@@ -96,11 +96,12 @@ export const Voucher = () => {
 						form.setFieldsValue({
 							roomType: record.roomType.name,
 							status: record.status,
-							startDate: moment(record.startDate, 'DD-MM-YYYY HH:mm'),
-							endDate: moment(record.endDate, 'DD-MM-YYYY HH:mm'),
+							startDate: moment(record.startDate, 'DD-MM-YYYY'),
+							endDate: moment(record.endDate, 'DD-MM-YYYY'),
 							discount: record.discount,
 							amount: record.amount,
-							img: record.img
+							img: record.img,
+							description: record.description,
 						});             
 				}}
 			></Button>
@@ -320,7 +321,7 @@ export const Voucher = () => {
 						style={{width: '50%'}}
 					/>
 				</Form.Item>
-				<Form.Item name='amount' label="Amount"
+				<Form.Item name='amount' label="Amount" 
 					rules={[{ required: true, message: 'Please input amount of voucher!'}]}
 				>
 					<InputNumber 
@@ -328,6 +329,9 @@ export const Voucher = () => {
 						parser={value => value.replace(/\$\s?|(,*)/g, '')}
 						style={{width: '50%'}}
 					/>
+				</Form.Item>
+				<Form.Item name="description" label="Description">
+					<Input placeholder={'Description'}/>
 				</Form.Item>
 				<Form.Item name='img' label="Img">
 					<CustomUploadImg />
