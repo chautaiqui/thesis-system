@@ -109,9 +109,15 @@ export const Salary = props => {
       <div>
         <div>
           <label>Salary</label>
-          <p>{current.data.salary ? current.data.salary :  'empty' }</p>
+          <p>{current.data.salary ? current.data.salary :  'empty' } VND</p>
         </div>
       </div>
     </Modal>
+    {/* {current.open && (<div>
+      <div>
+        <label>Salary</label>
+        <p>{current.data.salary ? current.data.salary :  'empty' } VND</p>
+      </div>
+    </div>)} */}
   </div>
 }

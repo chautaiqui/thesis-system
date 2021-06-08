@@ -1,15 +1,14 @@
 import React from 'react';
 
-import { RocketOutlined, UsergroupAddOutlined, ContainerOutlined,FileAddOutlined, LineChartOutlined,
-  AreaChartOutlined, TeamOutlined, ToolOutlined, HomeOutlined, SelectOutlined, GifOutlined, 
-  GiftOutlined, FontColorsOutlined, GroupOutlined, UserOutlined, BarcodeOutlined, CalculatorOutlined, AppstoreAddOutlined
+import { RocketOutline, ContainerOutlined, LineChartOutlined, RocketOutlined, 
+  AreaChartOutlined, TeamOutlined, HomeOutlined, SelectOutlined, AppstoreAddOutlined,
+  GiftOutlined, FontColorsOutlined, GroupOutlined, UserOutlined, BarcodeOutlined, CalculatorOutlined, CheckCircleOutlined
 } from '@ant-design/icons';
 import { createFromIconfontCN } from '@ant-design/icons';
 import { Employee } from './employee';
 import { Hotel } from './hotel';
 import { AdminInfo } from './admin';
 import { Blog } from './blog';
-import { Addemployee } from './addemployee';
 import { Manager } from './manager';
 import { Room } from './room';
 import { Facility } from './facility';
@@ -45,8 +44,8 @@ const subPages2 = [
   { path: '/employee', icon: (<TeamOutlined />), label: "Employee", component: Employee, permissions: 'employee' },
   { path: '/voucher', icon:(<GiftOutlined />), label: "Voucher", component: Voucher, permissions: 'voucher'},
   { path: '/report', icon: (<LineChartOutlined />), label: "Report", component: Report, permissions: 'report'},
-  { path: '/hotelshift', icon: (<LineChartOutlined />), label: "Hotel Shift", component: HotelShift, permissions: 'hotelshift'},
-  { path: '/confirmleave', icon:(<LineChartOutlined />), label: "Confirm Leave", component: ConfirmLeave, permissions: 'confirmleave'},
+  { path: '/hotelshift', icon: (<AppstoreAddOutlined />), label: "Hotel Shift", component: HotelShift, permissions: 'hotelshift'},
+  { path: '/confirmleave', icon:(<CheckCircleOutlined />), label: "Confirm Leave", component: ConfirmLeave, permissions: 'confirmleave'},
 ];
 const subPages3 = [
   { path: '/room', icon: (<HomeOutlined />), label: "Room", component: Room, permissions: 'room' },

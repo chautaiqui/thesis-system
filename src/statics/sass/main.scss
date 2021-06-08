@@ -190,3 +190,92 @@ tr.ant-table-expanded-row, tr.ant-table-expanded-row:hover{
 .custom-header-menu-sub {
     display: inline-flex;
 }
+
+
+.title-calendar {
+    display: inline-flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+  }
+  .title-button {
+    margin: 0 40px 0 40px;
+    border-radius: 5px;
+    /* background: green; */
+    cursor: pointer;
+  }
+  .title-calendar-item {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    width: 100%;
+    text-align: center;
+    line-height: 30px;
+    font-size: larger;
+    font-weight: 600;
+  }
+  .custom-shift-row1 {
+    // border-bottom: 1px solid #000;
+    border: none;
+  }
+  .box-item-col {
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #F3EFEF;
+  }
+  .box-item {
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #F3EFEF;
+  }
+  .box-item-row1 {
+    height: 30px;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+  }
+  .date-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .timeOut {
+    background: #659DBD;
+    border: none;
+    border-radius: 0px 0px 20px 20px;
+  }
+  .timeIn {
+    background: #659DBD;
+    border: none;
+    border-radius: 20px 20px 0px 0px;
+  }
+  .time {
+    background: #659DBD;
+    border: none;
+  }
+  .custom-shift-table-time-left {
+    // border-right: 1px solid #000;
+    border: none;
+  }
+  .have-content {
+      text-align: center;
+  }
+
+  .test-test {
+      background: #E3E2DF; // #EAE&DC
+  }
+
+  .custom-row-left {
+      border-radius: 10px 0px 0px 0px;
+  }
+  .custom-row-right {
+    border-radius: 0px 10px 0px 0px;
+}
