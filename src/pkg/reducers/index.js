@@ -22,7 +22,7 @@ const UserProvider = ({ children }) => {
           } else if (_u.role === 'employee') {
             _u.permissions = ['attendance', 'form_resquest', 'account', 'working_shift', 'salary', 'booking'];
           } else {
-            _u.permissions = ['employee', 'facility', 'room', 'voucher', 'report', 'room', 'account', 'hotelshift', 'confirmleave'];
+            _u.permissions = ['employee', 'facility', 'room', 'voucher', 'report', 'room', 'account', 'qrcode' ,'hotelshift', 'confirmleave'];
           }
         }
         return _u;

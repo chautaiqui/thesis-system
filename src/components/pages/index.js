@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { RocketOutline, ContainerOutlined, LineChartOutlined, RocketOutlined, 
+import { RocketOutline, ContainerOutlined, LineChartOutlined, RocketOutlined, QrcodeOutlined,
   AreaChartOutlined, TeamOutlined, HomeOutlined, SelectOutlined, AppstoreAddOutlined,
   GiftOutlined, FontColorsOutlined, GroupOutlined, UserOutlined, BarcodeOutlined, CalculatorOutlined, CheckCircleOutlined
 } from '@ant-design/icons';
@@ -22,6 +22,7 @@ import { Report } from './report';
 import { HotelShift } from './hotelshift';
 import { ConfirmLeave } from './confirmleave';
 import { FormResquest } from './formresquest';
+import { Qrcode } from './qrcode';
 
 const IconFont = createFromIconfontCN({
   scriptUrl: '//at.alicdn.com/t/font_8d5l8fzk5b87iudi.js',
@@ -46,6 +47,7 @@ const subPages2 = [
   { path: '/report', icon: (<LineChartOutlined />), label: "Report", component: Report, permissions: 'report'},
   { path: '/hotelshift', icon: (<AppstoreAddOutlined />), label: "Hotel Shift", component: HotelShift, permissions: 'hotelshift'},
   { path: '/confirmleave', icon:(<CheckCircleOutlined />), label: "Confirm Leave", component: ConfirmLeave, permissions: 'confirmleave'},
+  { path: '/qrcode', icon:(<QrcodeOutlined />), label: "Qr Code", component: Qrcode, permissions: 'qrcode'},
 ];
 const subPages3 = [
   { path: '/room', icon: (<HomeOutlined />), label: "Room", component: Room, permissions: 'room' },

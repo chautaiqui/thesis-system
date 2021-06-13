@@ -115,4 +115,8 @@ export const HotelShift = props => {
       </Modal>
     </>
   )  
+};
+
+class Render{
+  
 }
