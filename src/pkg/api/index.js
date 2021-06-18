@@ -20,12 +20,10 @@ const _getRequest = async (fn, options = {}, extend = []) => {
         method: 'GET',
         headers: _h
     })
-    console.log(re)
     let _re = await re.json();
     // if(_re.status === 401) return window.location.reload()
     // if(_re.status === 403) return {success: true, result: {data: []}}
     // if(_re.status !== 200) return {success: false, error: _re.message || 'Api ok but smt error'}
-    console.log(_re)
     if(!re.ok) return {success: false, error: _re.message}
     return {success: true, result: _re};
   } catch (e) {

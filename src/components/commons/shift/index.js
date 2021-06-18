@@ -1,58 +1,42 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
+import 'react-big-calendar/lib/sass/styles.scss';
+import CreateEvent from '../create-event';
+import localizer from 'react-big-calendar/lib/localizers/moment';
 import moment from 'moment';
-import { DatePicker } from 'antd';
-import { getWeekYearNow, arrayDate, arrayDatetoString } from '../date';
-import { RightOutlined, LeftOutlined } from '@ant-design/icons';
-import Calendar from '../calendar';
 
-export const Shift = props => {
-  const { data } = props;
-  const defCol = useMemo(() => getWeekYearNow(), [props]);
-  const [ rowDate, setRowDate ] = useState(defCol);
-  const toggleWeek = (next) => {
-    var firstDate = moment(rowDate[0], "DD-MM-YYYY");
-    var week = firstDate.week();
-    var year = firstDate.year();
-    if(next) {
-      // next
-      var lstCol = arrayDate(week+1, year);
-      setRowDate(lstCol)
-    } else {
-      // prev
-      var lstCol = arrayDate(week-1, year);
-      setRowDate(lstCol)
-    }
-  }
-  const chooseWeek = (date, dateString) => {
-    console.log(date, dateString);
-    var temp = dateString.split("-");
-    var year = Number(temp[0]);
-    var week = Number(temp[1].match(/\d+/g));
-    console.log(week)
-    var lstCol = arrayDate(week, year);
-    setRowDate(lstCol);
-  };
+const getNumberfromString = (str) => {
+  var format = /\d+/;
+  return Number(str.match(format))
+}
+
+const globalizeLocalizer = localizer(moment)
+
+export const Shift = ({data}) => {
+  const [ shift, setShift ] = useState([]);
+  useEffect(()=>{
+    var temp = data.map(item => {
+      var _temp = item.timeInOut.split("-");
+      var _t = _temp.map(i => {
+        var _our = i.split('h');
+        return {
+          hour: Number(_our[0]),
+          minute: Number(_our[1])
+        }
+      }); // 0: start, 1: end
+      var start = new Date(item.year, item.month-1, item.date, _t[0].hour, _t[0].minute, 0);
+      var end = new Date(item.year, item.month-1, item.date, _t[1].hour, _t[1].minute, 0);
+      return {
+        ...item,
+        start: start,
+        end: end
+      }
+    });
+    setShift(temp)
+  }, [data])
+  console.log(shift)
   return (
-    <>
-      <div className="title-calendar">
-        <div className="title-button" onClick={()=>toggleWeek(false)}><LeftOutlined /></div>
-        <div style={{position: "relative", width: 200}}>
-            <DatePicker
-              allowClear={false}
-              picker="week"
-              style={{opacity: 0, zIndex: 1}}
-              onChange={chooseWeek}
-              disabledDate={(current) => {
-                return (
-                  current && current < moment().endOf("day").subtract(7, "days")
-                );
-              }}
-            />
-            <div className="title-calendar-item">{arrayDatetoString(rowDate)}</div>
-        </div>
-        <div className="title-button" onClick={()=>toggleWeek(true)}><RightOutlined /></div>
-      </div>
-      <Calendar rowDate={rowDate} data={data}/>
-    </>
-  )
+    <div className="example">
+      <CreateEvent localizer={globalizeLocalizer} data={shift}/>
+    </div>
+  );
 }

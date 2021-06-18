@@ -90,7 +90,7 @@ export const Qrcode = props => {
       maskClosable={false}
       title= {'Qr Code'}
       key='modal_qrcode'
-      width='60%' 
+      width='40%' 
       visible={popup.open}
       forceRender
       keyboard
