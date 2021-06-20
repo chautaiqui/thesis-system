@@ -18,23 +18,10 @@ const initState = {
   },
   dayLayoutAlgorithm: 'no-overlap',
 }
-const CreateEvent = ({localizer, data}) => {
+const CreateEvent = ({localizer, data, formData, formControl}) => {
   const [state, setState] = useState(initState);
 
   const handleSelect = ({ start, end }) => {
-    // const title = window.prompt('New Event name')
-    // if (title){
-    //   this.setState({
-    //     events: [
-    //       ...this.state.events,
-    //       {
-    //         start,
-    //         end,
-    //         title,
-    //       },
-    //     ],
-    //   })
-    // }
     setState({
       ...state,
       newshift: {
@@ -59,7 +46,12 @@ const CreateEvent = ({localizer, data}) => {
       events: data
     })
   }, [data]);
-  console.log(state.events)
+  // console.log(state.events)
+  useEffect(()=>{
+    if(!state.newshift.open) {
+      formControl.resetFields();
+    }
+  },[state.newshift])
   return (
     <>
       <ExampleControlSlot.Entry waitForOutlet>
@@ -106,18 +98,34 @@ const CreateEvent = ({localizer, data}) => {
         centered
         visible={state.newshift.open}
         onOk={() => {
+         var start = state.newshift.start;
+         var end = state.newshift.end;
+          formControl.setFieldsValue({
+            date: start.getDate(),
+            month: start.getUTCMonth() + 1,
+            year: start.getUTCFullYear(),
+            timeInOut: `${start.getHours()}h${start.getMinutes()} - ${end.getHours()}h${end.getMinutes()}`
+          })
+          formControl.submit();
           setState({
             ...state,
-            events: [
-              ...state.events,
-              {
-                start: state.newshift.start,
-                end: state.newshift.end,
-                title: "shift",
-                employeeList: []
-              },
-            ],
-          })
+            newshift: {
+              open: false,
+              event:{}
+            }
+          });
+          // setState({
+          //   ...state,
+          //   events: [
+          //     ...state.events,
+          //     {
+          //       start: state.newshift.start,
+          //       end: state.newshift.end,
+          //       title: "shift",
+          //       employeeList: []
+          //     },
+          //   ],
+          // })
         }}
         onCancel={() => setState({
           ...state,
@@ -127,7 +135,7 @@ const CreateEvent = ({localizer, data}) => {
           }
         })}
       >
-        create new shift
+        {formData}
       </Modal>
     </>
   )
