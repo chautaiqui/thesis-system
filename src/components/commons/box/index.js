@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
+import { Avatar, Tooltip } from 'antd';
 
 const style = {
 	border: '1px dashed gray',
@@ -34,7 +35,9 @@ export const Box = ({ employee }) => {
 			role="box"
 			style={{ ...style, opacity }}
 		>
-			{employee.name}
+			 <Tooltip placement="top" title={<span>{employee.email}</span>}>
+			 	<Avatar src={employee.img}/>{employee.name}
+			 </Tooltip>
 		</div>
 	)
 }

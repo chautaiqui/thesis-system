@@ -145,7 +145,7 @@ export const History = props => {
       }
     }
     getdata();
-  },[data])
+  },[data, props.f5])
   console.log(popup)
   return <>
     <Calendar 

@@ -3,7 +3,7 @@ import { Calendar, Views } from 'react-big-calendar';
 import ExampleControlSlot from './ExampleControlSlot';
 import CustomEvent from '../custom-event';
 import CustomWeek from '../custom-week';
-import { Modal } from 'antd';
+import { Modal, Form, Radio } from 'antd';
 
 const initState = {
   events: [],
@@ -91,7 +91,45 @@ const CreateEvent = ({localizer, data, formData, formControl}) => {
           }
         })}
       >
-        {JSON.stringify(state.shift.event)}
+        <Form
+        >
+          <Form.Item label="Salary Coefficient">
+            <span>{state.shift.event.salaryCoefficient} VND</span>
+          </Form.Item>
+          <Form.Item label="Date">
+            <span>{(function(){
+              var _d = new Date(state.shift.event.year, state.shift.event.month, state.shift.event.date);
+              const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+              return _d.toLocaleDateString('en-EN', options)
+            })()}</span>
+          </Form.Item>
+          <Form.Item label="Time In">
+            <span>{(function(){
+              if(state.shift.event.timeInOut){
+                var _t = state.shift.event.timeInOut.split("-");
+                return _t[0]
+              }
+            })()}</span>
+          </Form.Item>
+          <Form.Item label="Time Out">
+          <span>{(function(){
+              if(state.shift.event.timeInOut){
+                var _t = state.shift.event.timeInOut.split("-");
+                return _t[1]
+              }
+            })()}</span>
+          </Form.Item>
+          <Form.Item label="Employee">
+            <Radio.Group>
+              {
+                state.shift.event.employeeList && state.shift.event.employeeList.map((item, index)=>{
+                  return <Radio.Button key={index}>{item.name}</Radio.Button>
+                })
+              }
+            </Radio.Group>
+          </Form.Item>
+        </Form>
+        {/* {JSON.stringify(state.shift.event)} */}
       </Modal>
       <Modal
         title={"Create shift"}

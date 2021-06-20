@@ -53,10 +53,11 @@ export const Attendance = props => {
             console.log(att);
             if(res.status === 200) {
               message.success('Attendance success');
+              // do something
               setAttendence(true)
             }
           } else {
-            console.log('You are not in shift')
+            message.error('You are not in shift')
             setAttendence(true)
           }
           setScan(false)
@@ -86,7 +87,7 @@ export const Attendance = props => {
           <img src={imageUrl} alt="img"/>
       </a>) : null
     } */}
-    <History employeeid={_user.auth._id}/>
+    <History employeeid={_user.auth._id} f5={attendence}/>
     { !attendence && (<Row gutter={[16,16]}>
       <Col xs={24} sm={24} md={12} lg={12} xl={12}>
         <Button className="btn" type="primary" onClick={onScanFile}>Scan Qr Code</Button>

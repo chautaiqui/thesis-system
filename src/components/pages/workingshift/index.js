@@ -4,6 +4,13 @@ import './workingshift.style.css';
 import axios from 'axios';
 import { User } from '@pkg/reducers';
 import { Shift } from './shift';
+import DisplayEvent from '../../commons/display-event';
+import moment from 'moment';
+import localizer from 'react-big-calendar/lib/localizers/moment';
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+
+const globalizeLocalizer = localizer(moment);
 
 export const WorkingShift = props => {
   const [ data, setData ] = useState([]);
@@ -18,6 +25,9 @@ export const WorkingShift = props => {
     getData();
   },[])
   return <>
-    <Shift data={data}/>
+    {/* <Shift data={data}/> */}
+    <DndProvider backend={HTML5Backend}>
+      <DisplayEvent localizer={globalizeLocalizer} data={data}/>
+    </DndProvider>
   </>
 }
