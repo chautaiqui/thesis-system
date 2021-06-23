@@ -94,7 +94,12 @@ const CreateEvent = ({localizer, data, formData, formControl}) => {
         <Form
         >
           <Form.Item label="Salary Coefficient">
-            <span>{state.shift.event.salaryCoefficient} VND</span>
+            <span>
+              { state.shift.event.salaryCoefficient ? state.shift.event.salaryCoefficient.toLocaleString("it-IT", {
+                style: "currency",
+                currency: "VND",
+              }) : ""}{" "}
+            </span>
           </Form.Item>
           <Form.Item label="Date">
             <span>{(function(){

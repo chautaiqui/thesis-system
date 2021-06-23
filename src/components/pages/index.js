@@ -35,46 +35,33 @@ const Todo = () => {
 }
 
 const subPages1 = [
-  { path: '/hotel', icon: (<HomeOutlined />), label: "Hotel", component: Hotel, permissions: 'hotel' },
-  { path: '/manager', icon:(<TeamOutlined />), label: "Manager", component: Manager, permissions: 'manager' },
-  { path: '/admin', icon: (<FontColorsOutlined />), label: "Admin", component: AdminInfo, permissions: 'admin' },
-  { path: '/blog', icon: (<ContainerOutlined />), label: "Blog", component: Blog, permissions: 'blog' },
-  { path: '/inventoryreport', icon: (<AreaChartOutlined />), label: "Inventory Report", component: Todo, permissions: 'inventory_report'},
+  { path: '/hotel', icon: (<HomeOutlined />), label: "Hotel", component: Hotel, permissions: 'hotel', role: 'admin' },
+  { path: '/manager', icon:(<TeamOutlined />), label: "Manager", component: Manager, permissions: 'manager', role: 'admin' },
+  { path: '/admin', icon: (<FontColorsOutlined />), label: "Admin", component: AdminInfo, permissions: 'admin', role: 'admin' },
+  { path: '/blog', icon: (<ContainerOutlined />), label: "Blog", component: Blog, permissions: 'blog', role: 'admin' },
+  { path: '/inventoryreport', icon: (<AreaChartOutlined />), label: "Inventory Report", component: Todo, permissions: 'inventory_report', role: 'admin'},
 ];                              
 const subPages2 = [
-  { path: '/employee', icon: (<TeamOutlined />), label: "Employee", component: Employee, permissions: 'employee' },
-  { path: '/voucher', icon:(<GiftOutlined />), label: "Voucher", component: Voucher, permissions: 'voucher'},
-  { path: '/report', icon: (<LineChartOutlined />), label: "Report", component: Report, permissions: 'report'},
-  { path: '/hotelshift', icon: (<AppstoreAddOutlined />), label: "Hotel Shift", component: HotelShift, permissions: 'hotelshift'},
-  { path: '/confirmleave', icon:(<CheckCircleOutlined />), label: "Confirm Leave", component: ConfirmLeave, permissions: 'confirmleave'},
-  { path: '/qrcode', icon:(<QrcodeOutlined />), label: "Qr Code", component: Qrcode, permissions: 'qrcode'},
+  { path: '/employee', icon: (<TeamOutlined />), label: "Employee", component: Employee, permissions: 'employee', role: 'manager' },
+  { path: '/voucher', icon:(<GiftOutlined />), label: "Voucher", component: Voucher, permissions: 'voucher', role: 'manager'},
+  { path: '/report', icon: (<LineChartOutlined />), label: "Report", component: Report, permissions: 'report', role: 'manager'},
+  { path: '/hotelshift', icon: (<AppstoreAddOutlined />), label: "Hotel Shift", component: HotelShift, permissions: 'hotelshift', role: 'manager'},
+  { path: '/confirmleave', icon:(<CheckCircleOutlined />), label: "Confirm Leave", component: ConfirmLeave, permissions: 'confirmleave', role: 'manager'},
+  { path: '/qrcode', icon:(<QrcodeOutlined />), label: "Qr Code", component: Qrcode, permissions: 'qrcode', role: 'manager'},
+  { path: '/account', icon: (<UserOutlined  rotate={45}/>), label: "Account", component: Account, permissions: 'account', role: 'manager'},
 ];
 const subPages3 = [
-  { path: '/room', icon: (<HomeOutlined />), label: "Room", component: Room, permissions: 'room' },
-  { path: '/facility',icon: (<GroupOutlined />), label: "Facility", component: Facility, permissions: 'facility' },
-  { path: '/account', icon: (<UserOutlined  rotate={45}/>), label: "Account", component: Account, permissions: 'account' },
-  { path: '/workingshift', icon: (<RocketOutlined />), label: "Working Shift", component: WorkingShift, permissions: 'working_shift' },
-  { path: '/attendance', icon: (<BarcodeOutlined />), label: "Attendance", component: Attendance, permissions: 'attendance'},
-  { path: '/booking', icon: (<SelectOutlined />), label: "Booking", component: Booking, permissions: 'booking'},
-  { path: '/formresquest', icon: (<AppstoreAddOutlined  rotate={45}/>), label: "Form Resquest", component: FormResquest, permissions: 'form_resquest' },
-  { path: '/salary', icon: (<CalculatorOutlined /> ), label: "Salary", component: Salary, permissions: 'salary' },
+  { path: '/room', icon: (<HomeOutlined />), label: "Room", component: Room, permissions: 'room', role: 'manager' },
+  { path: '/facility',icon: (<GroupOutlined />), label: "Facility", component: Facility, permissions: 'facility', role: 'manager' },
+  { path: '/workingshift', icon: (<RocketOutlined />), label: "Working Shift", component: WorkingShift, permissions: 'working_shift' , role: 'employee'},
+  { path: '/attendance', icon: (<BarcodeOutlined />), label: "Attendance", component: Attendance, permissions: 'attendance', role: 'employee'},
+  { path: '/booking', icon: (<SelectOutlined />), label: "Booking", component: Booking, permissions: 'booking', role: 'employee'},
+  { path: '/formresquest', icon: (<AppstoreAddOutlined  rotate={45}/>), label: "Form Resquest", component: FormResquest, permissions: 'form_resquest' , role: 'employee'},
+  { path: '/salary', icon: (<CalculatorOutlined /> ), label: "Salary", component: Salary, permissions: 'salary' , role: 'employee'},
+  { path: '/account', icon: (<UserOutlined  rotate={45}/>), label: "Account", component: Account, permissions: 'account' , role: 'employee'},
+
 ];
 
 export const routerPages = [...subPages1, ...subPages2, ...subPages3];
 export const menuPages = [...subPages1, ...subPages2, ...subPages3];
-
-// export const menuPages = [
-//   {
-//     label: 'Admin',
-//     children: subPages1
-//   },
-//   {
-//     label: 'Manage',
-//     children: subPages2
-//   },
-//   {
-//     label: 'Employee',
-//     children: subPages3
-//   },
-// ];
 

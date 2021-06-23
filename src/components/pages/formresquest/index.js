@@ -1,9 +1,10 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { User } from '@pkg/reducers';
-import { Row, Col, Form, Table, DatePicker, Input, Button, Divider } from 'antd';
+import { Row, Col, Form, Table, DatePicker, Input, Button, Divider, Select } from 'antd';
+import { CheckCircleTwoTone, NodeExpandOutlined, SyncOutlined } from '@ant-design/icons';
 import moment from 'moment';
-import { postMethod } from '../../../pkg/api';
-const initialState = { behavior: 'init', data: []}
+import { postMethod, _getRequest } from '../../../pkg/api';
+const initialState = { behavior: 'init', data: [], form: []}
 
 const layout = {
   labelCol: {
@@ -31,34 +32,49 @@ export const FormResquest = props => {
 
   useEffect(()=>{
     if(data.behavior === 'init') {
-      getAllLeaveForm();
+      const date = moment();
+      haveShift(date.date(), date.month()+ 1, date.year());
+      // getAllLeaveForm();
     }
   }, [data.behavior])
 
   const haveShift = (date, month, year) => {
-    
     const getShift = async () => {
-      var check =  false;
       const res = await postMethod(`/employee/${user.auth._id}/shift-by-specific-time`, {year, month});
-      if(res.success) {
-        res.result.shift.map(item => {
-          console.log(date, item.date)
-          if(Number(date) === Number(item.date)) check = true
+      const res_1 = await _getRequest(`/employee/${user.auth._id}/view-leave`);
+      console.log(res_1)
+      if(res.success && res_1.success) {
+        setData({
+          behavior: 'stall',
+          data: res.result.shift.filter(item=>item.date >= date),
+          form: res_1.result
         })
       }
-      return check;
     }
-    var res = false;
-    var t = getShift();
-    t.then(value => res = value);
-    return res
+    getShift();
   }
   const onFinish = (values) => {
-    const { title, date, reason } = values;
-    const _hs = haveShift(date.date(), date.month()+ 1, date.year());
-    console.log(_hs);
-  };
+    console.log(values);
+    const data = {
+      title: values.title,
+      reason: values.reason
+    }
+    // console.log(data);
+    // /employee/:shift_id/:emp_id/:hotel_id/apply-leave
+    const req = async() => {
+      const res = await postMethod(`employee/${values.shift}/${user.auth._id}/${user.auth.hotel}/apply-leave`, data);
+      if(res.success) {
+        form.resetFields();
+        setData({
+          ...data,
+          behavior: 'init'
+        })
 
+      }
+    }
+    req();
+  };
+  // console.log(data)
   return <>
     <Row gutter={[16,16]}>
       <Col xs={24} xs={8}>
@@ -77,20 +93,26 @@ export const FormResquest = props => {
               },
             ]}
           >
-            <Input />
+            <Select 
+              options={["Nghỉ phép", "Nghỉ phép không lương"].map(item=>({label:item, value:item}))}
+              placeholder="Nghỉ phép"
+            />
           </Form.Item>
           <Form.Item
-            name={"date"}
-            label="Date"
+            name={"shift"}
+            label="Shift"
             rules={[
               {
                 required: true,
               },
             ]}
           >
-            <DatePicker
+            {/* <DatePicker
               format="YYYY-MM-DD"
               disabledDate={disabledDate}
+            /> */}
+            <Select 
+              options={data.data ? data.data.map((item)=>({label: `${item.date}-${item.month}-${item.year}`, value: item._id})): []}
             />
           </Form.Item>
           <Form.Item
@@ -113,6 +135,46 @@ export const FormResquest = props => {
       </Col>
       <Col xs={24} xs={16}>
         <Divider orientation="left">History</Divider>
+        <Table 
+          rowKey='_id'
+          tableLayout="auto"
+          dataSource={data.form}
+          columns={[
+            {
+              title: 'Title',
+              dataIndex: 'title',
+              align: 'center',
+              key: 'title', 
+            },
+            {
+              title: 'Reason',
+              dataIndex: 'reason',
+              align: 'center',
+              key: 'reason', 
+            },
+            {
+              title: 'Date',
+              align: 'center',
+              key: 'date',
+              render: (text, record, index) => <div>{record.date}-{record.month}-{record.year}</div>
+            },
+            {
+              title: 'Status',
+              align: 'center',
+              key: 'status',
+              render: (text, record, index) => {
+                const _icon = record.status === 'accepted' ? <CheckCircleTwoTone twoToneColor="#52c41a" /> : (record.status === 'pending' ? <SyncOutlined style={{color: 'red'}}/> : <NodeExpandOutlined />);
+                return <Button
+                  size='small'
+                  shape="circle" icon={_icon}
+                  onClick={()=>{
+                    
+                  }}
+                ></Button>
+              }
+            },
+          ]}
+        />
       </Col>
     </Row>
   </>

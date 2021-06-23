@@ -80,7 +80,7 @@ const AdminLayout = props => {
                 theme='dark'
                 defaultSelectedKeys={window.location.pathname}
               >
-                {menuPages.filter(p => user.permissions.indexOf(p.permissions) > -1).map(menuItem => 
+                {menuPages.filter(p => user.role === p.role).map(menuItem => 
                 // {menuItemGroup.children.map(menuItem => 
                   <Menu.Item
                     key={menuItem.path}

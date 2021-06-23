@@ -66,7 +66,12 @@ const DisplayEvent = ({localizer, data}) => {
         <Form
         >
           <Form.Item label="Salary Coefficient">
-            <span>{ashift.event.salaryCoefficient} VND</span>
+            <span>
+              { ashift.event.salaryCoefficient ? ashift.event.salaryCoefficient.toLocaleString("it-IT", {
+                style: "currency",
+                currency: "VND",
+              }) : ""}{" "}
+            </span>
           </Form.Item>
           <Form.Item label="Date">
             <span>{(function(){
