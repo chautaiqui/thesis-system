@@ -37,14 +37,14 @@ const Todo = () => {
 const subPages1 = [
   { path: '/hotel', icon: (<HomeOutlined />), label: "Hotel", component: Hotel, permissions: 'hotel', role: 'admin' },
   { path: '/manager', icon:(<TeamOutlined />), label: "Manager", component: Manager, permissions: 'manager', role: 'admin' },
-  { path: '/admin', icon: (<FontColorsOutlined />), label: "Admin", component: AdminInfo, permissions: 'admin', role: 'admin' },
   { path: '/blog', icon: (<ContainerOutlined />), label: "Blog", component: Blog, permissions: 'blog', role: 'admin' },
   { path: '/inventoryreport', icon: (<AreaChartOutlined />), label: "Inventory Report", component: Todo, permissions: 'inventory_report', role: 'admin'},
+  { path: '/admin', icon: (<FontColorsOutlined />), label: "Admin", component: AdminInfo, permissions: 'admin', role: 'admin' },
 ];                              
 const subPages2 = [
+  { path: '/report', icon: (<LineChartOutlined />), label: "Report", component: Report, permissions: 'report', role: 'manager'},
   { path: '/employee', icon: (<TeamOutlined />), label: "Employee", component: Employee, permissions: 'employee', role: 'manager' },
   { path: '/voucher', icon:(<GiftOutlined />), label: "Voucher", component: Voucher, permissions: 'voucher', role: 'manager'},
-  { path: '/report', icon: (<LineChartOutlined />), label: "Report", component: Report, permissions: 'report', role: 'manager'},
   { path: '/hotelshift', icon: (<AppstoreAddOutlined />), label: "Hotel Shift", component: HotelShift, permissions: 'hotelshift', role: 'manager'},
   { path: '/confirmleave', icon:(<CheckCircleOutlined />), label: "Confirm Leave", component: ConfirmLeave, permissions: 'confirmleave', role: 'manager'},
   { path: '/qrcode', icon:(<QrcodeOutlined />), label: "Qr Code", component: Qrcode, permissions: 'qrcode', role: 'manager'},

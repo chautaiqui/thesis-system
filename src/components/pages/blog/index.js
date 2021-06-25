@@ -7,14 +7,33 @@ import { CheckOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import { _getRequest, postMethod, putMethod } from '@api';
 
 
-const layout = {
-	labelCol: { span: 4 },
-	wrapperCol: { span: 24 },
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 24 },
+    sm: { span: 8 },
+  },
+  wrapperCol: {
+    xs: { span: 24 },
+    sm: { span: 10 },
+  },
+};
+const tailFormItemLayout = {
+  wrapperCol: {
+    xs: {
+      span: 24,
+      offset: 9,
+    },
+    sm: {
+      span: 16,
+      offset: 12,
+    },
+  },
 };
 
 
 export const Blog = props => {
   const [ blog, setBlog ] = useState([]);
+  const [ query, setQuery ] = useState({});
   const [ popup, setPopup ] = useState({open: false, data: {}});
   const [ draw, setDraw ] = useState({open: false, data: {}});
   const [ loading, setLoading ] = useState(false);
@@ -23,14 +42,14 @@ export const Blog = props => {
   const [ form_create ] = Form.useForm(); // form of blog create
   useEffect(()=>{
     const getData = async() => {
-      const res = await _getRequest('blog');
+      const res = await _getRequest('blog', query);
       if(!res.success) {
         message.error(res.error);
       }
       setBlog(res.result);
     }
     getData();
-  },[])
+  },[query])
   useEffect(()=>{
     if(popup.open) {
       console.log(popup.data)
@@ -60,7 +79,9 @@ export const Blog = props => {
 		});
 	}
   const onSearch = (values) => {
-    console.log(values);
+    setQuery({
+      title: values.name
+    })
   }
   const updateBlog = (values) => {
     console.log(values, draw.open);
@@ -199,7 +220,7 @@ export const Blog = props => {
           onFinish={updateBlog}
           name="add_blog_form"
           form={form_create}
-          {...layout}
+          {...formItemLayout}
         >
           <Form.Item name="title" label="Title">
             <Input />
@@ -210,8 +231,8 @@ export const Blog = props => {
           <Form.Item name="content" label="Content">
             <Input.TextArea />
           </Form.Item>
-          <Form.Item>
-          <Button type="primary" onClick={showConfirm_1} shape="round" loading={loading}>
+          <Form.Item {...tailFormItemLayout}>
+          <Button type="primary"  onClick={showConfirm_1} shape="round" loading={loading}>
             Add
           </Button>
         </Form.Item>

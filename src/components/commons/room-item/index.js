@@ -33,14 +33,14 @@ export const RoomItem = ({room, action}) => {
     if(isbooking.have) return;
     action(room);
   }} style={isbooking.style}>
-    <h1>{room.name}</h1>
-    <p>{room.roomType.name}</p>
+    <h1>Name: {room.name}</h1>
+    <p><strong>Room type:</strong> {room.roomType.name}</p>
     {/* <p>{room.roomType.price}</p> */}
     <span>
-        { room.roomType.price.toLocaleString("it-IT", {
-          style: "currency",
-          currency: "VND",
-        })}{" "}
-      </span>
+    <strong>Price:</strong> { room.roomType.price.toLocaleString("it-IT", {
+        style: "currency",
+        currency: "VND",
+      })}{" "}
+    </span>
   </div>
 }

@@ -77,13 +77,13 @@ export const Report = props => {
     </Row>
     <Row gutter={[16,16]}>
       <Col span={24}>
-        <VerticalBar title={"Rating Report"} data={
+        <VerticalBar title={"Rating Hotel Report"} data={
           {
             labels: ['One', 'Two', 'Three', 'Four', 'Five'],
             datasets: [
               {
                 label: '# of Rating',
-                data: [1,2,3,4,5],
+                data: data.ratingReport ? Object.values(data.ratingReport).slice(0,5) : [0,0,0,0,0],
                 backgroundColor: [
                   'rgba(255, 99, 132, 0.2)',
                   'rgba(54, 162, 235, 0.2)',
@@ -105,7 +105,45 @@ export const Report = props => {
         }/>
       </Col>
     </Row>
+
     <Row gutter={[16,16]}>
+      <Col span={24}>
+        <div className='ant-descriptions-title'>Room Type Report</div>
+        <Table
+            rowKey='_id'
+            tableLayout="auto"
+            dataSource={data.roomTypeReport}
+            columns={[
+              {
+                title: 'Name',
+                align: 'center',
+                key: 'name', 
+                render: (text, record, index) => record.roomType.name
+              }, 
+              {
+                title: 'Booking Amount',
+                dataIndex: 'bookingAmount',
+                align: 'center',
+                key: 'bookingAmount', 
+              }, 
+              {
+                title: 'Total money',
+                dataIndex: 'totalMoney',
+                align: 'center',
+                key: 'totalMoney', 
+                render: (text, record, index) => <span>
+                  {record.totalMoney.toLocaleString("it-IT", {
+                    style: "currency",
+                    currency: "VND",
+                  })}{" "}
+                </span>
+              },
+            ]}
+          />
+      </Col>
+    </Row>
+
+    {/* <Row gutter={[16,16]}>
       <Col span={24}>
         <div className='ant-descriptions-title'>Facility Report</div>
         <Table
@@ -151,7 +189,7 @@ export const Report = props => {
             }]}
           />
       </Col>
-    </Row>
+    </Row> */}
     </div>)}
   </div>
 }

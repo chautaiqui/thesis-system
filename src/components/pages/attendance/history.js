@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import 'antd/dist/antd.css';
 import './attendance.style.css';
-import { Calendar, Badge, Select, Modal, Col, Row, Typography, message, Button } from 'antd';
+import { Calendar, Badge, Select, Modal, Col, Row, Typography, message, Button, Form } from 'antd';
 import axios from 'axios';
 import moment from 'moment';
 
@@ -170,28 +170,56 @@ export const History = props => {
         <Button type='primary' shape='round' onClick={()=>setPopup({open: false, data: {}})}>Close</Button>
       }
     >
-      <div>
-        <div>
-          <label>Date</label>
-          <p>{popup.data.shifts ? popup.data.shifts.date :  'empty' }</p>
-        </div>
-        <div>
-          <label>Month</label>
-          <p>{popup.data.shifts ? popup.data.shifts.month :  'empty' }</p>
-        </div>
-        <div>
-          <label>Year</label>
-          <p>{popup.data.shifts ? popup.data.shifts.year :  'empty' }</p>
-        </div>
-        <div>
-          <label>salaryCoefficient</label>
-          <p>{popup.data.shifts ? popup.data.shifts.salaryCoefficient :  'empty' }</p>
-        </div>
-        <div>
-          <label>timeInOut</label>
-          <p>{popup.data.shifts ? popup.data.shifts.timeInOut :  'empty' }</p>
-        </div>
-      </div>
+      <Form>
+      
+        <Row gutter={[16,16]}>
+          <Col span={24}>
+            <Form.Item label="Date">
+              <span className="ant-form-text">{popup.data.shifts ? popup.data.shifts.date :  'empty' }</span>
+            </Form.Item>
+          </Col>
+          <Col span={24}>
+            <Form.Item label="Date">
+              {popup.data.shifts && (<span className="ant-form-text">
+                {/* {popup.data.shifts ? popup.data.shifts.salaryCoefficient :  'empty' } */}
+                {popup.data.shifts.salaryCoefficient.toLocaleString("it-IT", {
+                    style: "currency",
+                    currency: "VND",
+                })}{" "}
+              </span>)}
+            </Form.Item>
+          </Col>
+          <Col span={24}>
+            <Form.Item label="Date">
+              <span className="ant-form-text">{popup.data.shifts ? popup.data.shifts.timeInOut :  'empty' }</span>
+            </Form.Item>
+          </Col>
+        </Row>
+      </Form> 
     </Modal>
   </>
 }
+
+
+{/* <div>
+<div>
+  <label>Date</label>
+  <p>{popup.data.shifts ? popup.data.shifts.date :  'empty' }</p>
+</div>
+<div>
+  <label>Month</label>
+  <p>{popup.data.shifts ? popup.data.shifts.month :  'empty' }</p>
+</div>
+<div>
+  <label>Year</label>
+  <p>{popup.data.shifts ? popup.data.shifts.year :  'empty' }</p>
+</div>
+<div>
+  <label>salaryCoefficient</label>
+  <p>{popup.data.shifts ? popup.data.shifts.salaryCoefficient :  'empty' }</p>
+</div>
+<div>
+  <label>timeInOut</label>
+  <p>{popup.data.shifts ? popup.data.shifts.timeInOut :  'empty' }</p>
+</div>
+</div> */}

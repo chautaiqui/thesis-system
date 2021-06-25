@@ -6,6 +6,7 @@ import Col from 'antd/lib/col';
 import Form from 'antd/lib/form';
 import Input from 'antd/lib/input';
 import Button from 'antd/lib/button';
+import { Spin } from 'antd';
 
 import { messageError } from '@components/commons';
 import { _postRequest } from '@api';
@@ -54,7 +55,14 @@ const Login = props => {
     console.log('Failed:', errorInfo);
   };
 
-  if (!check) return <div>loading</div>;
+  if (!check) return <div style={{
+    height: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  }}>
+    <Spin />
+  </div>;
 
   return (
     <div className='login-container'>

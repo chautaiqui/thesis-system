@@ -1,5 +1,5 @@
 import React, {useReducer, useEffect, useContext } from 'react';
-import { Button, Space, Modal, Table, Form, Input, DatePicker, Row, Col, Drawer } from 'antd';
+import { Button, Space, Modal, Table, Form, Input, DatePicker, Row, Col, Drawer, Tabs } from 'antd';
 import { User } from '@pkg/reducers';
 import { CheckCircleTwoTone, NodeExpandOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { _getRequest, postMethod } from '../../../pkg/api';
@@ -18,6 +18,9 @@ const tailLayout = {
     span: 16,
   },
 };
+
+const { TabPane } = Tabs;
+
 function disabledDate(current) {
   return current && current < moment().startOf('day');
 }
@@ -191,7 +194,7 @@ export const Booking = props => {
     }
   },[state.popup])
 
-  console.log(state);
+  console.log(state.popup);
   return <>
     <h1>List Room</h1>
     <Row gutter={[16,16]}>
@@ -223,50 +226,103 @@ export const Booking = props => {
       <div onClick={()=>{dispatch({type: "TOOGLE_POPUP", popup: {open: false, data: {}}});}}>
         <img src="https://ads-cdn.fptplay.net/static/banner/2021/06/d13c063446db6193273024ece6946b22_3978.png" alt='back' style={{maxWidth: 40, cursor: 'pointer'}}/>
       </div>
-      <Form
-        form={form}
-        {...layout} 
-        name="createBooking"
-        onFinish={createBooking}
-      >
-        <Form.Item
-          label="Room" name="room"
-        >
-          <Input disabled/>
-        </Form.Item>
-        <Form.Item
-          label="Name" name="name"
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          label="Date" name="date"
-          rules={[{ required: true, message: 'Please select date!' }]}
-        >
-          <RangePicker disabledDate={disabledDate} />
-        </Form.Item>
-        <Form.Item shouldUpdate={(prevValues, curValues) => prevValues.date !== curValues.date} noStyle>
-          {() => {
-            var _d = form.getFieldValue("date");
-            if(_d && state.popup.open) {
-              var _r = _d[1].diff(_d[0], 'days');
-              form.setFieldsValue({
-                totalMoney: _r*state.popup.data.roomType.price
-              }) 
-            }
-            return (
-              <Form.Item name="totalMoney" label="Total">
-                <Input disabled/>
-              </Form.Item>
-            );
-          }}
-        </Form.Item>
-        <Form.Item {...tailLayout}>
-          <Button type="primary" htmlType="submit" shape="round">
-            Create
-          </Button>
-        </Form.Item>
-      </Form>
+
+      <Tabs defaultActiveKey="1">
+        <TabPane tab="Create booking" key="1">
+          <Form
+            form={form}
+            {...layout} 
+            name="createBooking"
+            onFinish={createBooking}
+          >
+            <Form.Item
+              label="Room" name="room"
+            >
+              <Input disabled/>
+            </Form.Item>
+            <Form.Item
+              label="Name" name="name"
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Date" name="date"
+              rules={[{ required: true, message: 'Please select date!' }]}
+            >
+              <RangePicker disabledDate={disabledDate} />
+            </Form.Item>
+            <Form.Item shouldUpdate={(prevValues, curValues) => prevValues.date !== curValues.date} noStyle>
+              {() => {
+                var _d = form.getFieldValue("date");
+                if(_d && state.popup.open) {
+                  var _r = _d[1].diff(_d[0], 'days');
+                  form.setFieldsValue({
+                    totalMoney: _r*state.popup.data.roomType.price
+                  }) 
+                }
+                return (
+                  <Form.Item name="totalMoney" label="Total">
+                    <Input disabled/>
+                  </Form.Item>
+                );
+              }}
+            </Form.Item>
+            <Form.Item {...tailLayout}>
+              <Button type="primary" htmlType="submit" shape="round">
+                Create
+              </Button>
+            </Form.Item>
+          </Form>
+        </TabPane>
+        <TabPane tab="Booking" key="2">
+          <Table 
+            rowKey='_id'
+            title={() => 'List Booking'}
+            dataSource={state.popup.data.bookings ? state.popup.data.bookings : []} 
+            columns={[
+              {
+                title: 'Customer',
+                align: 'center',
+                key: 'customer',
+                render: (text, record, index) => {
+                  if(record.name) {
+                    return `${record.name} (guest)`;
+                  } else {
+                    return record.customer.email
+                  }
+                }
+              },
+              {
+                title: 'Start date',
+                dataIndex: 'bookingStart',
+                align: 'center',
+                key: 'bookingStart',
+                render: (text, record, index) => moment(record.bookingStart).format("DD-MM-YYYY")
+              },
+              {
+                title: 'End date',
+                dataIndex: 'bookingEnd',
+                align: 'center',
+                key: 'bookingEnd',
+                render: (text, record, index) => moment(record.bookingEnd).format("DD-MM-YYYY")
+              },
+              {
+                title: 'Total',
+                dataIndex: 'totalMoney',
+                align: 'center',
+                key: 'totalMoney',
+                render: (text, record, index) => <span>
+                  { record.totalMoney.toLocaleString("it-IT", {
+                    style: "currency",
+                    currency: "VND",
+                  })}{" "}
+                </span>
+              }
+            ]} 
+          />
+        </TabPane>
+       </Tabs>
+      
     </Drawer>
   </>
 }

@@ -320,3 +320,9 @@ h4 a:focus .anchor-icon {
 .rbc-event, .rbc-day-slot .rbc-background-event {
   background-color: #1890ff !important;
 }
+.qrcode-filter-date{
+  opacity: 0;
+  top: 0px;
+  left: 0px;
+  position: absolute !important;
+}
