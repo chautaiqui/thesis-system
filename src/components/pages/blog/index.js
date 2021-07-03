@@ -123,8 +123,8 @@ export const Blog = props => {
   console.log(popup, draw)
   return (
     <div>
-      <Button type="primary" shape="round" icon={<PlusCircleOutlined/>} onClick={()=>{setDraw({open:true, data:{}})}}> Add Blog</Button>
-      <Form form={form} name="horizontal_login" layout="inline" onFinish={onSearch} style={{marginTop: 15}}>
+      
+      <Form form={form} name="horizontal_login" layout="inline" onFinish={onSearch}>
         <Form.Item
           name="name" label="Blog"
         > 
@@ -134,6 +134,9 @@ export const Blog = props => {
           <Button type="primary" htmlType="submit" shape="round">
             Search
           </Button>
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" shape="round" icon={<PlusCircleOutlined/>} onClick={()=>{setDraw({open:true, data:{}})}}> Add Blog</Button>
         </Form.Item>
       </Form>
       <Row gutter={[16,16]} style={{marginTop: 50}}>

@@ -94,7 +94,7 @@ export const FormResquest = props => {
             ]}
           >
             <Select 
-              options={["Nghỉ phép", "Nghỉ phép không lương"].map(item=>({label:item, value:item}))}
+              options={["Nghỉ phép", "Nghỉ phép không lương", "Điểm danh muộn"].map(item=>({label:item, value:item}))}
               placeholder="Nghỉ phép"
             />
           </Form.Item>

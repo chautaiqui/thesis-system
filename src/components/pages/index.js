@@ -23,7 +23,10 @@ import { HotelShift } from './hotelshift';
 import { ConfirmLeave } from './confirmleave';
 import { FormResquest } from './formresquest';
 import { Qrcode } from './qrcode';
-
+import { InventoryReport } from './inventory-report';
+import { AdminEmployee } from './admin-employee';
+import { AdminRoom } from './admin-room';
+import { AdminFacility } from './admin-facility';
 const IconFont = createFromIconfontCN({
   scriptUrl: '//at.alicdn.com/t/font_8d5l8fzk5b87iudi.js',
 });
@@ -35,10 +38,13 @@ const Todo = () => {
 }
 
 const subPages1 = [
+  { path: '/inventoryreport', icon: (<AreaChartOutlined />), label: "Inventory Report", component: InventoryReport, permissions: 'inventory_report', role: 'admin'},
   { path: '/hotel', icon: (<HomeOutlined />), label: "Hotel", component: Hotel, permissions: 'hotel', role: 'admin' },
   { path: '/manager', icon:(<TeamOutlined />), label: "Manager", component: Manager, permissions: 'manager', role: 'admin' },
+  { path: '/hotel-employee', icon:(<UserOutlined />), label: "Hotel Employee", component: AdminEmployee, permissions: 'hotel-employee', role: 'admin' },
+  { path: '/hotel-room', icon:(<HomeOutlined />), label: "Hotel Room", component: AdminRoom, permissions: 'hotel-room', role: 'admin' },
+  { path: '/hotel-facility', icon:(<GroupOutlined />), label: "Hotel Facility", component: AdminFacility, permissions: 'hotel-facility', role: 'admin' },
   { path: '/blog', icon: (<ContainerOutlined />), label: "Blog", component: Blog, permissions: 'blog', role: 'admin' },
-  { path: '/inventoryreport', icon: (<AreaChartOutlined />), label: "Inventory Report", component: Todo, permissions: 'inventory_report', role: 'admin'},
   { path: '/admin', icon: (<FontColorsOutlined />), label: "Admin", component: AdminInfo, permissions: 'admin', role: 'admin' },
 ];                              
 const subPages2 = [

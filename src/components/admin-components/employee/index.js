@@ -36,7 +36,7 @@ const initState = {
 	popup: {open: false, data: {}},
 }
 
-export const Employee = () => {
+export const Employee = ({hotelId}) => {
 	const [ user, dispatchUser ] = useContext(User.context);
 	const [ state, dispatch ] = useReducer(EmployeeReducer, initState);
 	const [ loading, setLoading ] = React.useState(false);
@@ -142,14 +142,14 @@ export const Employee = () => {
 	}
 	const { data, popup } = state;
 	const getData = async () => {
-		if(!user.auth.hotel) {
+		if(!hotelId) {
 			dispatch({
 				type: 'GET_DATA_SUCCESS', data: []
 			});
 			return;
 		}
 		try {
-			const res = await _getRequest(`hotel/${user.auth.hotel}/employee`);
+			const res = await _getRequest(`hotel/${hotelId}/employee`);
 			if(!res.success) {
 				message.error(res.error);
 				return;
@@ -172,7 +172,9 @@ export const Employee = () => {
 			break;
     }
   }, [state.behavior])
-
+	useEffect(()=>{
+		dispatch({type: "RELOAD", popup: {open: false, data: {}}});
+	},[hotelId])
 	const onFinish = (values) => {
 		console.log(values)
 		var data = new FormData();
@@ -221,7 +223,7 @@ export const Employee = () => {
 						designation: values.designation,
 						baseSalary: values.baseSalary,
 					};
-					const res = await postMethod(`hotel/${user.auth.hotel}/create-employee`, object);
+					const res = await postMethod(`hotel/${hotelId}/create-employee`, object);
 					if(res.success) {
 						message.success('Create employee successfully!');
 						setLoading(false);

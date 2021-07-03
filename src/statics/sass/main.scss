@@ -280,3 +280,22 @@ tr.ant-table-expanded-row, tr.ant-table-expanded-row:hover{
   .custom-row-right {
     border-radius: 0px 10px 0px 0px;
 }
+.overflow-scrolling {
+    display: inline-flex;
+    -webkit-overflow-scrolling: touch;
+}
+.container-scroll {
+    width: 100%;
+    overflow: auto;
+    margin-top: 15px;
+}
+.hotel-item-choose {
+    color: crimson !important;
+}
+.hotel-item {
+    color:black;
+}
+.hotel-selected-admin {
+    width: 100%;
+    // position: fixed;
+}

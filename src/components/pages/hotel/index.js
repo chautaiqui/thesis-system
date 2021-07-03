@@ -66,7 +66,12 @@ export const Hotel = () => {
 			align: 'center',
 			key: 'averagePrice', 
 			render: (text, record, index) => {
-				return record.averagePrice.avgValue
+				return  <span>
+					{record.averagePrice.avgValue.toLocaleString("it-IT", {
+						style: "currency",
+						currency: "VND",
+					})}{" "}
+				</span>
 			}
 		},
 		{

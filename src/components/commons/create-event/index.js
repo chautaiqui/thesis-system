@@ -112,7 +112,8 @@ const CreateEvent = ({localizer, data, formData, formControl}) => {
             <span>{(function(){
               if(state.shift.event.timeInOut){
                 var _t = state.shift.event.timeInOut.split("-");
-                return _t[0]
+                var _min = _t[0].split("h");
+                return Number(_min[1]) >= 30 ? _min[0] + "h30" : _min[0] + "h00"
               }
             })()}</span>
           </Form.Item>
@@ -120,7 +121,8 @@ const CreateEvent = ({localizer, data, formData, formControl}) => {
           <span>{(function(){
               if(state.shift.event.timeInOut){
                 var _t = state.shift.event.timeInOut.split("-");
-                return _t[1]
+                var _min = _t[1].split("h");
+                return Number(_min[1]) >= 30 ? _min[0] + "h30" : _min[0] + "h00"
               }
             })()}</span>
           </Form.Item>

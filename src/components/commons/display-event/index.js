@@ -85,7 +85,8 @@ const DisplayEvent = ({localizer, data}) => {
             <span>{(function(){
               if(ashift.event.timeInOut){
                 var _t = ashift.event.timeInOut.split("-");
-                return _t[0]
+                var _min = _t[0].split("h");
+                return Number(_min[1]) >= 30 ? _min[0] + "h30" : _min[0] + "h00"
               }
             })()}</span>
           </Form.Item>
@@ -93,7 +94,8 @@ const DisplayEvent = ({localizer, data}) => {
           <span>{(function(){
               if(ashift.event.timeInOut){
                 var _t = ashift.event.timeInOut.split("-");
-                return _t[1]
+                var _min = _t[1].split("h");
+                return Number(_min[1]) >= 30 ? _min[0] + "h30" : _min[0] + "h00"
               }
             })()}</span>
           </Form.Item>
