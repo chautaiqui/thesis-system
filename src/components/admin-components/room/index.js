@@ -10,7 +10,7 @@ import { _getRequest, postMethod, putMethod } from '@api';
 const { RangePicker } = DatePicker;
 const layout = {
   labelCol: { span: 8 },
-  wrapperCol: { span: 16 },
+  wrapperCol: { span: 10 },
 };
 
 const RoomReducer = (state, action) => {
@@ -104,7 +104,12 @@ export const Room = ({hotelId}) => {
       dataIndex: 'roomType',
       align: 'center',
       key: 'price',  
-      render: (text, record, index) => record.roomType.price
+      render: (text, record, index) => <span style={{paddingLeft: 10}}>
+        {record.roomType.price.toLocaleString("it-IT", {
+          style: "currency",
+          currency: "VND",
+        })}{" "}
+      </span>
     },
     {
       title: 'Capacity',
@@ -305,7 +310,13 @@ export const Room = ({hotelId}) => {
               title: 'Price',
               dataIndex: 'price',
               align: 'center',
-              key: 'price', 
+              key: 'price',
+              render: (text, record, index) => <span style={{paddingLeft: 10}}>
+                {record.price.toLocaleString("it-IT", {
+                  style: "currency",
+                  currency: "VND",
+                })}{" "}
+              </span> 
             },{
               title: 'Edit',
               align: 'center',
@@ -361,7 +372,7 @@ export const Room = ({hotelId}) => {
           onFinish={actionRoom}
         >
           <Form.Item name='name' label="Name">
-            <Input />
+            <Input placeholder="Name"/>
           </Form.Item>
           <Form.Item name='roomType' label="Room Type">
             <Select 
@@ -377,11 +388,23 @@ export const Room = ({hotelId}) => {
             />
           </Form.Item>
           { popup.data.name && (<Form.Item name='price' label="Price">
-            <Input />
+            <InputNumber 
+              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              parser={value => value.replace(/\$\s?|(,*)/g, '')}
+              style={{width: '100%'}}
+              placeholder="Capacity of room type"
+              disabled
+            />
           </Form.Item>
           )}
           { popup.data.name && (<Form.Item name='capacity' label="Capacity">
-            <Input />
+            <InputNumber 
+              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              parser={value => value.replace(/\$\s?|(,*)/g, '')}
+              style={{width: '100%'}}
+              placeholder="Capacity of room type"
+              disabled
+            />
           </Form.Item>
           )}
           <Form.Item
@@ -393,15 +416,16 @@ export const Room = ({hotelId}) => {
                 {(fields, { add, remove }) => (
                   <>
                     {fields.map(({ key, name, fieldKey, ...restField }) => (
-                      <Space key={key} style={{ display: 'flex'}} size={'small'}>
+                      <Space key={key} style={{ display: 'flex', justifyContent: 'space-between'}} size={'small'} className="room-facility">
                         <Form.Item
                           {...restField}
                           name={[name, 'facility']}
                           fieldKey={[fieldKey, 'facility']}
                           rules={[{ required: true, message: 'Missing facility' }]}
+                          className="facility-item"
                         >
                           <Select 
-                            placeholder="facility" 
+                            placeholder="Select facility" 
                             options={state.facility ? state.facility.reduce((cur,next)=>{
                               var t = next.facilities.reduce((c,n)=>[...c,n],[])
                               return [...cur,...t]
@@ -425,7 +449,8 @@ export const Room = ({hotelId}) => {
                           <InputNumber
                             formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                             parser={value => value.replace(/\$\s?|(,*)/g, '')}
-                            style={{width: '50%'}}
+                            style={{width: '100%'}}
+                            placeholder="Amount facility"
                           />
                         </Form.Item>
                         <Form.Item><MinusCircleOutlined onClick={() => remove(name)} /></Form.Item>
@@ -486,7 +511,7 @@ export const Room = ({hotelId}) => {
               message: 'Please input name of room type!',
             }]}
           >
-            <Input />
+            <Input placeholder="Name of room type"/>
           </Form.Item>
           <Form.Item name='capacity' label="Capacity"
             rules={[
@@ -498,7 +523,8 @@ export const Room = ({hotelId}) => {
             <InputNumber 
               formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
               parser={value => value.replace(/\$\s?|(,*)/g, '')}
-              style={{width: '50%'}}
+              style={{width: '100%'}}
+              placeholder="Capacity of room type"
             />
           </Form.Item>
           <Form.Item name='price' label="Price"
@@ -511,12 +537,12 @@ export const Room = ({hotelId}) => {
             <InputNumber 
               formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
               parser={value => value.replace(/\$\s?|(,*)/g, '')}
-              style={{width: '50%'}}
+              style={{width: '100%'}}
+              placeholder="Price of room type"
             />
           </Form.Item>
         </Form>
       </Modal>
     </>
   )
-  
 }

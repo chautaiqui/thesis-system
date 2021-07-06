@@ -95,11 +95,13 @@ export const Blog = props => {
     const action = async () => {
       if(popup.open) {
         // update blog
+        if(typeof values.img !== 'object') data.delete("img");
         const res = await putMethod('blog', data, popup.data._id);
         if(res.success){
           message.success("Update blog successfully");
           setLoading(false);
           setPopup({open: false, data: {}});
+          setQuery({});
         } else {
           message.error(res.error);
           setLoading(false);
@@ -112,11 +114,13 @@ export const Blog = props => {
           message.success("Add blog successfully");
           setLoading(false);
           setDraw({open: false, data: {}})
+          setQuery({});
         } else {
           message.error(res.error);
           setLoading(false);
         }
       }
+
     }
     action();
   }

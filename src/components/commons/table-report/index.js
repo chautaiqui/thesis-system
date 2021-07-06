@@ -126,7 +126,13 @@ export const TableReport = (props) => {
       title: 'Total Money',
       dataIndex: 'bookingMoney',
       align: 'center',
-      key: 'bookingMoney'
+      key: 'bookingMoney',
+      render: (text, record, index) => <span style={{paddingLeft: 10}}>
+        {record.bookingMoney.toLocaleString("it-IT", {
+          style: "currency",
+          currency: "VND",
+        })}{" "}
+      </span>
     },
     {
       title: 'Rating',

@@ -48,7 +48,7 @@ const def_options = {
 };
 
 const randomColor = (number) => {
-  const arrColor = ['#ff4d4f', '#ffbb96', '#fa8c16', '#7cb305', '#fadb14', '#1890ff', '#36cfc9', '#c41d7f', '#1d39c4', '#434343'];
+  const arrColor = ['#1890ff', '#36cfc9', '#c41d7f', '#1d39c4', '#ff4d4f', '#ffbb96', '#fa8c16', '#7cb305', '#fadb14', '#434343'];
   return arrColor[number];
 }
 

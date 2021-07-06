@@ -42,7 +42,7 @@ const subPages1 = [
   { path: '/hotel', icon: (<HomeOutlined />), label: "Hotel", component: Hotel, permissions: 'hotel', role: 'admin' },
   { path: '/manager', icon:(<TeamOutlined />), label: "Manager", component: Manager, permissions: 'manager', role: 'admin' },
   { path: '/hotel-employee', icon:(<UserOutlined />), label: "Hotel Employee", component: AdminEmployee, permissions: 'hotel-employee', role: 'admin' },
-  { path: '/hotel-room', icon:(<HomeOutlined />), label: "Hotel Room", component: AdminRoom, permissions: 'hotel-room', role: 'admin' },
+  { path: '/hotelroom', icon:(<HomeOutlined />), label: "Hotel Room", component: AdminRoom, permissions: 'hotelroom', role: 'admin' },
   { path: '/hotel-facility', icon:(<GroupOutlined />), label: "Hotel Facility", component: AdminFacility, permissions: 'hotel-facility', role: 'admin' },
   { path: '/blog', icon: (<ContainerOutlined />), label: "Blog", component: Blog, permissions: 'blog', role: 'admin' },
   { path: '/admin', icon: (<FontColorsOutlined />), label: "Admin", component: AdminInfo, permissions: 'admin', role: 'admin' },

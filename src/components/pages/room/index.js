@@ -9,8 +9,8 @@ import { _getRequest, postMethod, putMethod } from '@api';
 
 const { RangePicker } = DatePicker;
 const layout = {
-  labelCol: { span: 8 },
-  wrapperCol: { span: 16 },
+  labelCol: { span: 7 },
+  wrapperCol: { span: 12 },
 };
 
 const RoomReducer = (state, action) => {
@@ -105,7 +105,12 @@ export const Room = props => {
       dataIndex: 'roomType',
       align: 'center',
       key: 'price',  
-      render: (text, record, index) => record.roomType.price
+      render: (text, record, index) => <span style={{paddingLeft: 10}}>
+        {record.roomType.price.toLocaleString("it-IT", {
+          style: "currency",
+          currency: "VND",
+        })}{" "}
+      </span>
     },
     {
       title: 'Capacity',
@@ -253,299 +258,321 @@ export const Room = props => {
     room();
   }
   return (<>
-      <Tabs defaultActiveKey="1">
-        <Tabs.TabPane tab="Room" key="1">
-          <Button 
-            type="primary" 
-            shape="round" 
-            icon={<PlusCircleOutlined/>}
-            onClick={()=>{
-              dispatch({type: 'TOOGLE_POPUP', popup: {open: true, data:{}}})
-              form.resetFields();             
-            }}
-            >Add Room
-          </Button>
-          <Table 
-            rowKey='_id'
-            // loading={data.length === 0}
-            title={() => 'Room'}
-            dataSource={data} 
-            columns={tCol} 
-            style={{marginTop: 10}}
-            expandable={
-              {
-                expandedRowRender: record => {
-                  const col = [
-                    {
-                      title: 'Name',
-                      dataIndex: 'facility',
-                      align: 'center',
-                      key: 'name',  
-                      render: (text, r, index) => r.facility.name
-                    },
-                    {
-                      title: 'Amount',
-                      dataIndex: 'amount',
-                      align: 'center',
-                      key: 'amount',  
-                    }
-                  ]
-                  return <Table 
-                    // title="Faclity"]
-                    bordered
-                    rowKey="_id"
-                    dataSource={record.facilities}
-                    columns={col}
-                    pagination={false}
-                  />
-                  // return JSON.stringify(record.facilities[0])
-                }
+    <Tabs defaultActiveKey="1">
+      <Tabs.TabPane tab="Room" key="1">
+        <Button 
+          type="primary" 
+          shape="round" 
+          icon={<PlusCircleOutlined/>}
+          onClick={()=>{
+            dispatch({type: 'TOOGLE_POPUP', popup: {open: true, data:{}}})
+            form.resetFields();             
+          }}
+          >Add Room
+        </Button>
+        <Table 
+          rowKey='_id'
+          // loading={data.length === 0}
+          title={() => 'Room'}
+          dataSource={data} 
+          columns={tCol} 
+          style={{marginTop: 10}}
+          expandable={
+            {
+              expandedRowRender: record => {
+                const col = [
+                  {
+                    title: 'Name',
+                    dataIndex: 'facility',
+                    align: 'center',
+                    key: 'name',  
+                    render: (text, r, index) => r.facility.name
+                  },
+                  {
+                    title: 'Amount',
+                    dataIndex: 'amount',
+                    align: 'center',
+                    key: 'amount',  
+                  }
+                ]
+                return <Table 
+                  // title="Faclity"]
+                  bordered
+                  rowKey="_id"
+                  dataSource={record.facilities}
+                  columns={col}
+                  pagination={false}
+                />
+                // return JSON.stringify(record.facilities[0])
               }
             }
-          />
-        </Tabs.TabPane>
-        <Tabs.TabPane tab="Room type" key="2">
-          <Button 
-            type="primary" 
-            shape="round" 
-            icon={<PlusCircleOutlined/>}
-            onClick={()=>{
-              rt_form.resetFields();
-              dispatch({type: 'TOOGLE_POPUP_ROOMTYPE', roomType: {open: true, data:{}}})
-            }}
-            >Add Room Type
-          </Button>
-          <Table
-            rowKey='_id'
-            tableLayout="auto"
-            title={() => 'Room Type'}
-            dataSource={data_room_type}
-            columns={[{
-              title: 'Name',
-              dataIndex: 'name',
-              align: 'center',
-              key: 'name', 
-            }, {
-              title: 'Capacity',
-              dataIndex: 'capacity',
-              align: 'center',
-              key: 'capacity', 
-            }, {
-              title: 'Price',
-              dataIndex: 'price',
-              align: 'center',
-              key: 'price', 
-            },{
-              title: 'Edit',
-              align: 'center',
-              key: 'edit', 
-              render: (text, record, index) => <Button type="primary" shape="circle" icon={<HighlightOutlined />}
-                onClick={()=>{
-                  rt_form.setFieldsValue({
-                    name: record.name,
-                    capacity: record.capacity,
-                    price: record.price,
-                  })
-                  console.log(record)
-                  dispatch({type: 'TOOGLE_POPUP_ROOMTYPE', roomType: {open: true, data:record}})
-                }}
-              ></Button>
-            }
-            ]}
-            style={{marginTop: 10}}
-          />
-        </Tabs.TabPane>   
-      </Tabs>
-      <Modal 
-        centered
-        closable={false}
-        maskClosable={false}
-        title= {'Room'}
-        key='modal_update'
-        width='70%' 
-        visible={popup.open}
-        forceRender
-        keyboard
-        footer={
-          <div>
-            <Button shape='round' type='primary' onClick={()=>{
-              form.submit();
-            }} loading={loading}>Confirm</Button>
-            <Button shape='round' onClick={()=>{
-              dispatch({type: 'TOOGLE_POPUP', popup: {open:false, data:{}}})
-              form.resetFields();
-            }}>Close</Button>
-          </div>
-        }
-        onOk={()=>{form.submit()}}
-        onCancel={() => {
+          }
+        />
+      </Tabs.TabPane>
+      <Tabs.TabPane tab="Room type" key="2">
+        <Button 
+          type="primary" 
+          shape="round" 
+          icon={<PlusCircleOutlined/>}
+          onClick={()=>{
+            rt_form.resetFields();
+            dispatch({type: 'TOOGLE_POPUP_ROOMTYPE', roomType: {open: true, data:{}}})
+          }}
+          >Add Room Type
+        </Button>
+        <Table
+          rowKey='_id'
+          tableLayout="auto"
+          title={() => 'Room Type'}
+          dataSource={data_room_type}
+          columns={[{
+            title: 'Name',
+            dataIndex: 'name',
+            align: 'center',
+            key: 'name', 
+          }, {
+            title: 'Capacity',
+            dataIndex: 'capacity',
+            align: 'center',
+            key: 'capacity', 
+          }, {
+            title: 'Price',
+            dataIndex: 'price',
+            align: 'center',
+            key: 'price',
+            render: (text, record, index) => <span style={{paddingLeft: 10}}>
+              {record.price.toLocaleString("it-IT", {
+                style: "currency",
+                currency: "VND",
+              })}{" "}
+            </span> 
+          },{
+            title: 'Edit',
+            align: 'center',
+            key: 'edit', 
+            render: (text, record, index) => <Button type="primary" shape="circle" icon={<HighlightOutlined />}
+              onClick={()=>{
+                rt_form.setFieldsValue({
+                  name: record.name,
+                  capacity: record.capacity,
+                  price: record.price,
+                })
+                console.log(record)
+                dispatch({type: 'TOOGLE_POPUP_ROOMTYPE', roomType: {open: true, data:record}})
+              }}
+            ></Button>
+          }
+          ]}
+          style={{marginTop: 10}}
+        />
+      </Tabs.TabPane>   
+    </Tabs>
+    <Modal 
+      centered
+      closable={false}
+      maskClosable={false}
+      title= {'Room'}
+      key='modal_update'
+      width='70%' 
+      visible={popup.open}
+      forceRender
+      keyboard
+      footer={
+        <div>
+          <Button shape='round' type='primary' onClick={()=>{
+            form.submit();
+          }} loading={loading}>Confirm</Button>
+          <Button shape='round' onClick={()=>{
             dispatch({type: 'TOOGLE_POPUP', popup: {open:false, data:{}}})
             form.resetFields();
-        }} 
+          }}>Close</Button>
+        </div>
+      }
+      onOk={()=>{form.submit()}}
+      onCancel={() => {
+          dispatch({type: 'TOOGLE_POPUP', popup: {open:false, data:{}}})
+          form.resetFields();
+      }} 
+    >
+      {/* {JSON.stringify(popup.data)} */}
+      <Form
+        {...layout} 
+        form={form} name="room-form"
+        onFinish={actionRoom}
       >
-        {/* {JSON.stringify(popup.data)} */}
-        <Form
-          {...layout} 
-          form={form} name="room-form"
-          onFinish={actionRoom}
+        <Form.Item name='name' label="Name">
+          <Input placeholder="Name"/>
+        </Form.Item>
+        <Form.Item name='roomType' label="Room Type">
+          <Select 
+            placeholder="Please choose room type of hotel"
+            options={data_room_type.map(item => ({label: item.name, value:item.name}))}
+          />
+           {/* <Input /> */}
+        </Form.Item>
+        <Form.Item name='status' label="Status">
+          <Select 
+            placeholder="Select a status"
+            options={[{label: 'Available', value: 'available'}, {label: 'Unavailable', value: 'unavailable'}]}
+          />
+        </Form.Item>
+        { popup.data.name && (<Form.Item name='price' label="Price">
+          <InputNumber 
+            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+            parser={value => value.replace(/\$\s?|(,*)/g, '')}
+            style={{width: '100%'}}
+            placeholder="Capacity of room type"
+            disabled
+          />
+        </Form.Item>
+        )}
+        { popup.data.name && (<Form.Item name='capacity' label="Capacity">
+          <InputNumber 
+            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+            parser={value => value.replace(/\$\s?|(,*)/g, '')}
+            style={{width: '100%'}}
+            placeholder="Capacity of room type"
+            disabled
+          />
+        </Form.Item>
+        )}
+        <Form.Item
+          label="Facility"
         >
-          <Form.Item name='name' label="Name">
-            <Input />
-          </Form.Item>
-          <Form.Item name='roomType' label="Room Type">
-            <Select 
-              placeholder="Please choose room type of hotel"
-              options={data_room_type.map(item => ({label: item.name, value:item.name}))}
-            />
-             {/* <Input /> */}
-          </Form.Item>
-          <Form.Item name='status' label="Status">
-            <Select 
-              placeholder="Select a status"
-              options={[{label: 'Available', value: 'available'}, {label: 'Unavailable', value: 'unavailable'}]}
-            />
-          </Form.Item>
-          { popup.data.name && (<Form.Item name='price' label="Price">
-            <Input />
-          </Form.Item>
-          )}
-          { popup.data.name && (<Form.Item name='capacity' label="Capacity">
-            <Input />
-          </Form.Item>
-          )}
-          <Form.Item
-            label="Facility"
-          >
-              <Form.List 
-                name='facilities'
-              >
-                {(fields, { add, remove }) => (
-                  <>
-                    {fields.map(({ key, name, fieldKey, ...restField }) => (
-                      <Space key={key} style={{ display: 'flex'}} size={'small'}>
-                        <Form.Item
-                          {...restField}
-                          name={[name, 'facility']}
-                          fieldKey={[fieldKey, 'facility']}
-                          rules={[{ required: true, message: 'Missing facility' }]}
-                        >
-                          <Select 
-                            placeholder="facility" 
-                            options={state.facility ? state.facility.reduce((cur,next)=>{
-                              var t = next.facilities.reduce((c,n)=>[...c,n],[])
-                              return [...cur,...t]
-                              },[])
-                              .map(item => ({label: item.name, value: item.name})) : []
-                            }
-                            allowClear
-                            showSearch
-                            filterOption={(inputValue, options) => {
-                              return options.label.toLowerCase().includes(inputValue.toLowerCase())
-                            }}
-                            notFoundContent={'Not found item'}
-                          />
-                        </Form.Item>
-                        <Form.Item
-                          {...restField}
-                          name={[name, 'amount']}
-                          fieldKey={[fieldKey, 'amount']}
-                          rules={[{ required: true, message: 'Missing amount' }]}
-                        >
-                          <InputNumber
-                            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                            parser={value => value.replace(/\$\s?|(,*)/g, '')}
-                            style={{width: '50%'}}
-                          />
-                        </Form.Item>
-                        <Form.Item><MinusCircleOutlined onClick={() => remove(name)} /></Form.Item>
-                      </Space>
-                    ))}
-                    <Form.Item>
-                      <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                        Add attribute
-                      </Button>
-                    </Form.Item>
-                  </>
-                )}
-              </Form.List>
-          </Form.Item>
-        </Form>
-      </Modal>
-      <Modal 
-        centered
-        closable={false}
-        maskClosable={false}
-        title= {roomType.data._id ? 'Update Room Type' : 'Add Room Type'}
-        key='modal_roomtype'
-        width='70%' 
-        visible={roomType.open}
-        forceRender
-        keyboard
-        footer={
-          <div>
-            <Button shape='round' type='primary' onClick={()=>{
-              rt_form.submit();
-              // dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}} )
-            }} loading={loading}>Confirm</Button>
-            <Button shape='round' onClick={()=>{
-              setLoading(false);
-              dispatch({type: 'TOOGLE_POPUP_ROOMTYPE', roomType: {open:false, data:{}}})
-              rt_form.resetFields();
-            }}>Close</Button>
-          </div>
+            <Form.List 
+              name='facilities'
+            >
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, fieldKey, ...restField }) => (
+                    <Space key={key} style={{ display: 'flex', justifyContent: 'space-between'}} size={'small'} className="room-facility">
+                      <Form.Item
+                        {...restField}
+                        name={[name, 'facility']}
+                        fieldKey={[fieldKey, 'facility']}
+                        rules={[{ required: true, message: 'Missing facility' }]}
+                        className="facility-item"
+                      >
+                        <Select 
+                          placeholder="Select facility" 
+                          options={state.facility ? state.facility.reduce((cur,next)=>{
+                            var t = next.facilities.reduce((c,n)=>[...c,n],[])
+                            return [...cur,...t]
+                            },[])
+                            .map(item => ({label: item.name, value: item.name})) : []
+                          }
+                          allowClear
+                          showSearch
+                          filterOption={(inputValue, options) => {
+                            return options.label.toLowerCase().includes(inputValue.toLowerCase())
+                          }}
+                          notFoundContent={'Not found item'}
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        {...restField}
+                        name={[name, 'amount']}
+                        fieldKey={[fieldKey, 'amount']}
+                        rules={[{ required: true, message: 'Missing amount' }]}
+                      >
+                        <InputNumber
+                          formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                          parser={value => value.replace(/\$\s?|(,*)/g, '')}
+                          style={{width: '100%'}}
+                          placeholder="Amount facility"
+                        />
+                      </Form.Item>
+                      <Form.Item><MinusCircleOutlined onClick={() => remove(name)} /></Form.Item>
+                    </Space>
+                  ))}
+                  <Form.Item>
+                    <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                      Add attribute
+                    </Button>
+                  </Form.Item>
+                </>
+              )}
+            </Form.List>
+        </Form.Item>
+      </Form>
+    </Modal>
+    <Modal 
+      centered
+      closable={false}
+      maskClosable={false}
+      title= {roomType.data._id ? 'Update Room Type' : 'Add Room Type'}
+      key='modal_roomtype'
+      width='70%' 
+      visible={roomType.open}
+      forceRender
+      keyboard
+      footer={
+        <div>
+          <Button shape='round' type='primary' onClick={()=>{
+            rt_form.submit();
+            // dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}} )
+          }} loading={loading}>Confirm</Button>
+          <Button shape='round' onClick={()=>{
+            setLoading(false);
+            dispatch({type: 'TOOGLE_POPUP_ROOMTYPE', roomType: {open:false, data:{}}})
+            rt_form.resetFields();
+          }}>Close</Button>
+        </div>
+      }
+      onOk={()=>{
+          
         }
-        onOk={()=>{
-            
-          }
-        }
-        cancelText='Close'
-        onCancel={() => {
-            // roomType.resetFields();
-        }} 
+      }
+      cancelText='Close'
+      onCancel={() => {
+          // roomType.resetFields();
+      }} 
+    >
+      <Form 
+        {...layout}
+        form={rt_form} name="roomtype-form"
+        onFinish={actionRoomtype}
       >
-        <Form 
-          {...layout}
-          form={rt_form} name="roomtype-form"
-          onFinish={actionRoomtype}
+        <Form.Item name='name' label="Name"
+          rules={[
+          {
+            required: true,
+            message: 'Please input name of room type!',
+          }]}
         >
-          <Form.Item name='name' label="Name"
-            rules={[
-            {
-              required: true,
-              message: 'Please input name of room type!',
-            }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item name='capacity' label="Capacity"
-            rules={[
-            {
-              required: true,
-              message: 'Please input capacity of room type!',
-            }]}
-          >
-            <InputNumber 
-              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={value => value.replace(/\$\s?|(,*)/g, '')}
-              style={{width: '50%'}}
-            />
-          </Form.Item>
-          <Form.Item name='price' label="Price"
-            rules={[
-            {
-              required: true,
-              message: 'Please input price of room type!',
-            }]}
-          >
-            <InputNumber 
-              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={value => value.replace(/\$\s?|(,*)/g, '')}
-              style={{width: '50%'}}
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </>
-  )
+          <Input placeholder="Name of room type"/>
+        </Form.Item>
+        <Form.Item name='capacity' label="Capacity"
+          rules={[
+          {
+            required: true,
+            message: 'Please input capacity of room type!',
+          }]}
+        >
+          <InputNumber 
+            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+            parser={value => value.replace(/\$\s?|(,*)/g, '')}
+            style={{width: '100%'}}
+            placeholder="Capacity of room type"
+          />
+        </Form.Item>
+        <Form.Item name='price' label="Price"
+          rules={[
+          {
+            required: true,
+            message: 'Please input price of room type!',
+          }]}
+        >
+          <InputNumber 
+            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+            parser={value => value.replace(/\$\s?|(,*)/g, '')}
+            style={{width: '100%'}}
+            placeholder="Price of room type"
+          />
+        </Form.Item>
+      </Form>
+    </Modal>
+  </>
+)
   
 }

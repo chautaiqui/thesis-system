@@ -79,7 +79,7 @@ const AdminLayout = props => {
           </div>
           <Menu
             theme='dark'
-            defaultSelectedKeys={window.location.pathname}
+            // defaultSelectedKeys={window.location.pathname}
             className="custom-sider-menu"
           >
             {menuPages.filter(p => user.role === p.role).map(menuItem => 

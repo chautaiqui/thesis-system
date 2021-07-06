@@ -346,3 +346,10 @@ tr.ant-table-expanded-row, tr.ant-table-expanded-row:hover{
 .item-title-value {
     color: #000;
 }
+
+.room-facility .ant-space-item:nth-child(1) {
+    width: 40%;
+}
+.item-top-rank-user .ant-list-item:hover {
+    background-color: '#515151';
+}
