@@ -299,3 +299,50 @@ tr.ant-table-expanded-row, tr.ant-table-expanded-row:hover{
     width: 100%;
     // position: fixed;
 }
+
+.item-container {
+	display: flex;
+	text-decoration: none;
+	color: inherit;
+	max-width: 400px;
+	position: relative;
+	padding: 2rem;
+    border-radius: 15px;
+	// box-shadow: inset 0 0 0 4px #000, inset -4px -4px 0 6px #CCC;
+	background-color: #FFF;
+	cursor: pointer; 
+	&:before {
+		position: absolute; 
+		left: 0;
+		bottom: 0;
+		content: "";
+		display: block;
+		width: 100%;
+		height: 100%;
+        border-radius: 15px;
+        background-color: #108ee9;
+		transform-origin: 0 bottom 0;
+		transform: scaleY(0);
+		transition: .4s ease-out;
+	}
+	
+	&:hover {
+		.item-title {
+			color: #FFF;
+		}
+		&:before {
+			transform: scaleY(1);
+		}
+	}
+}
+
+.item-title {
+	position: relative;
+	font-size: 1.5rem;
+	font-weight: 500;
+	line-height: 1.333;
+	transition: .4s ease-out;
+}
+.item-title-value {
+    color: #000;
+}
