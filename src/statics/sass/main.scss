@@ -297,6 +297,7 @@ tr.ant-table-expanded-row, tr.ant-table-expanded-row:hover{
 }
 .hotel-selected-admin {
     width: 100%;
+    margin-top: 10px;
     // position: fixed;
 }
 
@@ -352,4 +353,9 @@ tr.ant-table-expanded-row, tr.ant-table-expanded-row:hover{
 }
 .item-top-rank-user .ant-list-item:hover {
     background-color: '#515151';
+}
+
+.btn-box-shawdow {
+    box-shadow: 0px 1px 3px 0px #000000 !important;
+    border-radius: 5px !important;
 }

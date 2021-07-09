@@ -5,8 +5,8 @@ import axios from 'axios';
 import { _getRequest, postMethod, putMethod } from '@api';
 
 const layout = {
-  labelCol: { span: 8 },
-  wrapperCol: { span: 16 },
+  labelCol: { span: 6 },
+  wrapperCol: { span: 15 },
 };
 
 const FacilityReducer = (state, action) => {
@@ -90,8 +90,8 @@ export const FacilityType = props => {
           <Form.Item name="name" label="Facility type">
             <Input />
           </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit" shape="round" loading={loading}>
+          <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+            <Button type="primary" htmlType="submit" shape="round" loading={loading} style={{float: "right"}} icon={<PlusCircleOutlined/>}>
               Add facility type
             </Button>
           </Form.Item>
@@ -121,11 +121,17 @@ export const FacilityType = props => {
             dispatch({type: 'TOOGLE_POPUP_FACILITY', facs: {open: true, data: {}}, behavior: 'stall'})
             form_facility.resetFields();
           }}
+          style={{
+            float: "right",
+            marginBottom: 10,
+            zIndex: 2
+          }}
           >Add Facility
         </Button>
         <Table
           style={{marginTop: 10}} 
           rowKey="_id"
+          bordered
           dataSource={state.data.map(item => {
             return item.facilities.map(i => ({...i, facilititype: item.name}))
             // return item.facilities
@@ -180,7 +186,7 @@ export const FacilityType = props => {
     </Row>
     <Modal 
       centered
-      closable={false}
+      closable={true}
       maskClosable={false}
       title= {'Update Facility Type'}
       key='facility'
@@ -228,7 +234,7 @@ export const FacilityType = props => {
     </Modal>
     <Modal
       centered
-      closable={false}
+      closable={true}
       maskClosable={false}
       title= {'Facility'}
       key='facilities'
@@ -238,10 +244,10 @@ export const FacilityType = props => {
       keyboard
       footer={
 				<div>
-					<Button shape='round' type='primary' loading={load} onClick={()=>{
+					<Button className="btn-box-shawdow" type='primary' loading={load} onClick={()=>{
             form_facility.submit();
           }} loading={loading}>Confirm</Button>
-					<Button shape='round' onClick={()=>{
+					<Button className="btn-box-shawdow" onClick={()=>{
 						setLoad(false);
 						dispatch({type: 'TOOGLE_POPUP_FACILITY', facs: {open:false, data:{}}, behavior: 'init'})
             form_facility.resetFields();

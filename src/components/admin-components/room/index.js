@@ -9,8 +9,8 @@ import { _getRequest, postMethod, putMethod } from '@api';
 
 const { RangePicker } = DatePicker;
 const layout = {
-  labelCol: { span: 8 },
-  wrapperCol: { span: 10 },
+  labelCol: { span: 6 },
+  wrapperCol: { span: 14 },
 };
 
 const RoomReducer = (state, action) => {
@@ -243,6 +243,7 @@ export const Room = ({hotelId}) => {
           </Button>
           <Table 
             rowKey='_id'
+            bordered
             // loading={data.length === 0}
             title={() => 'Room'}
             dataSource={data} 
@@ -293,6 +294,7 @@ export const Room = ({hotelId}) => {
           </Button>
           <Table
             rowKey='_id'
+            bordered
             tableLayout="auto"
             title={() => 'Room Type'}
             dataSource={data_room_type}
@@ -337,6 +339,9 @@ export const Room = ({hotelId}) => {
             style={{marginTop: 10}}
           />
         </Tabs.TabPane>   
+        {/* <Tabs.TabPane tab="History" key="3">
+            History
+        </Tabs.TabPane> */}
       </Tabs>
       <Modal 
         centered
@@ -350,10 +355,10 @@ export const Room = ({hotelId}) => {
         keyboard
         footer={
           <div>
-            <Button shape='round' type='primary' onClick={()=>{
+            <Button className="btn-box-shawdow" type='primary' onClick={()=>{
               form.submit();
             }} loading={loading}>Confirm</Button>
-            <Button shape='round' onClick={()=>{
+            <Button className="btn-box-shawdow" onClick={()=>{
               dispatch({type: 'TOOGLE_POPUP', popup: {open:false, data:{}}})
               form.resetFields();
             }}>Close</Button>
@@ -479,11 +484,11 @@ export const Room = ({hotelId}) => {
         keyboard
         footer={
           <div>
-            <Button shape='round' type='primary' onClick={()=>{
+            <Button className="btn-box-shawdow" type='primary' onClick={()=>{
               rt_form.submit();
               // dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}} )
             }} loading={loading}>Confirm</Button>
-            <Button shape='round' onClick={()=>{
+            <Button className="btn-box-shawdow" onClick={()=>{
               setLoading(false);
               dispatch({type: 'TOOGLE_POPUP_ROOMTYPE', roomType: {open:false, data:{}}})
               rt_form.resetFields();

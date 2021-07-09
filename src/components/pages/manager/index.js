@@ -9,7 +9,7 @@ import moment from 'moment';
 const { confirm } = Modal;
 
 const layout = {
-	labelCol: { span: 8 },
+	labelCol: { span: 6 },
 	wrapperCol: { span: 16 },
 };
 const tailFormItemLayout = {
@@ -320,8 +320,8 @@ export const Manager = () => {
 			}}
 			footer={
 				<div>
-					<Button shape='round' type='primary' onClick={showConfirm} loading={loading}>Confirm</Button>
-					<Button shape='round' onClick={()=>{
+					<Button className="btn-box-shawdow" type='primary' onClick={showConfirm} loading={loading}>Confirm</Button>
+					<Button className="btn-box-shawdow" onClick={()=>{
 						setLoading(false);
 						dispatch({type: 'TOOGLE_POPUP', popup: {open:false, data:{}}})
 						form.resetFields();
@@ -340,12 +340,12 @@ export const Manager = () => {
 						<Form.Item name='name' label="Name"
 							rules={[{ required: true, message: 'Name empty!' }]}
 						>
-							<Input />
+							<Input placeholder="Name"/>
 						</Form.Item>
 						<Form.Item name='email' label="Email"
 							rules={[{ required: true, message: 'Email empty!' }]}
 						>
-							<Input disabled={popup.data.email ? true : false}/>
+							<Input disabled={popup.data.email ? true : false} placeholder="Email: abc@gmail.com"/>
 						</Form.Item>
 						<Form.Item name='birthday' label="Birthday"
 							rules={[{ required: true, message: 'Birthday empty!' }]}
@@ -355,12 +355,12 @@ export const Manager = () => {
 						<Form.Item name='phone' label="Phone"
 							rules={[{ required: true, message: 'Phone empty!' }]}
 						>
-							<Input />
+							<Input placeholder="Ex: 0xxxxxxxxx"/>
 						</Form.Item>
 						<Form.Item name='address' label="Address"
 							rules={[{ required: true, message: 'Address empty!' }]}
 						>
-							<Input />
+							<Input placeholder="Address"/>
 						</Form.Item>
 					</Col>
 					<Col xs={24} sm={12} md={12} lg={12} xl={12}>
@@ -372,12 +372,12 @@ export const Manager = () => {
 						<Form.Item name='department' label="Department"
 							rules={[{ required: true, message: 'Department empty!' }]}
 						>
-							<Input />
+							<Input placeholder="Department"/>
 						</Form.Item>
 						<Form.Item name='designation' label="Designation"
 							rules={[{ required: true, message: 'Designation empty!' }]}
 						>
-							<Input />
+							<Input placeholder="Designation"/>
 						</Form.Item>
 						<Form.Item name='baseSalary' label="BaseSalary"
 							rules={[{ required: true, message: 'baseSalary empty!' }]}
@@ -385,6 +385,7 @@ export const Manager = () => {
 							<InputNumber 
 								formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
 								parser={value => value.replace(/\$\s?|(,*)/g, '')}
+								style={{width: "100%"}}
 							/>
 						</Form.Item>
 						{popup.data._id && (<Form.Item name='img' label="Img"

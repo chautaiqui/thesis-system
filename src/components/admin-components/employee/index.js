@@ -10,7 +10,7 @@ import { _getRequest, postMethod, putMethod } from '@api';
 const { confirm } = Modal;
 
 const layout = {
-	labelCol: { span: 8 },
+	labelCol: { span: 6 },
 	wrapperCol: { span: 16 },
 };
 
@@ -279,11 +279,11 @@ export const Employee = ({hotelId}) => {
 			visible={popup.open} 
 			footer={
 				<div>
-					<Button shape='round' type='primary' onClick={()=>{
+					<Button className="btn-box-shawdow" type='primary' onClick={()=>{
 						console.log('click');
 						showConfirm()
 					}} loading={loading}>Confirm</Button>
-					<Button shape='round' onClick={()=>{
+					<Button className="btn-box-shawdow" onClick={()=>{
 						setLoading(false);
 						dispatch({type: 'TOOGLE_POPUP', popup: {open:false, data:{}}});
 						form.resetFields();
@@ -350,6 +350,7 @@ export const Employee = ({hotelId}) => {
 							<InputNumber 
 								formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
 								parser={value => value.replace(/\$\s?|(,*)/g, '')}
+								style={{width: "100%"}}
 							/>
 						</Form.Item>
 						{popup.data._id && (<Form.Item name='img' label="Img"

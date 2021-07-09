@@ -61,7 +61,7 @@ export const InventoryReport = props => {
             <DatePicker picker="year" disabledDate={disabledDate}/>
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" shape="round">
+            <Button type="primary" htmlType="submit" style={{boxShadow: '0px 1px 3px 0px #000000', borderRadius: 5}}>
               View
             </Button>
           </Form.Item>
@@ -74,23 +74,23 @@ export const InventoryReport = props => {
     <Row gutter={[16,16]}>
       <Col span={24}>
         <Row gutter={[16,16]}> 
-          <Col xs={12} sm={8} md={4} lg={4} xl={4}>
+          <Col xs={12} sm={8} md={8} lg={4} xl={4}>
             {/* <Item title="Booking" value={"123312"} /> */}
             <Item title="Booking" value={data.hotelsReport ? formatNumber(data.hotelsReport[0].booking[0].totalAmount) : ""} />
           </Col>
-          <Col xs={12} sm={8} md={4} lg={4} xl={4}>
+          <Col xs={12} sm={8} md={8} lg={4} xl={4}>
             <Item title="Total Revenue" value={data.hotelsReport ? formatNumber(data.hotelsReport[0].booking[0].totalMoney, " VND") : ""} />
           </Col>
-          <Col xs={12} sm={8} md={4} lg={4} xl={4}>
+          <Col xs={12} sm={8} md={8} lg={4} xl={4}>
             <Item title="Total Customer" value={data.customerReport ? formatNumber(data.customerReport[0].totalCustomer[0].total) : ""}/>
           </Col>
-          <Col xs={12} sm={8} md={4} lg={4} xl={4}>
+          <Col xs={12} sm={8} md={8} lg={4} xl={4}>
             <Item title="New Customer" value={data.customerReport ? formatNumber(data.customerReport[0].newCustomer[0].total) : ""}/>
           </Col>
-          <Col xs={12} sm={8} md={4} lg={4} xl={4}>
+          <Col xs={12} sm={8} md={8} lg={4} xl={4}>
             <Item title="Customer Booking" value={data.customerBookingReport ? formatNumber(data.customerBookingReport[0].customerAmount[0].total) : "" }/>
           </Col>
-          <Col xs={12} sm={8} md={4} lg={4} xl={4}>
+          <Col xs={12} sm={8} md={8} lg={4} xl={4}>
             <Item title="Guest Booking" value={data.customerBookingReport ? formatNumber(data.customerBookingReport[0].guest[0].bookingAmount) : "" }/>
           </Col>
         </Row>

@@ -9,8 +9,8 @@ import { _getRequest, postMethod, putMethod } from '@api';
 const { confirm } = Modal;
 
 const layout = {
-	labelCol: { span: 8 },
-	wrapperCol: { span: 16 },
+	labelCol: { span: 6 },
+	wrapperCol: { span: 14 },
 };
 
 const HotelReducer = (state, action) => {
@@ -302,8 +302,8 @@ export const Hotel = () => {
 			visible={popup.open} 
 			footer={
 				<div>
-					<Button shape='round' type='primary' onClick={showConfirm} loading={loading}>Confirm</Button>
-					<Button shape='round' onClick={()=>{
+					<Button className="btn-box-shawdow" type='primary' onClick={showConfirm} loading={loading}>Confirm</Button>
+					<Button className="btn-box-shawdow" onClick={()=>{
 						setLoading(false);
 						dispatch({type: 'TOOGLE_POPUP', popup: {open:false, data:{}}});
 						form.resetFields();
@@ -327,12 +327,12 @@ export const Hotel = () => {
 						<Form.Item name='name' label="Name"
 							rules={[{ required: true, message: 'Name empty!' }]}
 						>
-							<Input />
+							<Input placeholder="Name"/>
 						</Form.Item>
 						<Form.Item name='phone' label="Phone"
 							rules={[{ required: true, message: 'Phone empty!' }]}
 						>
-							<Input />
+							<Input placeholder="Ex: 0xxxxxxxxx"/>
 						</Form.Item>
 						{!popup.data._id && (<Form.Item name='time' label="Time In-Out"
 							rules={[{ required: true, message: 'Time empty!' }]}
@@ -352,6 +352,7 @@ export const Hotel = () => {
 							<Select 
 								allowClear
 								showSearch
+								placeholder="Province"
 								notFoundContent={'Not Found'}
 								options={cities.province.map(item=> ({label: item.name, value: Number(item.idProvince)}))}
 								filterOption={(inputValue, options) => {
@@ -371,6 +372,7 @@ export const Hotel = () => {
 									<Select 
 										allowClear
 										showSearch
+										placeholder="Select district"
 										notFoundContent={'Not Found'}
 										options={_d.map(item=> ({label: item.name, value: Number(item.idDistrict)}))}
 										filterOption={(inputValue, options) => {
@@ -392,6 +394,7 @@ export const Hotel = () => {
 									<Select 
 										allowClear
 										showSearch
+										placeholder="Select ward"
 										notFoundContent={'Not Found'}
 										options={_w.map(item=> ({label: item.name, value: item.name}))}
 										filterOption={(inputValue, options) => {
@@ -404,7 +407,7 @@ export const Hotel = () => {
 						<Form.Item name='street' label="Street"
 							rules={[{ required: true, message: 'Street empty!' }]}
 						>
-							<Input />
+							<Input placeholder="Street"/>
 						</Form.Item>
 						<Form.Item name='imgs' label="Img" required
 						>
