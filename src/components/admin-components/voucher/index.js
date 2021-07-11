@@ -36,7 +36,7 @@ const initState = {
 	popup: {open: false, data: {}},
 }
 
-export const Voucher = () => {
+export const Voucher = ({hotelId}) => {
 	const [ user ] = useContext(User.context);
 	const [ state, dispatch ] = useReducer(VoucherReducer, initState);
 	const [ loading, setLoading ] = React.useState(false);
@@ -56,7 +56,7 @@ export const Voucher = () => {
 			align: 'center',
 			key: 'status', 
 			fixed: 'left',
-			render: (text, record, index) => <Tag color={record.status === 'available' ? "#f50" : "#87d068"}>{record.status}</Tag>
+			render: (text, record, index) => <Tag color={record.status === 'available' ? "green" : "#87d068"}>{record.status}</Tag>
 		},
 		{
 			title: 'Discount (%)',
@@ -116,6 +116,7 @@ export const Voucher = () => {
 							startDate: moment(record.startDate, 'DD-MM-YYYY'),
 							endDate: moment(record.endDate, 'DD-MM-YYYY'),
 							discount: record.discount,
+							discountLimit: record.discountLimit,
 							amount: record.amount,
 							img: record.img,
 							description: record.description,
@@ -135,16 +136,16 @@ export const Voucher = () => {
 	}
 	const { data, popup } = state;
 	const getData = async () => {
-		if(!user.auth.hotel) {
+		if(!hotelId) {
 			dispatch({
 				type: 'GET_DATA_SUCCESS', data: []
 			});
 			return;
 		}
 		try {
-			const res = await _getRequest(`hotel/${user.auth.hotel}/voucher`);
-			console.log(`hotel/${user.auth.hotel}/roomtype`)
-			const res1 = await _getRequest(`hotel/${user.auth.hotel}/roomtype`);
+			const res = await _getRequest(`hotel/${hotelId}/voucher`);
+			console.log(`hotel/${hotelId}/roomtype`)
+			const res1 = await _getRequest(`hotel/${hotelId}/roomtype`);
 			if(!res.success) {
 				message.error(res.error);
 				return;
@@ -171,7 +172,10 @@ export const Voucher = () => {
 			break;
     }
   }, [state.behavior])
-
+  useEffect(()=>{
+		dispatch({type: "RELOAD", popup: {open: false, data: {}} });
+	},[hotelId])
+  
 	const onFinish = (values) => {
 		const data = {
 			roomType: values.roomType,
@@ -179,6 +183,7 @@ export const Voucher = () => {
 			startDate: moment(values.startDate).format('DD-MM-YYYY HH:mm'),
 			endDate: moment(values.endDate).format('DD-MM-YYYY HH:mm'),
 			discount: values.discount,
+			discountLimit: values.discountLimit,
 			amount: values.amount,
 		}
 		setLoading(true);
@@ -222,7 +227,7 @@ export const Voucher = () => {
 							formdata.append(key, value)
 						}
 					}
-					const res = await postMethod(`hotel/${user.auth.hotel}/create-voucher`, formdata);
+					const res = await postMethod(`hotel/${hotelId}/create-voucher`, formdata);
 					if(res.success) {
 						message.success('Create voucher successfully!');
 						setLoading(false);
@@ -308,7 +313,7 @@ export const Voucher = () => {
 				<Form.Item name="roomType" label="Room type">
 					<Select 
 						placeholder="Room type" 
-						options={data.roomType.map(item => ({label: item.name, value: item.name}))}
+						options={data.roomType ? data.roomType.map(item => ({label: item.name, value: item.name})) : []}
 						allowClear
 						showSearch
 						filterOption={(inputValue, options) => {
@@ -335,8 +340,16 @@ export const Voucher = () => {
 					<InputNumber 
 						formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
 						parser={value => value.replace(/\$\s?|(,*)/g, '')}
-						style={{width: '50%'}}
+						style={{width: '80%'}}
 					/>
+				</Form.Item>
+				<Form.Item name="discountLimit" label="Limit">
+					<CustomInput 
+						formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+						parser={value => value.replace(/\$\s?|(,*)/g, '')}
+						style={{width: "80%"}}
+					/>
+					{/* <Input disabled/> */}
 				</Form.Item>
 				<Form.Item name='amount' label="Amount" 
 					rules={[{ required: true, message: 'Please input amount of voucher!'}]}
@@ -344,7 +357,7 @@ export const Voucher = () => {
 					<InputNumber 
 						formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
 						parser={value => value.replace(/\$\s?|(,*)/g, '')}
-						style={{width: '50%'}}
+						style={{width: '80%'}}
 					/>
 				</Form.Item>
 				<Form.Item name="description" label="Description">
@@ -356,4 +369,11 @@ export const Voucher = () => {
 			</Form>
 		</Modal>
 	</>
+}
+
+const CustomInput = (props) => {
+  return <>
+    <InputNumber {...props}/>
+    <span>VND</span>
+  </>
 }

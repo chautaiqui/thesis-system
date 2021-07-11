@@ -14,11 +14,17 @@ export const RoomItem = ({room, action}) => {
   const [ isbooking, setIsbooking ] = useState({have: false, style: _style});
 
   useEffect(()=>{
-    if(room.bookings.length === 0) return;
+    if(room.bookings.length === 0) {
+      setIsbooking({
+        have: false,
+        style: _style
+      })
+      return;
+    };
     room.bookings.map(item => {
       var now = moment();
-      var start = moment(item.bookingStart);
-      var end = moment(item.bookingEnd);
+      var start = moment(item.bookingStart, "YYYY-MM-DD");
+      var end = moment(item.bookingEnd, "YYYY-MM-DD");
       const check = (start.isBefore(now, 'days') || start.isSame(now, 'days')) && end.isAfter(now, 'days');
       if(check) setIsbooking({
         have: true,
@@ -28,7 +34,7 @@ export const RoomItem = ({room, action}) => {
         }
       });
     })
-  },[room])
+  },[room, action])
   return <div onClick={()=>{
     if(isbooking.have) return;
     action(room);

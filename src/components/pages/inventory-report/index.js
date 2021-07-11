@@ -9,6 +9,8 @@ import { TableReport } from '../../commons/table-report';
 import { CustomHorizontalBarChart } from '../../commons/chart/horizontalBarChart';
 import { GoogleMap } from '../../commons/google-map';
 import { RankChart } from '../../commons/rank-chart';
+import { FacilityReport } from '../../commons/facility-report';
+import { RoomReport } from '../../commons/room-report';
 const getWeekYearNow = () => {
   const n = new Date();
   return [n.getMonth() + 1, n.getFullYear()];
@@ -24,21 +26,25 @@ export const InventoryReport = props => {
   const [ form ] = Form.useForm();
   const [ tophotel, setTophotel ] = useState([]);
   
+
+  const getData = async () => {
+    const res = await _getRequest("admin/report-all", query);
+    const resRating = await _getRequest("hotel/top-rating");
+    if(res.success && resRating.success) {
+      setData(res.result);
+      setTophotel(resRating.result.hotels);
+      return;
+    } else {
+      message.error(res.error)
+    }
+  };
   useEffect(()=>{
     form.setFieldsValue({year: moment({...query, date: 1, month: 1, year: query.year})});
-    const getData = async () => {
-      const res = await _getRequest("admin/report-all", query);
-      const resRating = await _getRequest("hotel/top-rating");
-      if(res.success && resRating.success) {
-        setData(res.result);
-        setTophotel(resRating.result.hotels);
-        return;
-      } else {
-        message.error(res.error)
-      }
-    }
     getData();
   },[query])
+  useEffect(()=>{
+    // setTimeout(getData, 15000)
+  }, [data])
   const onSearch = values => {
     setQuery({
       year: values.year.year()
@@ -74,23 +80,23 @@ export const InventoryReport = props => {
     <Row gutter={[16,16]}>
       <Col span={24}>
         <Row gutter={[16,16]}> 
-          <Col xs={12} sm={8} md={8} lg={4} xl={4}>
+          <Col xs={12} sm={8} md={8} lg={8} xl={4}>
             {/* <Item title="Booking" value={"123312"} /> */}
             <Item title="Booking" value={data.hotelsReport ? formatNumber(data.hotelsReport[0].booking[0].totalAmount) : ""} />
           </Col>
-          <Col xs={12} sm={8} md={8} lg={4} xl={4}>
+          <Col xs={12} sm={8} md={8} lg={8} xl={4}>
             <Item title="Total Revenue" value={data.hotelsReport ? formatNumber(data.hotelsReport[0].booking[0].totalMoney, " VND") : ""} />
           </Col>
-          <Col xs={12} sm={8} md={8} lg={4} xl={4}>
+          <Col xs={12} sm={8} md={8} lg={8} xl={4}>
             <Item title="Total Customer" value={data.customerReport ? formatNumber(data.customerReport[0].totalCustomer[0].total) : ""}/>
           </Col>
-          <Col xs={12} sm={8} md={8} lg={4} xl={4}>
+          <Col xs={12} sm={8} md={8} lg={8} xl={4}>
             <Item title="New Customer" value={data.customerReport ? formatNumber(data.customerReport[0].newCustomer[0].total) : ""}/>
           </Col>
-          <Col xs={12} sm={8} md={8} lg={4} xl={4}>
+          <Col xs={12} sm={8} md={8} lg={8} xl={4}>
             <Item title="Customer Booking" value={data.customerBookingReport ? formatNumber(data.customerBookingReport[0].customerAmount[0].total) : "" }/>
           </Col>
-          <Col xs={12} sm={8} md={8} lg={4} xl={4}>
+          <Col xs={12} sm={8} md={8} lg={8} xl={4}>
             <Item title="Guest Booking" value={data.customerBookingReport ? formatNumber(data.customerBookingReport[0].guest[0].bookingAmount) : "" }/>
           </Col>
         </Row>
@@ -107,10 +113,19 @@ export const InventoryReport = props => {
     </Row>
     <Row gutter={[16,16]}>
       <Col span={12}>
+        <h1 style={{textAlign: 'center'}}>Detail Booking Hotel Report</h1>
         <TableReport data={data.hotelsReport? data.hotelsReport[0].hotel : []}/>
       </Col>
       <Col span={12}>
         <RankChart data={data.customerBookingReport ? data.customerBookingReport[0].customerTopTen : []}/>
+      </Col>
+      <Col span={12}>
+        <h1 style={{textAlign: 'center'}}>Room Hotel Report</h1>
+        <RoomReport data={data.facilityReport ? data.facilityReport : []}/>
+      </Col>
+      <Col span={12}>
+        <h1 style={{textAlign: 'center'}}>Facility Hotel Report</h1>
+        <FacilityReport data={data.facilityReport ? data.facilityReport : []}/>
       </Col>
     </Row>
     {/* {

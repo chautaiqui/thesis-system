@@ -2,7 +2,7 @@ import React, {useReducer, useEffect, useContext, useState } from 'react';
 import { User } from '@pkg/reducers';
 import { filerColumn } from '../../commons';
 
-import { Space, Button, Table, Modal, message, Form, DatePicker, Input, Select, InputNumber, Tabs } from 'antd';
+import { Space, Button, Table, Modal, message, Form, DatePicker, Input, Select, InputNumber, Tabs, Tag } from 'antd';
 import { PlusCircleOutlined, HighlightOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 // import { CustomUpload } from '../../commons';
 import { _getRequest, postMethod, putMethod } from '@api';
@@ -91,6 +91,7 @@ export const Room = ({hotelId}) => {
       dataIndex: 'docStatus',
       align: 'center',
       key: 'docStatus',  
+      render: (text, record, index) => <Tag color='green'>{record.docStatus}</Tag>
     },
     {
       title: 'Room type',
@@ -228,6 +229,7 @@ export const Room = ({hotelId}) => {
     }
     room();
   }
+
   return (<>
       <Tabs defaultActiveKey="1">
         <Tabs.TabPane tab="Room" key="1">
@@ -245,6 +247,7 @@ export const Room = ({hotelId}) => {
             rowKey='_id'
             bordered
             // loading={data.length === 0}
+            tableLayout="auto"
             title={() => 'Room'}
             dataSource={data} 
             columns={tCol} 
@@ -254,8 +257,13 @@ export const Room = ({hotelId}) => {
                 expandedRowRender: record => {
                   const col = [
                     {
+                      title: 'Facility type',
+                      align: 'center',
+                      key: 'facilitytype',  
+                      render: (text, r, index) => r.facility.type.name
+                    },,
+                    {
                       title: 'Name',
-                      dataIndex: 'facility',
                       align: 'center',
                       key: 'name',  
                       render: (text, r, index) => r.facility.name
@@ -435,7 +443,7 @@ export const Room = ({hotelId}) => {
                               var t = next.facilities.reduce((c,n)=>[...c,n],[])
                               return [...cur,...t]
                               },[])
-                              .map(item => ({label: item.name, value: item.name})) : []
+                              .map(item => ({label: item.type.name + " - " + item.name, value: item.name})) : []
                             }
                             allowClear
                             showSearch

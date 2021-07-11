@@ -136,9 +136,9 @@ export const TableReport = (props) => {
     },
     {
       title: 'Rating',
-      dataIndex: 'ratingAllValue',
+      dataIndex: 'ratingAvg',
       align: 'center',
-      key: 'ratingAllValue'
+      key: 'ratingAvg'
     },
   ];
   return <Table 

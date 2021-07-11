@@ -50,14 +50,14 @@ export const MultiTypeChart = (props) => {
   const fdata = {
     labels: dlabel,
     datasets: [
-      {
-        type: 'line',
-        label: 'Total',
-        borderColor: 'rgb(54, 162, 235)',
-        borderWidth: 2,
-        fill: false,
-        data: ddata,
-      },
+      // {
+      //   type: 'line',
+      //   label: 'Total',
+      //   borderColor: 'rgb(54, 162, 235)',
+      //   borderWidth: 2,
+      //   fill: false,
+      //   data: ddata,
+      // },
       {
         type: 'bar',
         label: 'Total',

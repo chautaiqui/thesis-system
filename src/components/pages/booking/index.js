@@ -1,5 +1,5 @@
 import React, {useReducer, useEffect, useContext } from 'react';
-import { Button, Space, Modal, Table, Form, Input, DatePicker, Row, Col, Drawer, Tabs } from 'antd';
+import { Button, Space, Modal, Table, Form, Input, InputNumber,  DatePicker, Row, Col, Drawer, Tabs } from 'antd';
 import { User } from '@pkg/reducers';
 import { CheckCircleTwoTone, NodeExpandOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { _getRequest, postMethod } from '../../../pkg/api';
@@ -79,14 +79,14 @@ export const Booking = props => {
       dataIndex: 'bookingStart',
       align: 'center',
       key: 'bookingStart',
-      render: (text, record, index) => moment(record.bookingStart).format("DD-MM-YYYY")
+      render: (text, record, index) => moment(record.bookingStart, "YYYY-MM-DD").format("DD-MM-YYYY")
     },
     {
       title: 'End date',
       dataIndex: 'bookingEnd',
       align: 'center',
       key: 'bookingEnd',
-      render: (text, record, index) => moment(record.bookingEnd).format("DD-MM-YYYY")
+      render: (text, record, index) => moment(record.bookingEnd, "YYYY-MM-DD").format("DD-MM-YYYY")
     },
     {
       title: 'Total',
@@ -143,6 +143,7 @@ export const Booking = props => {
 
   const createBooking = values => {
     console.log(values)
+    console.log(values.date[0].format("DD MM YYYY"))
     const data = {
       room: state.popup.data._id,
       name: values.name ? values.name : "guest",
@@ -262,7 +263,13 @@ export const Booking = props => {
                 }
                 return (
                   <Form.Item name="totalMoney" label="Total">
-                    <Input disabled/>
+                    <CustomInput 
+                      formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                      parser={value => value.replace(/\$\s?|(,*)/g, '')}
+                      style={{width: "80%"}}
+                      disabled
+                    />
+                    {/* <Input disabled/> */}
                   </Form.Item>
                 );
               }}
@@ -324,5 +331,13 @@ export const Booking = props => {
        </Tabs>
       
     </Drawer>
+  </>
+}
+
+
+const CustomInput = (props) => {
+  return <>
+    <InputNumber {...props}/>
+    <span>VND</span>
   </>
 }

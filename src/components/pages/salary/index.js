@@ -1,5 +1,5 @@
 import React, {useState, useContext} from 'react';
-import { Form, Select, Input, Steps, Button, message, Modal, Row, Col, Table } from 'antd';
+import { Form, Select, Input, Steps, Button, message, Modal, Row, Col, Table, DatePicker } from 'antd';
 import { User } from '@pkg/reducers';
 import { postMethod } from '../../../pkg/api';
 import { messageError } from '../../commons';
@@ -42,38 +42,40 @@ export const Salary = props => {
   useEffect(()=>{
     var _n = moment();
     const value = {
+      date: 1,
       month: _n.month() + 1,
       year: _n.year()
     }
-    form.setFieldsValue(value);
-    onFinish(value);
+    form.setFieldsValue(_n);
+    onFinish(_n);
   },[props])
 
   const onFinish = (v)=>{
-    if(!v.month) {
-      message.error('Please select month');
-      return;
-    }
-    if(!v.year){
-      message.error('Year invalid');
-      return;
-    }
-    if(Number.isNaN(Number(v.year))) {
-      message.error('Year invalid');
-      return;
-    }
-    if(Number(v.year) < 1000 || Number(v.year) > 10000) {
-      message.error('Year invalid');
-      return;
-    }
+    // if(!v.month) {
+    //   message.error('Please select month');
+    //   return;
+    // }
+    // if(!v.year){
+    //   message.error('Year invalid');
+    //   return;
+    // }
+    // if(Number.isNaN(Number(v.year))) {
+    //   message.error('Year invalid');
+    //   return;
+    // }
+    // if(Number(v.year) < 1000 || Number(v.year) > 10000) {
+    //   message.error('Year invalid');
+    //   return;
+    // }
+    console.log(v)
     const getSalary = async () => {
       const res_salary = await postMethod(`employee/${_user.auth._id}/view-salary`, {
-        year: Number(v.year), 
-        month:v.month
+        year: Number(v.year()), 
+        month:v.month() + 1
       });
       const res_history = await postMethod(`employee/${_user.auth._id}/attendance-by-month-year`, {
-        year: Number(v.year), 
-        month:v.month
+        year: Number(v.year()), 
+        month:v.month() + 1
       })
       if(res_salary.success && res_history.success) {
         message.success("Successfull");
@@ -97,11 +99,12 @@ export const Salary = props => {
       <Col span={24}>
         <Form
           form={form}
-          {...formItemLayout}
-          style={{marginTop: 50}}
+          // {...formItemLayout}
+          layout="inline"
+          style={{marginTop: 10, marginBottom: 10}}
           onFinish={onFinish}
         >
-          <Form.Item label="Month" name="month">
+          {/* <Form.Item label="Month" name="month">
             <Select 
               placeholder="Month"
               options={[1,2,3,4,5,6,7,8,9,10,11,12].map(item => ({label: item, value: item}))}
@@ -109,8 +112,11 @@ export const Salary = props => {
           </Form.Item>
           <Form.Item label="Year" name="year">
             <Input placeholder="Year" />
+          </Form.Item> */}
+          <Form.Item label="Month" name="month">
+            <DatePicker picker="month" />
           </Form.Item>
-          <Form.Item {...tailFormItemLayout}>
+          <Form.Item>
             <Button type="primary" htmlType="submit" shape="round">
               View
             </Button>
@@ -118,8 +124,8 @@ export const Salary = props => {
         </Form>
       </Col>
       {current.open && (<Col span={24}>
-        <Row gutter={[16,16]}>
-          <Col xs={24} sm={12}>
+        <Row gutter={[16,32]}>
+          <Col xs={24} sm={24}>
             <div style={_style}>
               <div>
                 <h1>
@@ -135,7 +141,7 @@ export const Salary = props => {
               </div>
             </div>
           </Col>
-          <Col xs={24} sm={12}>
+          <Col xs={24} sm={24}>
             <Table 
               rowKey='_id'
               tableLayout="auto"
@@ -148,10 +154,28 @@ export const Salary = props => {
                   render: (text, record, index) => <div>{record.shifts.date}-{record.shifts.month}-{record.shifts.year}</div>
                 },
                 {
-                  title: 'Time In Out',
+                  title: 'Time In',
                   align: 'center',
-                  key: 'timeInOut', 
-                  render: (text, record, index) => record.shifts.timeInOut
+                  key: 'timeIn', 
+                  render: (text, record, index) => {
+                    if(record.shifts.timeInOut){
+                      var _t = record.shifts.timeInOut.split("-");
+                      var _min = _t[0].split("h");
+                      return Number(_min[1]) >= 30 ? _min[0] + "h30" : _min[0] + "h00"
+                    }
+                  }
+                },
+                {
+                  title: 'Time Out',
+                  align: 'center',
+                  key: 'timeOut', 
+                  render: (text, record, index) => {
+                    if(record.shifts.timeInOut){
+                      var _t = record.shifts.timeInOut.split("-");
+                      var _min = _t[1].split("h");
+                      return Number(_min[1]) >= 30 ? _min[0] + "h30" : _min[0] + "h00"
+                    }
+                  }
                 },
                 {
                   title: 'Salary',

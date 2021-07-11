@@ -3,6 +3,7 @@ import { Input, List, message, Button, Form, Modal, Row, Col, Table, Select } fr
 import { HighlightOutlined, PlusCircleOutlined, EditOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { _getRequest, postMethod, putMethod } from '@api';
+import { filerColumn } from '../../commons';
 
 const layout = {
   labelCol: { span: 6 },
@@ -73,6 +74,40 @@ export const FacilityType = props => {
   useEffect(()=>{
     dispatch({type: 'RELOAD'})
   },[hotelid])
+  const onFinishFacility = (v)=>{
+    const uc = async () => {
+      setLoad(true);
+      if(state.facs.data.name) {
+        //update
+        var d = {
+          name: v.name,
+          amount: Number(v.amount)
+        }
+        const res = await putMethod('facility', d, state.facs.data._id);
+        if(res.success) {
+          message.success('Update facility sucessfully')
+        } else {
+          message.error(res.error);
+        }
+      } else {
+        //create
+        var d = {
+          name: v.name,
+          amount: Number(v.amount),
+          type: v.type
+        };
+        var res = await postMethod(`hotel/${hotelid}/create-facility`, d);
+        if(res.success) {
+          message.success('Update facility sucessfully')
+        } else {
+          message.error(res.error);
+        }
+      }
+      setLoad(false);
+      dispatch({type: 'TOOGLE_POPUP_FACILITY', facs:{open:false, data:{}}, behavior: 'init'})
+    }
+    uc();
+  }
   return <>
     <Row gutter={[16,16]}>
       <Col xs={24} sm={24} md={8} lg={8} xl={8}>
@@ -142,6 +177,11 @@ export const FacilityType = props => {
               dataIndex: 'name',
               align: 'center',
               key: 'name',
+              ...filerColumn([], 'name'),
+              onFilter: (value, record) =>
+                  record.name
+                      ? record.name.toString().toLowerCase().includes(value.toLowerCase())
+                      : '',
             },
             {
               title: 'Amount',
@@ -194,16 +234,27 @@ export const FacilityType = props => {
       visible={state.facility.open}
       forceRender
       keyboard
-      okText={'Update'}
+      // okText={'Update'}
       onOk={()=>{
           form_update.submit();
         }
       }
-      cancelText='Close'
+      // cancelText='Close'
       onCancel={() => {
           dispatch({type: 'TOOGLE_POPUP', facility: {open:false, data:{}}, behavior: 'init'})
           form_update.resetFields();
       }} 
+      footer={
+				<div>
+					<Button className="btn-box-shawdow" type='primary' loading={load} onClick={()=>{
+            form_update.submit();
+          }} loading={loading}>Update</Button>
+					<Button className="btn-box-shawdow" onClick={()=>{
+						 dispatch({type: 'TOOGLE_POPUP', facility: {open:false, data:{}}, behavior: 'init'})
+             form_update.resetFields();
+					}}>Close</Button>
+				</div>
+			}
     >
       <Form
         form={form_update}
@@ -265,51 +316,8 @@ export const FacilityType = props => {
       <Form
         form={form_facility}
         {...layout}
-        onFinish={(v)=>{
-          console.log(v, state.facs.data)
-          const uc = async () => {
-            setLoad(true);
-            if(state.facs.data.name) {
-              //update
-              var d = {
-                name: v.name,
-                amount: Number(v.amount)
-              }
-              const res = await putMethod('facility', d, state.facs.data._id);
-              if(res.success) {
-                message.success('Update facility sucessfully')
-              } else {
-                message.error(res.error);
-              }
-            } else {
-              //create
-              var d = {
-                name: v.name,
-                amount: Number(v.amount),
-                type: v.type
-              };
-              var res = await postMethod(`hotel/${hotelid}/create-facility`, d);
-              if(res.success) {
-                message.success('Update facility sucessfully')
-              } else {
-                message.error(res.error);
-              }
-            }
-            setLoad(false);
-            dispatch({type: 'TOOGLE_POPUP_FACILITY', facs:{open:false, data:{}}, behavior: 'init'})
-          }
-          uc();
-        }}
+        onFinish={onFinishFacility}
       >
-        <Form.Item name="name" label="Facility name"
-          rules={[
-            {
-              required: true,
-              message: 'Please input name of facility!',
-            }]}
-        >
-          <Input />
-        </Form.Item>
         { !state.facs.data.name && (<Form.Item name="type" label="Facility Type"
             rules={[
               {
@@ -328,6 +336,15 @@ export const FacilityType = props => {
             notFoundContent={'Not found item'}
           />
         </Form.Item>)}
+        <Form.Item name="name" label="Facility name"
+          rules={[
+            {
+              required: true,
+              message: 'Please input name of facility!',
+            }]}
+        >
+          <Input />
+        </Form.Item>
         <Form.Item name="amount" label="Amount"
           rules={[
           {

@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState } from 'react'
-import { Tabs, Space, Form, Input, Button, DatePicker, message } from 'antd';
+import { Tabs, Space, Form, Input, Button, DatePicker, message, Row, Col } from 'antd';
 import { User } from '@pkg/reducers';
 import { CustomUploadImg } from '../../commons';
 import moment from 'moment';
@@ -29,6 +29,8 @@ const tailFormItemLayout = {
 const { TabPane } = Tabs;
 export const AdminInfo = (props) => {
   const [ user, dispatchUser ] = useContext(User.context);
+  const [loading1, setLoading1] = useState(false);
+  const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
   const [ form ] = Form.useForm();
   const [ form_pass ] = Form.useForm();
@@ -45,7 +47,7 @@ export const AdminInfo = (props) => {
   },[user])
   const updateInfo = (values) => {
     console.log(values);
-    setLoading(true);
+    setLoading2(true);
     var data = new FormData();
     if(values.birthday) data.append('birthday', values.birthday.format( 'DD-MM-YYYY', 'DD/MM/YYYY' ));
     if(typeof values.img === 'object') data.append('img', values.img);
@@ -59,7 +61,7 @@ export const AdminInfo = (props) => {
       const res = await putMethod('admin', data, user.auth._id)
       if(res.success) {
         message.success("Update infomation success!");
-        setLoading(false)
+        setLoading2(false)
         dispatchUser({
           type: 'UPDATE', user: res.result
         })
@@ -71,7 +73,7 @@ export const AdminInfo = (props) => {
   }
   const changePassword = (v)=>{
     const validate = async () => {
-      setLoading(true)
+      setLoading1(true)
       const res = await _postRequest('auth/login',{email:user.auth.email, password: v.current_password});
       if(!res.success) {
         message.error("Password error!");
@@ -89,7 +91,7 @@ export const AdminInfo = (props) => {
       const resChange = await putMethod('admin', fd, user.auth._id);
       if(resChange.success) {
         message.success('Change successfull!');
-        setLoading(false)
+        setLoading1(false)
         localStorage.setItem('password', v.new_password);
         form_pass.resetFields();
       } else {
@@ -123,144 +125,143 @@ export const AdminInfo = (props) => {
     add();
   }
   return (
-  <div style={{width: '100%', display: 'flex', justifyContent: 'center'}}>
-    <Space direction="vertical" align='center'>
-      <Tabs defaultActiveKey="1">
-          <TabPane tab="Infomation" key="1">
-            <Form
-              form={form}
-              {...formItemLayout}
-              name="info"
-              onFinish={updateInfo}
-              onFinishFailed={()=>{setLoading(false)}}
-            >
-              <Form.Item name="email" label="Email">
-                <Input disabled/>
-              </Form.Item>
-              <Form.Item name="name" label="Name">
-                <Input />
-              </Form.Item>
-              <Form.Item name="birthday" label="Birthday">
-                <DatePicker/>
-              </Form.Item>
-              <Form.Item name="phone" label="Phone">
-                <Input />
-              </Form.Item>
-              <Form.Item name="address" label="Address">
-                <Input />
-              </Form.Item>
-              <Form.Item name="img" label="Img">
-                <CustomUploadImg />
-              </Form.Item>
-              <Form.Item {...tailFormItemLayout}>
-                <Button type="primary" htmlType="submit" loading={loading}>
-                  Update
-                </Button>
-              </Form.Item>
-            </Form>
-          </TabPane>
-          <TabPane tab="Change password" key="2">
-          <Form
-              form={form_pass}
-              {...{
-                labelCol: {
-                  xs: { span: 24 },
-                  sm: { span: 10 },
-                },
-                wrapperCol: {
-                  xs: { span: 24 },
-                  sm: { span: 14 },
-                },
-              }}
-              name="password"
-              onFinish={changePassword}
-              onFinishFailed={()=>{setLoading(false)}}
-            >
-              <Form.Item name="current_password" label="Current Password"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please input your password!',
-                  },
-                ]}
-              >
-                <Input.Password />
-              </Form.Item>
-              <Form.Item name="new_password" label="New Password"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please input your password!',
-                  },
-                ]}
-                hasFeedback
-              >
-                 <Input.Password />
-              </Form.Item>
-              <Form.Item
-                name="confirm"
-                label="Confirm Password"
-                dependencies={['new_password']}
-                hasFeedback
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please confirm your password!',
-                  },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value || getFieldValue('new_password') === value) {
-                        return Promise.resolve();
-                      }
+    // <div style={{width: '100%', display: 'flex', justifyContent: 'center'}}>
+    <Row gutter={[16,16]}>
+      <Col xs={24} sm={8}>
+        <Form
+          form={form_pass}
+          {...{
+            labelCol: {
+              xs: { span: 24 },
+              sm: { span: 10 },
+            },
+            wrapperCol: {
+              xs: { span: 24 },
+              sm: { span: 14 },
+            },
+          }}
+          name="password"
+          onFinish={changePassword}
+          onFinishFailed={()=>{setLoading(false)}}
+        >
+          <Form.Item name="current_password" label="Current Password"
+            rules={[
+              {
+                required: true,
+                message: 'Please input your password!',
+              },
+            ]}
+          >
+            <Input.Password />
+          </Form.Item>
+          <Form.Item name="new_password" label="New Password"
+            rules={[
+              {
+                required: true,
+                message: 'Please input your password!',
+              },
+            ]}
+            hasFeedback
+          >
+              <Input.Password />
+          </Form.Item>
+          <Form.Item
+            name="confirm"
+            label="Confirm Password"
+            dependencies={['new_password']}
+            hasFeedback
+            rules={[
+              {
+                required: true,
+                message: 'Please confirm your password!',
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('new_password') === value) {
+                    return Promise.resolve();
+                  }
 
-                      return Promise.reject(new Error('The two passwords that you entered do not match!'));
-                    },
-                  }),
-                ]}
-              >
-                <Input.Password />
-              </Form.Item>
-              <Form.Item {...tailFormItemLayout}>
-                <Button type="primary" htmlType="submit" loading={loading}>
-                  Change
-                </Button>
-              </Form.Item>
-            </Form>
-          </TabPane>
-          <TabPane tab="Add admin" key="3">
-          <Form
-              form={form_add}
-              {...formItemLayout}
-              name="info"
-              onFinish={addAdmin}
-              onFinishFailed={()=>{setLoading(false)}}
-            >
-              <Form.Item name="email" label="Email" rules={[{ required: true, message: 'Email empty!' }]}>
-                <Input />
-              </Form.Item>
-              <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Name empty!' }]}>
-                <Input />
-              </Form.Item>
-              <Form.Item name="birthday" label="Birthday" rules={[{ required: true, message: 'Birthday empty!' }]}>
-                <DatePicker/>
-              </Form.Item>
-              <Form.Item name="phone" label="Phone" rules={[{ required: true, message: 'Phone empty!' }]}>
-                <Input />
-              </Form.Item>
-              <Form.Item name="address" label="Address" rules={[{ required: true, message: 'Address empty!' }]}>
-                <Input />
-              </Form.Item>
-              <Form.Item name="img" label="Img">
-                <CustomUploadImg />
-              </Form.Item>
-              <Form.Item {...tailFormItemLayout}>
-                <Button type="primary" htmlType="submit" loading={loading}>
-                  Add admin
-                </Button>
-              </Form.Item>
-            </Form>
-          </TabPane>
-      </Tabs>
-    </Space>
-  </div>)
+                  return Promise.reject(new Error('The two passwords that you entered do not match!'));
+                },
+              }),
+            ]}
+          >
+            <Input.Password />
+          </Form.Item>
+          <Form.Item {...tailFormItemLayout}>
+            <Button className="btn-box-shawdow" type="primary" htmlType="submit" loading={loading1}>
+              Change
+            </Button>
+          </Form.Item>
+        </Form>
+      </Col>
+      <Col xs={24} sm={8}>
+        <Form
+          form={form}
+          {...formItemLayout}
+          name="info"
+          onFinish={updateInfo}
+          onFinishFailed={()=>{setLoading(false)}}
+        >
+          <Form.Item name="email" label="Email">
+            <Input disabled/>
+          </Form.Item>
+          <Form.Item name="name" label="Name">
+            <Input />
+          </Form.Item>
+          <Form.Item name="birthday" label="Birthday">
+            <DatePicker/>
+          </Form.Item>
+          <Form.Item name="phone" label="Phone">
+            <Input />
+          </Form.Item>
+          <Form.Item name="address" label="Address">
+            <Input />
+          </Form.Item>
+          <Form.Item name="img" label="Img">
+            <CustomUploadImg />
+          </Form.Item>
+          <Form.Item {...tailFormItemLayout}>
+            <Button className="btn-box-shawdow" type="primary" htmlType="submit" loading={loading2}>
+              Update
+            </Button>
+          </Form.Item>
+        </Form>
+      </Col>
+      <Col xs={24} sm={8}>
+        <Form
+          form={form_add}
+          {...formItemLayout}
+          name="info"
+          onFinish={addAdmin}
+          onFinishFailed={()=>{setLoading(false)}}
+        >
+          <Form.Item name="email" label="Email" rules={[{ required: true, message: 'Email empty!' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Name empty!' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="birthday" label="Birthday" rules={[{ required: true, message: 'Birthday empty!' }]}>
+            <DatePicker/>
+          </Form.Item>
+          <Form.Item name="phone" label="Phone" rules={[{ required: true, message: 'Phone empty!' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="address" label="Address" rules={[{ required: true, message: 'Address empty!' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="img" label="Img">
+            <CustomUploadImg />
+          </Form.Item>
+          <Form.Item {...tailFormItemLayout}>
+            <Button className="btn-box-shawdow" type="primary" htmlType="submit" loading={loading}>
+              Add admin
+            </Button>
+          </Form.Item>
+        </Form>
+      </Col>
+    </Row>
+  // </div>
+  )
 }

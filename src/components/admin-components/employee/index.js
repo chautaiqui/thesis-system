@@ -4,7 +4,7 @@ import { PlusCircleOutlined, PlayCircleOutlined, EditOutlined, CheckOutlined } f
 import moment from 'moment';
 import { User } from '@pkg/reducers';
 import { cities } from '../../commons/city';
-import { CustomUploadImg, filerColumn, DynamicSelect } from '../../commons';
+import { CustomUploadImg, filerColumn, DynamicSelect, messageError } from '../../commons';
 
 import { _getRequest, postMethod, putMethod } from '@api';
 const { confirm } = Modal;
@@ -207,7 +207,8 @@ export const Employee = ({hotelId}) => {
 						form.resetFields();
 					} else {
 						setLoading(false);
-						message.error(res.error)
+						messageError(res.error)
+						console.log(res)
 					}
 				} else {
 					// create
@@ -231,8 +232,8 @@ export const Employee = ({hotelId}) => {
 							type: 'RELOAD', popup: {open: false, data: {}}
 						})
 					} else {
-						setLoading(false);
 						message.error(res.error);
+						setLoading(false);
 					}
 				}
 			} catch (e) {
