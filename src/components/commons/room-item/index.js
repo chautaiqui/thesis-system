@@ -41,6 +41,7 @@ export const RoomItem = ({room, action}) => {
   }} style={isbooking.style}>
     <h1>Name: {room.name}</h1>
     <p><strong>Room type:</strong> {room.roomType.name}</p>
+    <p><strong>Capacity:</strong> {room.roomType.capacity}</p>
     {/* <p>{room.roomType.price}</p> */}
     <span>
     <strong>Price:</strong> { room.roomType.price.toLocaleString("it-IT", {

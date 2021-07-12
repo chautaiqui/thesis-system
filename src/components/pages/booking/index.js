@@ -1,10 +1,10 @@
-import React, {useReducer, useEffect, useContext } from 'react';
-import { Button, Space, Modal, Table, Form, Input, InputNumber,  DatePicker, Row, Col, Drawer, Tabs } from 'antd';
+import React, {useReducer, useEffect, useContext, useState } from 'react';
+import { Button, Space, Modal, Table, Form, Input, InputNumber,  DatePicker, Row, Col, Drawer, Tabs, Calendar, Tag } from 'antd';
 import { User } from '@pkg/reducers';
-import { CheckCircleTwoTone, NodeExpandOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { CheckCircleTwoTone, NodeExpandOutlined, ExclamationCircleOutlined, DownOutlined } from '@ant-design/icons';
 import { _getRequest, postMethod } from '../../../pkg/api';
 import moment from 'moment';
-import { messageError, messageSuccess } from '../../commons';
+import { messageError, messageSuccess, filerColumn } from '../../commons';
 import { RoomItem } from '../../commons/room-item';
 const { RangePicker } = DatePicker;
 
@@ -35,6 +35,8 @@ const BookingReducer = (state, action) => {
         return { ...state, popup: action.popup, behavior: 'stall'};
       case 'RELOAD':
         return { ...state, popup: action.popup, behavior: 'init'};  
+      case 'QUERY': 
+        return { ...state, query: action.query, behavior: 'init'};
       default:
           return state;
   } 
@@ -46,6 +48,7 @@ export const Booking = props => {
     booking: [],
     room: [],
     popup: {open: false, data: {}},
+    query: {}
   });
   const [ user ] = useContext(User.context);
   const [ form ] = Form.useForm();
@@ -60,7 +63,16 @@ export const Booking = props => {
         } else {
           return record.customer.email
         }
-      }
+      },
+      fixed: 'left',
+			...filerColumn([], 'name'),
+      onFilter: (value, record) =>
+          record.name
+              ? record.name.toString().toLowerCase().includes(value.toLowerCase())
+              : '' 
+          ||  record.customer.email
+          ? record.customer.email.toString().toLowerCase().includes(value.toLowerCase())
+          : ''
     },
     {
       title: 'Room',
@@ -79,7 +91,21 @@ export const Booking = props => {
       dataIndex: 'bookingStart',
       align: 'center',
       key: 'bookingStart',
-      render: (text, record, index) => moment(record.bookingStart, "YYYY-MM-DD").format("DD-MM-YYYY")
+      render: (text, record, index) => moment(record.bookingStart, "YYYY-MM-DD").format("DD-MM-YYYY"),
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => <>
+        <Calendar
+          value={selectedKeys[0]}
+          fullscreen={false}
+          style={{maxWidth: 500}}
+          onChange={(date)=>{
+            dispatch({type: 'QUERY', query: {bookingStart: date.format("DD-MM-YYYY")} })
+            confirm();
+          }}
+        />
+      </>,
+      filterIcon: (filtered) => (
+        <DownOutlined style={{ color: state.query.date ? "#1890ff" : undefined }}/>
+      )
     },
     {
       title: 'End date',
@@ -119,7 +145,7 @@ export const Booking = props => {
   ];
 
   const getData = async () => {
-    const res_booking = await _getRequest(`hotel/${user.auth.hotel}/booking`);
+    const res_booking = await _getRequest(`hotel/${user.auth.hotel}/booking`, state.query);
     const res_room = await _getRequest(`hotel/${user.auth.hotel}/room`);
     if(res_booking.success && res_room.success) {
       console.log(res_room.result, res_booking.result)
@@ -195,7 +221,7 @@ export const Booking = props => {
     }
   },[state.popup])
 
-  console.log(state.popup);
+  console.log(state.query);
   return <>
     <h1>List Room</h1>
     <Row gutter={[16,16]}>
@@ -207,8 +233,21 @@ export const Booking = props => {
         })
       }
     </Row>
+    {
+      state.query.bookingStart && <Tag 
+          color="#2db7f5"
+          closable={true}
+          onClose={()=>{
+            dispatch({type: 'QUERY', query: {}})
+          }}
+        >
+          Date: {state.query.bookingStart}
+        </Tag>
+    }
     <Table 
       rowKey='_id'
+      tableLayout="auto"
+      style={{marginTop: 10}}
       title={() => 'Booking'}
       dataSource={state.booking} 
       columns={tCol} 

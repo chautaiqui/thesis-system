@@ -56,7 +56,7 @@ export const Voucher = ({hotelId}) => {
 			align: 'center',
 			key: 'status', 
 			fixed: 'left',
-			render: (text, record, index) => <Tag color={record.status === 'available' ? "green" : "#87d068"}>{record.status}</Tag>
+			render: (text, record, index) => <Tag color={record.status === 'available' ? "green" : "red"}>{record.status}</Tag>
 		},
 		{
 			title: 'Discount (%)',

@@ -1,39 +1,46 @@
 import React, {useContext, useReducer, useEffect} from 'react';
-import { Button, Table, Modal, Form, Input, Row, Col, Select, Popover, message, TimePicker, InputNumber, Tag, DatePicker } from 'antd';
-import { PlusCircleOutlined, PlayCircleOutlined, EditOutlined, CheckOutlined } from '@ant-design/icons';
+import { useHistory, useParams, useLocation } from "react-router-dom";
+import { Button, Table, Modal, Form, Input, Row, Col, Select, Popover, message, TimePicker, InputNumber, Tag, DatePicker, Space} from 'antd';
+import { PlusCircleOutlined, PlayCircleOutlined, EditOutlined, CheckOutlined, SearchOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { User } from '@pkg/reducers';
 import { cities } from '../../commons/city';
-import { CustomUploadImg, filerColumn, DynamicSelect } from '../../commons';
+import { CustomUploadImg, DynamicSelect } from '../../commons';
 
 import { _getRequest, postMethod, putMethod } from '@api';
 const { confirm } = Modal;
 
 const layout = {
-	labelCol: { span: 8 },
-	wrapperCol: { span: 16 },
+	labelCol: { span: 6 },
+	wrapperCol: { span: 14 },
 };
 
 const EmployeeReducer = (state, action) => {
   switch (action.type) {
       case 'GET_DATA_SUCCESS':
-		return { ...state, data: action.data, behavior: 'stall' }
+				return { ...state, data: action.data, total: action.total ,behavior: 'stall' }
       case 'GET_DATA_ERROR':
-		return { ...state, data: [], behavior: 'stall' };
+				return { ...state, data: [], behavior: 'stall' };
       case 'TOOGLE_POPUP':
-		return { ...state, popup: action.popup, behavior: action.behavior };
+				return { ...state, popup: action.popup, behavior: action.behavior };
       case 'TOOGLE_VIEW':
-		return { ...state, view: action.view, behavior: 'stall' };
+				return { ...state, view: action.view, behavior: 'stall' };
+			case 'PAGINATION': 
+				return { ...state, query: action.query, total: action.total, behavior: 'init'}
+			case 'SEARCH': 
+				return { ...state, query: action.query, behavior: 'init'}
       case 'RELOAD':
-		return { ...state, behavior: 'init', popup: action.popup };
+				return { ...state, behavior: 'init', popup: action.popup };
       default:
-		return state;
+				return state;
   } 
 }
 const initState = {
 	behavior: 'init',
 	data: [],
 	popup: {open: false, data: {}},
+	query: { page: 1, pageSize: 5},
+	total: undefined
 }
 
 export const Employee = () => {
@@ -41,6 +48,9 @@ export const Employee = () => {
 	const [ state, dispatch ] = useReducer(EmployeeReducer, initState);
 	const [ loading, setLoading ] = React.useState(false);
 	const [ form ] = Form.useForm();
+	const history = useHistory();
+	const param = useLocation().search;
+
 	const col = [
 		{
 			title: 'Name',
@@ -48,11 +58,6 @@ export const Employee = () => {
 			align: 'center',
 			key: 'name', 
 			fixed: 'left',
-			...filerColumn([], 'name'),
-      onFilter: (value, record) =>
-          record.name
-              ? record.name.toString().toLowerCase().includes(value.toLowerCase())
-              : '',
 		},
 		{
 			title: 'Email',
@@ -149,13 +154,13 @@ export const Employee = () => {
 			return;
 		}
 		try {
-			const res = await _getRequest(`hotel/${user.auth.hotel}/employee`);
+			const res = await _getRequest(`hotel/${user.auth.hotel}/employee`, state.query);
 			if(!res.success) {
 				message.error(res.error);
 				return;
 			}
 			dispatch({
-				type: 'GET_DATA_SUCCESS', data: res.result.employees
+				type: 'GET_DATA_SUCCESS', data: res.result.employees, total: res.result.totalItems
 			});
 		} catch (e) {
 			message.error(e);
@@ -240,6 +245,7 @@ export const Employee = () => {
 		}
 		action();
 	}
+	console.log(param)
 	return  <>
 		<Button 
 			type="primary" 
@@ -267,6 +273,23 @@ export const Employee = () => {
 				responsive: true,
 			}}
 			scroll={{ x: 992 }} 
+			pagination={
+				{
+					disabled: state.data.length === 0,
+					current: state.query.page,
+					pageSize: state.query.pageSize,
+					pageSizeOptions: [5,10,20],
+					total: state.total,
+					showSizeChanger: true,
+					showTotal: total => `Total ${total} items`,
+					onChange: function(page, pageSize) {
+						dispatch({type: 'PAGINATION', query: { page: page, pageSize: pageSize}, total: state.total})
+					}, 
+					onShowSizeChange: function(current, size) {
+						dispatch({type: 'PAGINATION', query: { page: current, pageSize: size}, total: state.total})
+					}
+				}
+			}
 		/>
 		<Modal 
 			centered
@@ -277,11 +300,11 @@ export const Employee = () => {
 			visible={popup.open} 
 			footer={
 				<div>
-					<Button shape='round' type='primary' onClick={()=>{
+					<Button className="btn-box-shawdow" type='primary' onClick={()=>{
 						console.log('click');
 						showConfirm()
 					}} loading={loading}>Confirm</Button>
-					<Button shape='round' onClick={()=>{
+					<Button className="btn-box-shawdow" onClick={()=>{
 						setLoading(false);
 						dispatch({type: 'TOOGLE_POPUP', popup: {open:false, data:{}}});
 						form.resetFields();
@@ -345,9 +368,10 @@ export const Employee = () => {
 						<Form.Item name='baseSalary' label="BaseSalary"
 							rules={[{ required: true, message: 'baseSalary empty!' }]}
 						>
-							<InputNumber 
+							<CustomInput 
 								formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
 								parser={value => value.replace(/\$\s?|(,*)/g, '')}
+								style={{width: "80%"}}
 							/>
 						</Form.Item>
 						{popup.data._id && (<Form.Item name='img' label="Img"
@@ -359,4 +383,11 @@ export const Employee = () => {
 			</Form>
 		</Modal>
 	</>
+}
+
+const CustomInput = (props) => {
+  return <>
+    <InputNumber {...props}/>
+    <span>VND</span>
+  </>
 }

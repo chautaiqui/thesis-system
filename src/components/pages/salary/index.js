@@ -125,7 +125,7 @@ export const Salary = props => {
       </Col>
       {current.open && (<Col span={24}>
         <Row gutter={[16,32]}>
-          <Col xs={24} sm={24}>
+          <Col xs={24} sm={12}>
             <div style={_style}>
               <div>
                 <h1>
@@ -181,7 +181,13 @@ export const Salary = props => {
                   title: 'Salary',
                   align: 'center',
                   key: 'salaryCoefficient', 
-                  render: (text, record, index) => record.shifts.salaryCoefficient
+                  render: (text, record, index) => 
+                    <span >
+                      {record.shifts.salaryCoefficient.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}{" "}
+                    </span>
                 },
               ]}
             />

@@ -6,23 +6,26 @@ import { NumberOutlined, DollarOutlined } from '@ant-design/icons';
 import { VerticalBar } from '../../commons/chart';
 import { HorizontalBarChart } from '../../commons/chart/horizontalBarChart';
 import { VNDongIcon } from '../../commons/icon/vnd';
+import { Item } from '../../commons/report-item/item';
 import moment from 'moment';
 // import { Horizon }
 const getWeekYearNow = () => {
   const n = new Date();
   return [n.getMonth() + 1, n.getFullYear()];
 };
-
+const formatNumber = (num, currency = "") => 
+  String(num).replace(/(?<!\..*)(\d)(?=(?:\d{3})+(?:\.|$))/g, '$1.') + currency
+;
 
 
 export const Report = props => {
   const [month, year] = useMemo(() => getWeekYearNow(), [props]);
   const [ user ] = useContext(User.context);
-  const [query, setQuery] = useState({month: month, year: year});
+  const [query, setQuery] = useState({year: year, month: month});
   const [data, setData] = useState({});
   const [ form ] = Form.useForm();
   useEffect(()=>{
-    form.setFieldsValue({month: moment({...query, date: 1, month: query.month - 1})});
+    form.setFieldsValue({year: moment({...query, date: 1, month: 1})});
     if(!user.auth.hotel){
       message.error('You no manage hotel');
       return;
@@ -41,19 +44,17 @@ export const Report = props => {
     getData();
   },[query])
   const onSearch = values => {
-    console.log(values)
     setQuery({
-      month: values.month.month() + 1,
-      year: values.month.year()
+      year: values.year.year()
     })
   }
   console.log(data, query)
   return <div>
     <Form form={form} name="horizontal_login" layout="inline" onFinish={onSearch}>
       <Form.Item
-        name="month" label="Month"
+        name="year" label="Year"
       > 
-        <DatePicker picker="month" />
+        <DatePicker picker="year" />
       </Form.Item>
       <Form.Item>
         <Button type="primary" htmlType="submit" shape="round">
@@ -62,26 +63,20 @@ export const Report = props => {
       </Form.Item>
     </Form>
     { data.hotel && (<div><Row gutter={[16,16]} style={{marginTop: 20}}>
-      <Col span={24}>
-        <Descriptions title="Hotel Information">
-          <Descriptions.Item label="Hotel">{data.hotel.name}</Descriptions.Item>
-          <Descriptions.Item label="Manager">{data.manager.name}</Descriptions.Item>
-        </Descriptions>
+      <Col span={6}>
+        <Item value={data.hotel.name} title={"Hotel"}/>
       </Col>
-      
-    </Row>
-    <Row gutter={[16,16]}>
-      <Col span={24}>
-        <Descriptions title="Booking report" >
-          <Descriptions.Item label="Booking">
-            <Statistic title="Amount" value={data.bookingReport.amount} prefix={<NumberOutlined />} />
-          </Descriptions.Item>
-          <Descriptions.Item label="Total">
-            <Statistic title="Total money" value={data.bookingReport.totalMoney} prefix={<VNDongIcon />} />
-          </Descriptions.Item>
-        </Descriptions>
+      <Col span={6}>
+        <Item value={data.manager.name} title={"Manager"}/>
+      </Col>
+      <Col span={6}>
+        <Item value={data.bookingReport.amount} title={"Amount"}/>
+      </Col>
+      <Col span={6}>
+        <Item value={formatNumber(data.bookingReport.totalMoney, "VND")} title={"Total money"}/>
       </Col>
     </Row>
+   
     <Row gutter={[16,16]}>
       <Col span={24}>
         <VerticalBar title={"Rating Hotel Report"} data={
@@ -213,100 +208,6 @@ export const Report = props => {
           />
       </Col>
     </Row>
-
-    {/* 
-      const data = {
-  labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-  datasets: [
-    {
-      label: '# of Votes',
-      data: [12, 19, 3, 5, 2, 3],
-      backgroundColor: [
-        'rgba(255, 99, 132, 0.2)',
-        'rgba(54, 162, 235, 0.2)',
-        'rgba(255, 206, 86, 0.2)',
-        'rgba(75, 192, 192, 0.2)',
-        'rgba(153, 102, 255, 0.2)',
-        'rgba(255, 159, 64, 0.2)',
-      ],
-      borderColor: [
-        'rgba(255, 99, 132, 1)',
-        'rgba(54, 162, 235, 1)',
-        'rgba(255, 206, 86, 1)',
-        'rgba(75, 192, 192, 1)',
-        'rgba(153, 102, 255, 1)',
-        'rgba(255, 159, 64, 1)',
-      ],
-      borderWidth: 1,
-    },
-  ],
-};
-
-const options = {
-  indexAxis: 'y',
-  elements: {
-    bar: {
-      borderWidth: 2,
-    },
-  },
-  responsive: true,
-  plugins: {
-    legend: {
-      position: 'right',
-    },
-    title: {
-      display: true,
-      text: 'Chart.js Horizontal Bar Chart',
-    },
-  },
-};
-    <Row gutter={[16,16]}>
-      <Col span={24}>
-        <div className='ant-descriptions-title'>Facility Report</div>
-        <Table
-            rowKey='_id'
-            tableLayout="auto"
-            dataSource={data.facilityReport}
-            columns={[{
-              title: 'Name',
-              align: 'center',
-              key: 'name', 
-              render: (text, record, index) => record.facility.name
-            }, {
-              title: 'Action',
-              dataIndex: 'action',
-              align: 'center',
-              key: 'action', 
-            }, {
-              title: 'Amount',
-              dataIndex: 'amount',
-              align: 'center',
-              key: 'amount', 
-            }]}
-          />
-      </Col>
-    </Row>
-    <Row gutter={[16,16]}>
-      <Col span={24}>
-        <div className='ant-descriptions-title'>Employee Report</div>
-        <Table
-            rowKey='_id'
-            tableLayout="auto"
-            dataSource={data.employeeReport}
-            columns={[{
-              title: 'Name',
-              align: 'center',
-              key: 'name', 
-              render: (text, record, index) => record.employee.name
-            }, {
-              title: 'Action',
-              dataIndex: 'action',
-              align: 'center',
-              key: 'action', 
-            }]}
-          />
-      </Col>
-    </Row> */}
     </div>)}
   </div>
 }
