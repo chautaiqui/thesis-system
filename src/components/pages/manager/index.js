@@ -1,11 +1,15 @@
 import React, {useContext, useReducer, useEffect} from 'react';
-import { Button, Table, Modal, Form, Input, Row, Col, InputNumber, DatePicker, message, Popover, Drawer, Select } from 'antd';
+import { useHistory } from "react-router-dom";
+import { Button, Table, Modal, Form, Input, Row, Col, InputNumber, DatePicker, message, Popover, Drawer, Select, Pagination } from 'antd';
 import { PlusCircleOutlined, EditOutlined, CheckOutlined } from '@ant-design/icons';
 import {Carousel} from '3d-react-carousal';
 import { User } from '@pkg/reducers';
 import { CustomUploadImg, filerColumn, DynamicSelect } from '../../commons';
 import { _getRequest, postMethod, putMethod } from '@api';
 import moment from 'moment';
+import { ManagerItem } from '../../commons/manager-item';
+import { getQuery, pushQuery } from '../../../hook/query';
+
 const { confirm } = Modal;
 
 const layout = {
@@ -28,6 +32,8 @@ const ManagerReducer = (state, action) => {
   switch (action.type) {
       case 'GET_DATA_SUCCESS':
 				return { ...state, data: action.data, hotel: action.hotel, behavior: 'stall' }
+			case 'PAGINATION': 
+				return { ...state, query: action.query, total: action.total, behavior: 'init'}
       case 'GET_DATA_ERROR':
 				return { ...state, data: [], behavior: 'stall' };
       case 'TOOGLE_POPUP':
@@ -46,13 +52,17 @@ const initState = {
 	hotel: [],
 	popup: {open: false, data: {}},
 	view: {open: false, data: {}},
+	query: { page: 1, pageSize: 10},
+	total: undefined
 }
 
-export const Manager = () => {
+export const Manager = (props) => {
 	const [ _user ] = useContext(User.context);
 	const [ state, dispatch ] = useReducer(ManagerReducer, initState);
 	const [ loading, setLoading ] = React.useState(false);
 	const [ form ] = Form.useForm();
+	const history = useHistory();
+
 	const col = [
 		{
 			title: 'Name',
@@ -176,7 +186,7 @@ export const Manager = () => {
 	const { data, popup, view } = state;
 	const getData = async () => {
 		try {
-			const res = await _getRequest('manager');
+			const res = await _getRequest('manager', state.query);
 			if(!res.success) {
 				message.error(res.error);
 				return;
@@ -186,11 +196,28 @@ export const Manager = () => {
 				message.error(res1.error);
 			}
 			dispatch({
-				type: 'GET_DATA_SUCCESS', data: res.result.managers, hotel: res1.result.hotels || []
+				type: 'GET_DATA_SUCCESS', data: res.result.managers, hotel: res1.result.hotels || [], query: { page: res.result.currentPage, pageSize: res.result.pageSize}, total: res.result.totalItems
 			});
 		} catch (e) {
 			message.error(e);
 		}
+	}
+
+	const editInfo = (record) => {
+		dispatch({type: 'TOOGLE_POPUP', popup: {open: true, data:record}})
+		form.setFieldsValue({
+			name: record.name,
+			email: record.email,
+			birthday: moment(record.birthday),
+			phone: record.phone,
+			address: record.address,
+			designation: record.designation,
+			skills: record.skills,
+			department: record.department,
+			district: record.district,
+			baseSalary: record.baseSalary,
+			img: record.img,
+		});
 	}
 	useEffect(() => {
     switch (state.behavior) {
@@ -203,7 +230,26 @@ export const Manager = () => {
 				break;
     }
   }, [state.behavior])
-
+	useEffect(()=>{
+    const param = getQuery(window.location.search);
+		if(param.pageSize && param.page) {
+			dispatch({type: 'PAGINATION', query: { page: Number(param.page), pageSize: Number(param.pageSize)}, total: state.total});
+		} else {
+			const _q = pushQuery(state.query);
+			history.push({
+				path: '/manager',
+				search: "?" + _q
+			})
+		}
+	},[props])
+	useEffect(()=>{
+		const _q = pushQuery(state.query);
+		console.log(_q)
+		history.push({
+			path: '/manager',
+			search: "?" + _q
+		})
+	}, [state.query])
 	const onFinish = (values) => {
 		console.log(values)
 		// validate();
@@ -289,7 +335,7 @@ export const Manager = () => {
 			}}
 			>Add Manager
 		</Button>		
-		<Table 
+		{/* <Table 
 			rowKey='_id'
 			title={() => 'Manager'}
 			bordered
@@ -303,7 +349,35 @@ export const Manager = () => {
 				responsive: true,
 			}}
 			scroll={{ x: 992 }} 
-		/>
+		/> */}
+		<Row gutter={[16,16]} style={{marginTop: 10, marginBottom: 10}}>
+		{
+			data.map((item, index) => {
+				return <Col key={index} xs={24} sm={12} md={8} xl={6}>
+					<ManagerItem manager={item} setHotel={()=>{}} edit={()=>editInfo(item)}/>
+				</Col>
+			})
+		}
+		</Row>
+
+		<Pagination
+      // disabled={state.data.length === 0}
+			current={state.query.page}
+			pageSize={state.query.pageSize}
+			pageSizeOptions={[5,10,20]}
+			total={state.total}
+			showSizeChanger={true}
+			showTotal={total => `Total ${total} items`}
+			onChange={function(page, pageSize) {
+				dispatch({type: 'PAGINATION', query: { page: page, pageSize: pageSize}, total: state.total})
+			}}
+			onShowSizeChange={function(current, size) {
+				dispatch({type: 'PAGINATION', query: { page: current, pageSize: size}, total: state.total})
+			}}
+			style={{display: 'flex',justifyContent: 'center',marginTop: 10, paddingBottom: 30}}
+			
+    />
+		
 		<Modal 
 			centered
 			width='90%'

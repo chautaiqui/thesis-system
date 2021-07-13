@@ -359,3 +359,17 @@ tr.ant-table-expanded-row, tr.ant-table-expanded-row:hover{
     box-shadow: 0px 1px 3px 0px #000000 !important;
     border-radius: 5px !important;
 }
+
+.title-table {
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+}
+.manager-item {
+    background: #fafafa;
+    width: 100%;
+    // border: 1px solid;
+    border-radius: 10px;
+    cursor: pointer;
+}

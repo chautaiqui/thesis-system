@@ -1,13 +1,14 @@
 import React, {useContext, useReducer, useEffect} from 'react';
 import { useHistory, useParams, useLocation } from "react-router-dom";
 import { Button, Table, Modal, Form, Input, Row, Col, Select, Popover, message, TimePicker, InputNumber, Tag, DatePicker, Space} from 'antd';
-import { PlusCircleOutlined, PlayCircleOutlined, EditOutlined, CheckOutlined, SearchOutlined } from '@ant-design/icons';
+import { PlusCircleOutlined, PlayCircleOutlined, EditOutlined, CheckOutlined, SearchOutlined, HighlightOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { User } from '@pkg/reducers';
 import { cities } from '../../commons/city';
 import { CustomUploadImg, DynamicSelect } from '../../commons';
 
 import { _getRequest, postMethod, putMethod } from '@api';
+import { getQuery, pushQuery } from '../../../hook/query';
 const { confirm } = Modal;
 
 const layout = {
@@ -43,13 +44,13 @@ const initState = {
 	total: undefined
 }
 
-export const Employee = () => {
+export const Employee = (props) => {
 	const [ user, dispatchUser ] = useContext(User.context);
 	const [ state, dispatch ] = useReducer(EmployeeReducer, initState);
 	const [ loading, setLoading ] = React.useState(false);
 	const [ form ] = Form.useForm();
+	const [ fsearch ] = Form.useForm();
 	const history = useHistory();
-	const param = useLocation().search;
 
 	const col = [
 		{
@@ -99,6 +100,12 @@ export const Employee = () => {
 			key: 'designation',
 		},
 		{
+			title: 'Remaining Dayoff',
+			dataIndex: 'remainingDayoffNumber',
+			align: 'center',
+			key: 'remainingDayoffNumber',
+		},
+		{
 			title: 'Skills',
 			dataIndex: 'skills',
 			align: 'center',
@@ -115,7 +122,9 @@ export const Employee = () => {
 			key: 'action',
 			render: (text, record, index)=>{
 				return [
-					<Button key="1" icon={<EditOutlined />}
+					<Button key="1"
+						size='small'
+						type="primary" shape="circle" icon={<HighlightOutlined />}
 						onClick={()=>{
 							dispatch({type: 'TOOGLE_POPUP', popup: {open: true, data:record}})
 							form.setFieldsValue({
@@ -178,6 +187,25 @@ export const Employee = () => {
     }
   }, [state.behavior])
 
+	useEffect(()=>{
+    const param = getQuery(window.location.search);
+		if(param.pageSize && param.page) {
+			dispatch({type: 'PAGINATION', query: { page: Number(param.page), pageSize: Number(param.pageSize)}, total: state.total});
+		} else {
+			const _q = pushQuery(state.query);
+			history.push({
+				path: '/employee',
+				search: "?" + _q
+			})
+		}
+	},[props])
+	useEffect(()=>{
+		const _q = pushQuery(state.query);
+		history.push({
+			path: '/employee',
+			search: "?" + _q
+		})
+	}, [state.query])
 	const onFinish = (values) => {
 		console.log(values)
 		var data = new FormData();
@@ -245,23 +273,59 @@ export const Employee = () => {
 		}
 		action();
 	}
-	console.log(param)
+	const onSearch = (values) => {
+		if(values.name === "" || !values.name) {
+			return;
+			// dispatch({type: 'PAGINATION', query: { page: state.query.page, pageSize: state.query.pageSize}, total: state.total})
+		} else {
+			dispatch({type: 'PAGINATION', query: { ...state.query, text: values.name}, total: state.total})
+		}
+		fsearch.resetFields();
+	}
+	const closeTag = () => {
+		dispatch({type: 'PAGINATION', query: { page: state.query.page, pageSize: state.query.pageSize}, total: state.total})
+		fsearch.resetFields();
+	}
+	console.log(state.query)
 	return  <>
-		<Button 
-			type="primary" 
-			shape="round" 
-			icon={<PlusCircleOutlined/>}
-			onClick={()=>{
-				form.resetFields();  
-				dispatch({
-					type: 'TOOGLE_POPUP', popup: {open: true, data: {}}
-				})       
-			}}
-			>Add Employee
-		</Button>		
+		<Row gutter={[16,16]}>
+			<Col span={16}>
+				<Form form={fsearch} name="horizontal_login" layout="inline" onFinish={onSearch}>
+					<Form.Item
+						name="name" label=""
+					> 
+						<Input placeholder="Name"/>
+					</Form.Item>
+					<Form.Item>
+						<Button type="primary" htmlType="submit" shape="round">
+							Search
+						</Button>
+					</Form.Item>
+					{state.query.text && (<Form.Item>
+						<Tag closable onClose={closeTag} color="#1890ff">Name: {state.query.text}</Tag>
+					</Form.Item>)}
+				</Form>
+			</Col>
+		</Row>
+		
 		<Table 
 			rowKey='_id'
-			title={() => 'Employee'}
+			title={() => <div className="title-table">
+				<div>Employee</div>
+				<Button 
+					type="primary" 
+					shape="round" 
+					// style={{float: "right"}}
+					icon={<PlusCircleOutlined/>}
+					onClick={()=>{
+						form.resetFields();  
+						dispatch({
+							type: 'TOOGLE_POPUP', popup: {open: true, data: {}}
+						})       
+					}}
+					>Add Employee
+				</Button>	
+			</div>}
 			bordered
 			tableLayout="auto"
 			style={{marginTop: 10}}
@@ -328,12 +392,12 @@ export const Employee = () => {
 						<Form.Item name='email' label="Email"
 							rules={[{ required: true, message: 'Email empty!' }]}
 						>
-							<Input disabled={popup.data._id ? true : false}/>
+							<Input disabled={popup.data._id ? true : false} placeholder="Email"/>
 						</Form.Item>
 						<Form.Item name='name' label="Name"
 							rules={[{ required: true, message: 'Name empty!' }]}
 						>
-							<Input />
+							<Input placeholder="Name"/>
 						</Form.Item>
 						<Form.Item name='birthday' label="Birthday"
 							rules={[{ required: true, message: 'Birthday empty!' }]}
@@ -343,12 +407,12 @@ export const Employee = () => {
 						<Form.Item name='phone' label="Phone"
 							rules={[{ required: true, message: 'Phone empty!' }]}
 						>
-							<Input />
+							<Input placeholder="Ex: 035xxxxxxx"/>
 						</Form.Item>
 						<Form.Item name='address' label="Address"
 							rules={[{ required: true, message: 'Address empty!' }]}
 						>
-							<Input />
+							<Input placeholder="Address"/>
 						</Form.Item>
 					</Col>
 					<Col xs={24} sm={12} md={12} lg={12} xl={12}>
@@ -358,12 +422,12 @@ export const Employee = () => {
 						<Form.Item name='department' label="Department"
 							rules={[{ required: true, message: 'Department empty!' }]}
 						>
-							<Input />
+							<Input placeholder="Department"/>
 						</Form.Item>
 						<Form.Item name='designation' label="Designation"
 							rules={[{ required: true, message: 'Designation empty!' }]}
 						>
-							<Input />
+							<Input placeholder="Designation"/>
 						</Form.Item>
 						<Form.Item name='baseSalary' label="BaseSalary"
 							rules={[{ required: true, message: 'baseSalary empty!' }]}

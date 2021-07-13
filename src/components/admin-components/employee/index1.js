@@ -1,47 +1,39 @@
 import React, {useContext, useReducer, useEffect} from 'react';
-import { useHistory, useParams, useLocation } from "react-router-dom";
-import { Button, Table, Modal, Form, Input, Row, Col, Select, Popover, message, TimePicker, InputNumber, Tag, DatePicker, Space} from 'antd';
-import { PlusCircleOutlined, PlayCircleOutlined, EditOutlined, CheckOutlined, SearchOutlined, HighlightOutlined } from '@ant-design/icons';
+import { Button, Table, Modal, Form, Input, Row, Col, Select, Popover, message, TimePicker, InputNumber, Tag, DatePicker } from 'antd';
+import { PlusCircleOutlined, PlayCircleOutlined, EditOutlined, CheckOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { User } from '@pkg/reducers';
 import { cities } from '../../commons/city';
-import { CustomUploadImg, DynamicSelect } from '../../commons';
+import { CustomUploadImg, filerColumn, DynamicSelect, messageError } from '../../commons';
 
 import { _getRequest, postMethod, putMethod } from '@api';
-import { getQuery, pushQuery } from '../../../hook/query';
 const { confirm } = Modal;
 
 const layout = {
 	labelCol: { span: 6 },
-	wrapperCol: { span: 14 },
+	wrapperCol: { span: 16 },
 };
 
 const EmployeeReducer = (state, action) => {
   switch (action.type) {
       case 'GET_DATA_SUCCESS':
-				return { ...state, data: action.data, total: action.total ,behavior: 'stall' }
+		return { ...state, data: action.data, behavior: 'stall' }
       case 'GET_DATA_ERROR':
-				return { ...state, data: [], behavior: 'stall' };
+		return { ...state, data: [], behavior: 'stall' };
       case 'TOOGLE_POPUP':
-				return { ...state, popup: action.popup, behavior: action.behavior };
+		return { ...state, popup: action.popup, behavior: action.behavior };
       case 'TOOGLE_VIEW':
-				return { ...state, view: action.view, behavior: 'stall' };
-			case 'PAGINATION': 
-				return { ...state, query: action.query, total: action.total, behavior: 'init'}
-			case 'SEARCH': 
-				return { ...state, query: action.query, behavior: 'init'}
+		return { ...state, view: action.view, behavior: 'stall' };
       case 'RELOAD':
-				return { ...state, behavior: 'init', popup: action.popup };
+		return { ...state, behavior: 'init', popup: action.popup };
       default:
-				return state;
+		return state;
   } 
 }
 const initState = {
 	behavior: 'init',
 	data: [],
 	popup: {open: false, data: {}},
-	query: { page: 1, pageSize: 5},
-	total: undefined
 }
 
 export const Employee = ({hotelId}) => {
@@ -49,9 +41,6 @@ export const Employee = ({hotelId}) => {
 	const [ state, dispatch ] = useReducer(EmployeeReducer, initState);
 	const [ loading, setLoading ] = React.useState(false);
 	const [ form ] = Form.useForm();
-	const [ fsearch ] = Form.useForm();
-	const history = useHistory();
-
 	const col = [
 		{
 			title: 'Name',
@@ -59,6 +48,11 @@ export const Employee = ({hotelId}) => {
 			align: 'center',
 			key: 'name', 
 			fixed: 'left',
+			...filerColumn([], 'name'),
+      onFilter: (value, record) =>
+          record.name
+              ? record.name.toString().toLowerCase().includes(value.toLowerCase())
+              : '',
 		},
 		{
 			title: 'Email',
@@ -100,12 +94,6 @@ export const Employee = ({hotelId}) => {
 			key: 'designation',
 		},
 		{
-			title: 'Remaining Dayoff',
-			dataIndex: 'remainingDayoffNumber',
-			align: 'center',
-			key: 'remainingDayoffNumber',
-		},
-		{
 			title: 'Skills',
 			dataIndex: 'skills',
 			align: 'center',
@@ -122,9 +110,7 @@ export const Employee = ({hotelId}) => {
 			key: 'action',
 			render: (text, record, index)=>{
 				return [
-					<Button key="1"
-						size='small'
-						type="primary" shape="circle" icon={<HighlightOutlined />}
+					<Button key="1" icon={<EditOutlined />}
 						onClick={()=>{
 							dispatch({type: 'TOOGLE_POPUP', popup: {open: true, data:record}})
 							form.setFieldsValue({
@@ -163,13 +149,13 @@ export const Employee = ({hotelId}) => {
 			return;
 		}
 		try {
-			const res = await _getRequest(`hotel/${hotelId}/employee`, state.query);
+			const res = await _getRequest(`hotel/${hotelId}/employee`);
 			if(!res.success) {
 				message.error(res.error);
 				return;
 			}
 			dispatch({
-				type: 'GET_DATA_SUCCESS', data: res.result.employees, total: res.result.totalItems
+				type: 'GET_DATA_SUCCESS', data: res.result.employees
 			});
 		} catch (e) {
 			message.error(e);
@@ -186,26 +172,9 @@ export const Employee = ({hotelId}) => {
 			break;
     }
   }, [state.behavior])
-
 	useEffect(()=>{
-    const param = getQuery(window.location.search);
-		if(param.pageSize && param.page) {
-			dispatch({type: 'PAGINATION', query: { page: Number(param.page), pageSize: Number(param.pageSize)}, total: state.total});
-		} else {
-			const _q = pushQuery(state.query);
-			history.push({
-				path: '/employee',
-				search: "?" + _q
-			})
-		}
+		dispatch({type: "RELOAD", popup: {open: false, data: {}}});
 	},[hotelId])
-	useEffect(()=>{
-		const _q = pushQuery(state.query);
-		history.push({
-			path: '/employee',
-			search: "?" + _q
-		})
-	}, [state.query])
 	const onFinish = (values) => {
 		console.log(values)
 		var data = new FormData();
@@ -238,7 +207,8 @@ export const Employee = ({hotelId}) => {
 						form.resetFields();
 					} else {
 						setLoading(false);
-						message.error(res.error)
+						messageError(res.error)
+						console.log(res)
 					}
 				} else {
 					// create
@@ -262,8 +232,8 @@ export const Employee = ({hotelId}) => {
 							type: 'RELOAD', popup: {open: false, data: {}}
 						})
 					} else {
-						setLoading(false);
 						message.error(res.error);
+						setLoading(false);
 					}
 				}
 			} catch (e) {
@@ -273,59 +243,22 @@ export const Employee = ({hotelId}) => {
 		}
 		action();
 	}
-	const onSearch = (values) => {
-		if(values.name === "" || !values.name) {
-			return;
-			// dispatch({type: 'PAGINATION', query: { page: state.query.page, pageSize: state.query.pageSize}, total: state.total})
-		} else {
-			dispatch({type: 'PAGINATION', query: { ...state.query, text: values.name}, total: state.total})
-		}
-		fsearch.resetFields();
-	}
-	const closeTag = () => {
-		dispatch({type: 'PAGINATION', query: { page: state.query.page, pageSize: state.query.pageSize}, total: state.total})
-		fsearch.resetFields();
-	}
-	console.log(state.query)
 	return  <>
-		<Row gutter={[16,16]}>
-			<Col span={16}>
-				<Form form={fsearch} name="horizontal_login" layout="inline" onFinish={onSearch}>
-					<Form.Item
-						name="name" label=""
-					> 
-						<Input placeholder="Name"/>
-					</Form.Item>
-					<Form.Item>
-						<Button type="primary" htmlType="submit" shape="round">
-							Search
-						</Button>
-					</Form.Item>
-					{state.query.text && (<Form.Item>
-						<Tag closable onClose={closeTag} color="#1890ff">Name: {state.query.text}</Tag>
-					</Form.Item>)}
-				</Form>
-			</Col>
-		</Row>
-		
+		<Button 
+			type="primary" 
+			shape="round" 
+			icon={<PlusCircleOutlined/>}
+			onClick={()=>{
+				form.resetFields();  
+				dispatch({
+					type: 'TOOGLE_POPUP', popup: {open: true, data: {}}
+				})       
+			}}
+			>Add Employee
+		</Button>		
 		<Table 
 			rowKey='_id'
-			title={() => <div className="title-table">
-				<div>Employee</div>
-				<Button 
-					type="primary" 
-					shape="round" 
-					// style={{float: "right"}}
-					icon={<PlusCircleOutlined/>}
-					onClick={()=>{
-						form.resetFields();  
-						dispatch({
-							type: 'TOOGLE_POPUP', popup: {open: true, data: {}}
-						})       
-					}}
-					>Add Employee
-				</Button>	
-			</div>}
+			title={() => 'Employee'}
 			bordered
 			tableLayout="auto"
 			style={{marginTop: 10}}
@@ -337,23 +270,6 @@ export const Employee = ({hotelId}) => {
 				responsive: true,
 			}}
 			scroll={{ x: 992 }} 
-			pagination={
-				{
-					disabled: state.data.length === 0,
-					current: state.query.page,
-					pageSize: state.query.pageSize,
-					pageSizeOptions: [5,10,20],
-					total: state.total,
-					showSizeChanger: true,
-					showTotal: total => `Total ${total} items`,
-					onChange: function(page, pageSize) {
-						dispatch({type: 'PAGINATION', query: { page: page, pageSize: pageSize}, total: state.total})
-					}, 
-					onShowSizeChange: function(current, size) {
-						dispatch({type: 'PAGINATION', query: { page: current, pageSize: size}, total: state.total})
-					}
-				}
-			}
 		/>
 		<Modal 
 			centered
@@ -392,12 +308,12 @@ export const Employee = ({hotelId}) => {
 						<Form.Item name='email' label="Email"
 							rules={[{ required: true, message: 'Email empty!' }]}
 						>
-							<Input disabled={popup.data._id ? true : false} placeholder="Email"/>
+							<Input disabled={popup.data._id ? true : false}/>
 						</Form.Item>
 						<Form.Item name='name' label="Name"
 							rules={[{ required: true, message: 'Name empty!' }]}
 						>
-							<Input placeholder="Name"/>
+							<Input />
 						</Form.Item>
 						<Form.Item name='birthday' label="Birthday"
 							rules={[{ required: true, message: 'Birthday empty!' }]}
@@ -407,12 +323,12 @@ export const Employee = ({hotelId}) => {
 						<Form.Item name='phone' label="Phone"
 							rules={[{ required: true, message: 'Phone empty!' }]}
 						>
-							<Input placeholder="Ex: 035xxxxxxx"/>
+							<Input />
 						</Form.Item>
 						<Form.Item name='address' label="Address"
 							rules={[{ required: true, message: 'Address empty!' }]}
 						>
-							<Input placeholder="Address"/>
+							<Input />
 						</Form.Item>
 					</Col>
 					<Col xs={24} sm={12} md={12} lg={12} xl={12}>
@@ -422,20 +338,20 @@ export const Employee = ({hotelId}) => {
 						<Form.Item name='department' label="Department"
 							rules={[{ required: true, message: 'Department empty!' }]}
 						>
-							<Input placeholder="Department"/>
+							<Input />
 						</Form.Item>
 						<Form.Item name='designation' label="Designation"
 							rules={[{ required: true, message: 'Designation empty!' }]}
 						>
-							<Input placeholder="Designation"/>
+							<Input />
 						</Form.Item>
 						<Form.Item name='baseSalary' label="BaseSalary"
 							rules={[{ required: true, message: 'baseSalary empty!' }]}
 						>
-							<CustomInput 
+							<InputNumber 
 								formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
 								parser={value => value.replace(/\$\s?|(,*)/g, '')}
-								style={{width: "80%"}}
+								style={{width: "100%"}}
 							/>
 						</Form.Item>
 						{popup.data._id && (<Form.Item name='img' label="Img"
@@ -447,11 +363,4 @@ export const Employee = ({hotelId}) => {
 			</Form>
 		</Modal>
 	</>
-}
-
-const CustomInput = (props) => {
-  return <>
-    <InputNumber {...props}/>
-    <span>VND</span>
-  </>
 }
