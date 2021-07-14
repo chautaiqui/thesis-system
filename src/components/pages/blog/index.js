@@ -59,12 +59,12 @@ export const Blog = (props) => {
 			})
       setBlog(res.result.blogs);
       setTotal(res.result.totalItems);
-      setQuery({...query, page: Number(res.result.currentPage), pageSize: Number(res.result.pageSize)});
+      // setQuery({...query, page: Number(res.result.currentPage), pageSize: Number(res.result.pageSize)});
       setBehavior('stall');
     }
-
+    if(behavior === 'stall') return;
     if(behavior === 'init') getData();
-  },[query])
+  },[query, behavior])
   useEffect(()=>{
     if(popup.open) {
       form_update.setFieldsValue({
@@ -81,7 +81,7 @@ export const Blog = (props) => {
     console.log(param)
 		if(param.pageSize && param.page) {
       setQuery({ page: Number(param.page), pageSize: Number(param.pageSize)});
-      setBehavior('init');
+      // setBehavior('init');
 		} else {
 			const _q = pushQuery(query);
 			history.push({
@@ -90,6 +90,7 @@ export const Blog = (props) => {
 			})
 		}
   },[props])
+  
   const showConfirm = () => {
 		Modal.confirm({
 			title: 'Do you confirm your blog?',
@@ -167,26 +168,30 @@ export const Blog = (props) => {
   console.log(query, behavior)
   return (
     <div>
+      <Row gutter={[16,16]} style={{margin: "0px 0px 10px", background: "#fff", borderRadius: 10}}>
+        <Col span={24}>
+          <Form form={form} name="horizontal_login" layout="inline" onFinish={onSearch}>
+            <Form.Item
+              name="name" label="Blog"
+            > 
+              <Input />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" shape="round">
+                Search
+              </Button>
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" shape="round" icon={<PlusCircleOutlined/>} onClick={()=>{setDraw({open:true, data:{}})}}> Add Blog</Button>
+            </Form.Item>
+            {query.title && (<Form.Item>
+                <Tag closable onClose={closeTag} color="#1890ff">Name: {query.title}</Tag>
+              </Form.Item>)}
+          </Form>
+        </Col>
+      </Row>
       
-      <Form form={form} name="horizontal_login" layout="inline" onFinish={onSearch}>
-        <Form.Item
-          name="name" label="Blog"
-        > 
-          <Input />
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit" shape="round">
-            Search
-          </Button>
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" shape="round" icon={<PlusCircleOutlined/>} onClick={()=>{setDraw({open:true, data:{}})}}> Add Blog</Button>
-        </Form.Item>
-        {query.title && (<Form.Item>
-						<Tag closable onClose={closeTag} color="#1890ff">Name: {query.title}</Tag>
-					</Form.Item>)}
-      </Form>
-      <Row gutter={[16,16]} style={{marginTop: 50}}>
+      <Row gutter={[16,16]} style={{margin: "0px 0px 10px", background: "#fff", borderRadius: 5}}>
         {
           blog.map((item, index) => {
             return (

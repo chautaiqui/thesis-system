@@ -72,7 +72,7 @@ export const Qrcode = props => {
         </Button>
       </Col>
       <Col span={12} style={{display: 'flex', alignItems: 'center'}}>
-        {filter.have && (<Tag closable onClose={closeTag}>{ filter.date instanceof moment? filter.date.format("DD-MM-YYYY") : ''}</Tag>)}
+        {filter.have && (<Tag closable onClose={closeTag} color="#1890ff">{ filter.date instanceof moment? filter.date.format("DD-MM-YYYY") : ''}</Tag>)}
       </Col>
     </Row>
     <Table 

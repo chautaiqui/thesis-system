@@ -345,7 +345,7 @@ export const Manager = (props) => {
 	}
 	console.log(state)
 	return  <>
-		<Row gutter={[16,16]}>
+		<Row gutter={[16,16]} style={{margin: "0px 0px 10px", background: "#fff", borderRadius: 10}}>
 			<Col span={16}>
 				<Form form={fsearch} name="horizontal_login" layout="inline" onFinish={onSearch}>
 					<Form.Item

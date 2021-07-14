@@ -2,7 +2,7 @@ import React, { useState, useEffect} from 'react';
 import { Scroll } from '../scroll';
 import { SearchHotel } from '../search-hotel';
 import { _getRequest } from '../../../pkg/api';
-import { message } from 'antd';
+import { message, Row, Col } from 'antd';
 
 export const SelectHotel = props => {
   const { selectedHotel = () => {} } = props;
@@ -33,9 +33,12 @@ export const SelectHotel = props => {
   const onSelect = (item) => {
     setSelectHotel(item);
   }
-  return <>
-    <SearchHotel onSearch={onSearch}/>
-    <Scroll hotels={hotels} onSelect={onSelect} hotel={selectHotel}/>
-
-  </>
+  return (
+  <Row gutter={[16,16]} style={{margin: "0px 0px 10px", background: "#fff", borderRadius: 10}}>
+    <Col span={24}>
+      <SearchHotel onSearch={onSearch}/>
+      <Scroll hotels={hotels} onSelect={onSelect} hotel={selectHotel}/>
+    </Col>
+  </Row>
+  )
 }

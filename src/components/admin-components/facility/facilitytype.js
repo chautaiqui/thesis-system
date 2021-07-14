@@ -123,7 +123,7 @@ export const FacilityType = props => {
           }}
         >
           <Form.Item name="name" label="Facility type">
-            <Input />
+            <Input placeholder="Facility type name"/>
           </Form.Item>
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
             <Button type="primary" htmlType="submit" shape="round" loading={loading} style={{float: "right"}} icon={<PlusCircleOutlined/>}>

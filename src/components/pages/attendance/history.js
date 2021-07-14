@@ -167,7 +167,7 @@ export const History = props => {
       forceRender
       keyboard
       footer={
-        <Button type='primary' shape='round' onClick={()=>setPopup({open: false, data: {}})}>Close</Button>
+        <Button className="btn-box-shawdow" type='primary' onClick={()=>setPopup({open: false, data: {}})}>Close</Button>
       }
     >
       <Form>
@@ -175,11 +175,11 @@ export const History = props => {
         <Row gutter={[16,16]}>
           <Col span={24}>
             <Form.Item label="Date">
-              <span className="ant-form-text">{popup.data.shifts ? popup.data.shifts.date :  'empty' }</span>
+              <span className="ant-form-text">{popup.data.shifts ? popup.data.shifts.date + '-' + popup.data.shifts.month + '-'  + popup.data.shifts.year:  'empty' }</span>
             </Form.Item>
           </Col>
           <Col span={24}>
-            <Form.Item label="Date">
+            <Form.Item label="Salary">
               {popup.data.shifts && (<span className="ant-form-text">
                 {/* {popup.data.shifts ? popup.data.shifts.salaryCoefficient :  'empty' } */}
                 {popup.data.shifts.salaryCoefficient.toLocaleString("it-IT", {
@@ -190,8 +190,34 @@ export const History = props => {
             </Form.Item>
           </Col>
           <Col span={24}>
-            <Form.Item label="Date">
+            <Form.Item label="Time">
               <span className="ant-form-text">{popup.data.shifts ? popup.data.shifts.timeInOut :  'empty' }</span>
+            </Form.Item>
+          </Col>
+          <Col span={24}>
+            <Form.Item label="Time In">
+              <span>{(function(){
+                if(popup.data.shifts){
+                  var _t = popup.data.shifts.timeInOut.split("-");
+                  var _min = _t[0].split("h");
+                  return Number(_min[1]) >= 30 ? _min[0] + "h30" : _min[0] + "h00"
+                } else {
+                  return "None"
+                }
+              })()}</span>
+            </Form.Item>
+          </Col>
+          <Col span={24}>
+            <Form.Item label="Time Out">
+              <span>{(function(){
+                if(popup.data.shifts){
+                  var _t = popup.data.shifts.timeInOut.split("-");
+                  var _min = _t[1].split("h");
+                  return Number(_min[1]) >= 30 ? _min[0] + "h30" : _min[0] + "h00"
+                } else {
+                  return "None"
+                }
+              })()}</span>
             </Form.Item>
           </Col>
         </Row>

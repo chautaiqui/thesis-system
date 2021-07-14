@@ -30,7 +30,7 @@ export const SearchHotel = props => {
       <Form.Item
         name="hotel" label=""
       > 
-        <Input placeholder="search text"/>
+        <Input placeholder="Search text"/>
       </Form.Item>
       <Form.Item>
         <Button type="primary" htmlType="submit" shape="round">

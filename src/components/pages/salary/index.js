@@ -46,7 +46,7 @@ export const Salary = props => {
       month: _n.month() + 1,
       year: _n.year()
     }
-    form.setFieldsValue(_n);
+    form.setFieldsValue({month: _n});
     onFinish(_n);
   },[props])
 
