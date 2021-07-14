@@ -26,7 +26,7 @@ var manager1 = {
 }
 
 export const ManagerItem = (props) => {
-  const { manager, edit = () => {} } = props;
+  const { manager, edit = () => {}, setHotel = () => {} } = props;
   return <>
     <div className="manager-item" onClick={edit}>
       <div style={{display: 'flex',justifyContent: "center", width: '100%'}}>
@@ -51,7 +51,7 @@ export const ManagerItem = (props) => {
         {
           manager.hotel ? 
             <div>Hotel: {manager.hotel.name}</div> 
-            : <Button>No hotel</Button>
+            : <Button type="primary" className="btn-box-shawdow" onClick={setHotel}>No hotel</Button>
         }
       </div>
     </div>

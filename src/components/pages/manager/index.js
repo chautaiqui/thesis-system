@@ -1,6 +1,6 @@
 import React, {useContext, useReducer, useEffect} from 'react';
 import { useHistory } from "react-router-dom";
-import { Button, Table, Modal, Form, Input, Row, Col, InputNumber, DatePicker, message, Popover, Drawer, Select, Pagination } from 'antd';
+import { Button, Table, Modal, Form, Input, Row, Col, InputNumber, DatePicker, message, Popover, Drawer, Select, Pagination, Tag } from 'antd';
 import { PlusCircleOutlined, EditOutlined, CheckOutlined } from '@ant-design/icons';
 import {Carousel} from '3d-react-carousal';
 import { User } from '@pkg/reducers';
@@ -31,7 +31,7 @@ const tailFormItemLayout = {
 const ManagerReducer = (state, action) => {
   switch (action.type) {
       case 'GET_DATA_SUCCESS':
-				return { ...state, data: action.data, hotel: action.hotel, behavior: 'stall' }
+				return { ...state, data: action.data, hotel: action.hotel, query: action.query, total: action.total, behavior: 'stall' }
 			case 'PAGINATION': 
 				return { ...state, query: action.query, total: action.total, behavior: 'init'}
       case 'GET_DATA_ERROR':
@@ -61,6 +61,7 @@ export const Manager = (props) => {
 	const [ state, dispatch ] = useReducer(ManagerReducer, initState);
 	const [ loading, setLoading ] = React.useState(false);
 	const [ form ] = Form.useForm();
+	const [ fsearch ] = Form.useForm();
 	const history = useHistory();
 
 	const col = [
@@ -196,7 +197,7 @@ export const Manager = (props) => {
 				message.error(res1.error);
 			}
 			dispatch({
-				type: 'GET_DATA_SUCCESS', data: res.result.managers, hotel: res1.result.hotels || [], query: { page: res.result.currentPage, pageSize: res.result.pageSize}, total: res.result.totalItems
+				type: 'GET_DATA_SUCCESS', data: res.result.managers, hotel: res1.result.hotels || [], query: { ...state.query ,page: res.result.currentPage, pageSize: res.result.pageSize}, total: res.result.totalItems
 			});
 		} catch (e) {
 			message.error(e);
@@ -218,6 +219,12 @@ export const Manager = (props) => {
 			baseSalary: record.baseSalary,
 			img: record.img,
 		});
+	}
+
+	const setHotel = (record) =>{
+		dispatch({
+			type: 'TOOGLE_VIEW', view: {open: true, data: record}
+		})
 	}
 	useEffect(() => {
     switch (state.behavior) {
@@ -322,7 +329,41 @@ export const Manager = (props) => {
 		}
 		action();
 	}
+	const onSearch = (values) => {
+		console.log(values)
+		if(values.name === "" || !values.name) {
+			return;
+			// dispatch({type: 'PAGINATION', query: { page: state.query.page, pageSize: state.query.pageSize}, total: state.total})
+		} else {
+			dispatch({type: 'PAGINATION', query: { ...state.query, text: values.name }, total: state.total})
+		}
+		fsearch.resetFields();
+	}
+	const closeTag = () => {
+		dispatch({type: 'PAGINATION', query: { page: state.query.page, pageSize: state.query.pageSize}, total: state.total})
+		fsearch.resetFields();
+	}
+	console.log(state)
 	return  <>
+		<Row gutter={[16,16]}>
+			<Col span={16}>
+				<Form form={fsearch} name="horizontal_login" layout="inline" onFinish={onSearch}>
+					<Form.Item
+						name="name" label=""
+					> 
+						<Input placeholder="Name"/>
+					</Form.Item>
+					<Form.Item>
+						<Button type="primary" htmlType="submit" shape="round">
+							Search
+						</Button>
+					</Form.Item>
+					{state.query.text && (<Form.Item>
+						<Tag closable onClose={closeTag} color="#1890ff">Name: {state.query.text}</Tag>
+					</Form.Item>)}
+				</Form>
+			</Col>
+		</Row>
 		<Button 
 			type="primary" 
 			shape="round" 
@@ -354,7 +395,12 @@ export const Manager = (props) => {
 		{
 			data.map((item, index) => {
 				return <Col key={index} xs={24} sm={12} md={8} xl={6}>
-					<ManagerItem manager={item} setHotel={()=>{}} edit={()=>editInfo(item)}/>
+					<ManagerItem manager={item} 
+						setHotel={(event)=>{
+							event.stopPropagation();
+							setHotel(item)}
+						} 
+						edit={()=>editInfo(item)}/>
 				</Col>
 			})
 		}
@@ -367,7 +413,7 @@ export const Manager = (props) => {
 			pageSizeOptions={[5,10,20]}
 			total={state.total}
 			showSizeChanger={true}
-			showTotal={total => `Total ${total} items`}
+			showTotal={total => `Total ${total} managers`}
 			onChange={function(page, pageSize) {
 				dispatch({type: 'PAGINATION', query: { page: page, pageSize: pageSize}, total: state.total})
 			}}
@@ -483,7 +529,7 @@ export const Manager = (props) => {
 			key={'left'}
 			width={300}
 			footer={
-				<Button onClick={()=>{
+				<Button className="btn-box-shawdow" onClick={()=>{
 					dispatch({
 						type: 'TOOGLE_VIEW', view: {open:false, data: {}}
 					})
@@ -530,7 +576,7 @@ export const Manager = (props) => {
 				/>
 				</Form.Item>
 				<Form.Item {...tailFormItemLayout}>
-					<Button type="primary" htmlType="submit" loading={loading}>
+					<Button className="btn-box-shawdow" type="primary" htmlType="submit" loading={loading}>
 						Set
 					</Button>
 				</Form.Item>
