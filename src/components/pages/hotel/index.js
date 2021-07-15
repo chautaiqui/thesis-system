@@ -1,11 +1,16 @@
 import React, {useContext, useReducer, useEffect} from 'react';
-import { Button, Table, Modal, Form, Input, Row, Col, Select, Popover, message, TimePicker } from 'antd';
+import { useHistory } from "react-router-dom";
+import { Button, Table, Modal, Form, Input, Row, Col, Select, Popover, message, TimePicker, Pagination, Tag } from 'antd';
 import { PlusCircleOutlined, PlayCircleOutlined, EditOutlined, CheckOutlined } from '@ant-design/icons';
-import {Carousel} from '3d-react-carousal';
+// import {Carousel} from '3d-react-carousal';
 import { User } from '@pkg/reducers';
 import { cities } from '../../commons/city';
 import { CustomUploadListImg, filerColumn, messageError, messageSuccess } from '../../commons';
 import { _getRequest, postMethod, putMethod } from '@api';
+import { ImageCarousel } from '../../commons/carousel';
+import { HotelItems } from '../../commons/hotel-items';
+import { getQuery, pushQuery } from '../../../hook/query';
+
 const { confirm } = Modal;
 
 const layout = {
@@ -15,17 +20,19 @@ const layout = {
 
 const HotelReducer = (state, action) => {
   switch (action.type) {
-      case 'GET_DATA_SUCCESS':
-		return { ...state, data: action.data, behavior: 'stall' }
-      case 'GET_DATA_ERROR':
-		return { ...state, data: [], behavior: 'stall' };
-      case 'TOOGLE_POPUP':
-		return { ...state, popup: action.popup, behavior: action.behavior };
-      case 'TOOGLE_VIEW':
-		return { ...state, view: action.view, behavior: 'stall' };
-      case 'RELOAD':
-		return { ...state, behavior: 'init', popup: action.popup };
-      default:
+		case 'GET_DATA_SUCCESS':
+			return { ...state, data: action.data, query: action.query, total: action.total, behavior: 'stall' }
+		case 'GET_DATA_ERROR':
+			return { ...state, data: [], behavior: 'stall' };
+		case 'PAGINATION': 
+			return { ...state, query: action.query, total: action.total, behavior: 'init'}
+		case 'TOOGLE_POPUP':
+			return { ...state, popup: action.popup, behavior: action.behavior };
+		case 'TOOGLE_VIEW':
+			return { ...state, view: action.view, behavior: 'stall' };
+		case 'RELOAD':
+			return { ...state, behavior: 'init', popup: action.popup };
+		default:
 		return state;
   } 
 }
@@ -34,13 +41,17 @@ const initState = {
 	data: [],
 	popup: {open: false, data: {}},
 	view: {open: false, img: []},
+	query: { page: 1, pageSize: 10},
+	total: undefined
 }
 
-export const Hotel = () => {
+export const Hotel = (props) => {
 	const [ _user ] = useContext(User.context);
 	const [ state, dispatch ] = useReducer(HotelReducer, initState);
 	const [ loading, setLoading ] = React.useState(false);
 	const [ form ] = Form.useForm();
+	const [ fsearch ] = Form.useForm();
+	const history = useHistory();
 	const col = [
 		{
 			title: 'Name',
@@ -149,13 +160,18 @@ export const Hotel = () => {
 	const { data, popup, view } = state;
 	const getData = async () => {
 		try {
-			const res = await _getRequest('hotel');
+			const res = await _getRequest('hotel', state.query);
 			if(!res.success) {
 				message.error(res.error);
 				return;
 			}
+			const _q = pushQuery(state.query);
+			history.push({
+				path: '/hotel',
+				search: "?" + _q
+			})
 			dispatch({
-				type: 'GET_DATA_SUCCESS', data: res.result.hotels
+				type: 'GET_DATA_SUCCESS', data: res.result.hotels, query: { ...state.query, page: res.result.currentPage, pageSize: res.result.pageSize }, total: res.result.totalItems
 			});
 		} catch (e) {
 			message.error(e);
@@ -172,7 +188,18 @@ export const Hotel = () => {
 				break;
     }
   }, [state.behavior])
-
+	useEffect(()=>{
+    const param = getQuery(window.location.search);
+		if(param.pageSize && param.page) {
+			dispatch({type: 'PAGINATION', query: { page: Number(param.page), pageSize: Number(param.pageSize)}, total: state.total});
+		} else {
+			const _q = pushQuery(state.query);
+			history.push({
+				path: '/hotel',
+				search: "?" + _q
+			})
+		}
+	},[props])
 	const onFinish = (values) => {
 		console.log(values);
 		var data = new FormData();
@@ -248,21 +275,98 @@ export const Hotel = () => {
 		}
 		action();
 	}
-	// console.log(view)
+	const editHotel = (record) => {
+		dispatch({type: 'TOOGLE_POPUP', popup: {open: true, data:record}})
+		form.setFieldsValue({
+			name: record.name,
+			capacity: record.capacity,
+			averagePrice: record.averagePrice,
+			phone: record.phone,
+			description: record.description,
+			province: record.province,
+			district: record.district,
+			street: record.street,
+			ward: record.ward,
+		});
+	}
+
+	const onSearch = (values) => {
+		if(values.name === "" || !values.name) {
+			return;
+			// dispatch({type: 'PAGINATION', query: { page: state.query.page, pageSize: state.query.pageSize}, total: state.total})
+		} else {
+			dispatch({type: 'PAGINATION', query: { ...state.query, searchText: values.name }, total: state.total})
+		}
+		fsearch.resetFields();
+	}
+	const closeTag = () => {
+		dispatch({type: 'PAGINATION', query: { page: state.query.page, pageSize: state.query.pageSize}, total: state.total})
+		fsearch.resetFields();
+	}
+
+	console.log(state.query)
 	return  <>
-		<Button 
-			type="primary" 
-			shape="round" 
-			icon={<PlusCircleOutlined/>}
-			onClick={()=>{
-				form.resetFields();  
-				dispatch({
-					type: 'TOOGLE_POPUP', popup: {open: true, data: {}}
-				})       
+		
+		<Row gutter={[16,16]} style={{margin: "0px 0px 10px", background: "#fff", borderRadius: 10}}>
+			<Col span={24}>
+				<Form form={fsearch} name="horizontal_login" layout="inline" onFinish={onSearch}>
+					<Form.Item
+						name="name" label=""
+					> 
+						<Input placeholder="Name"/>
+					</Form.Item>
+					<Form.Item>
+						<Button type="primary" htmlType="submit" shape="round">
+							Search
+						</Button>
+					</Form.Item>
+					<Form.Item>
+						<Button 
+							type="primary" 
+							shape="round" 
+							icon={<PlusCircleOutlined/>}
+							onClick={()=>{
+								form.resetFields();  
+								dispatch({
+									type: 'TOOGLE_POPUP', popup: {open: true, data: {}}
+								})       
+							}}
+							>Add Hotel
+						</Button>	
+					</Form.Item>
+					{state.query.searchText && (<Form.Item>
+						<Tag closable onClose={closeTag} color="#1890ff">Name: {state.query.searchText}</Tag>
+					</Form.Item>)}
+				</Form>
+			</Col>
+		</Row>
+		<Row gutter={[16,16]}>	
+			{
+				data.map((item, index) => (
+					<Col xs={24} sm={12} md={12} lg={12} key={index}>
+						<HotelItems hotel={item} editHotel={()=>editHotel(item)}/>
+					</Col>
+				))
+			}
+		</Row>
+		<Pagination
+      // disabled={state.data.length === 0}
+			current={state.query.page}
+			pageSize={state.query.pageSize}
+			pageSizeOptions={[5,10,20]}
+			total={state.total}
+			showSizeChanger={true}
+			showTotal={total => `Total ${total} hotels`}
+			onChange={function(page, pageSize) {
+				dispatch({type: 'PAGINATION', query: { ...state.query, page: page, pageSize: pageSize}, total: state.total })
 			}}
-			>Add Hotel
-		</Button>		
-		<Table 
+			onShowSizeChange={function(current, size) {
+				dispatch({type: 'PAGINATION', query: { ...state.query, page: current, pageSize: size}, total: state.total })
+			}}
+			style={{display: 'flex',justifyContent: 'center',marginTop: 10, paddingBottom: 30}}
+			
+    />
+		{/* <Table 
 			rowKey='_id'
 			title={() => 'Hotel'}
 			bordered
@@ -276,10 +380,11 @@ export const Hotel = () => {
 				responsive: true,
 			}}
 			scroll={{ x: 992 }} 
-		/>
+		/> */}
 		<Modal title="Image Hotel" 
 			visible={view.open} 
 			footer={null}
+			width='50%'
 			keyboard
 			closable
 			onCancel={()=>{
@@ -288,10 +393,11 @@ export const Hotel = () => {
 				})
 			}}
 		>
-			<Carousel slides={
+			{/* <Carousel slides={
 				view.data ? view.data.map((i, index)=><img src={i} alt={index} />) : []
 			}
-			autoplay={true} interval={5000}/>
+			autoplay={true} interval={5000}/> */}
+			<ImageCarousel img={view.data} autoplay={true}/>
 		</Modal>
 		<Modal 
 			centered

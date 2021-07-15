@@ -38,7 +38,7 @@ export const SearchHotel = props => {
         </Button>
       </Form.Item>
       {hotel.search && (<Form.Item>
-        <Tag closable onClose={closeTag}>{hotel.text}</Tag>
+        <Tag closable onClose={closeTag} color="#1890ff">{hotel.text}</Tag>
       </Form.Item>)}
     </Form>
   )

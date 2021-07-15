@@ -88,10 +88,10 @@ export const Room = ({hotelId}) => {
     }, 
     {
       title: 'Status',
-      dataIndex: 'docStatus',
+      dataIndex: 'status',
       align: 'center',
-      key: 'docStatus',  
-      render: (text, record, index) => <Tag color='green'>{record.docStatus}</Tag>
+      key: 'status',  
+      render: (text, record, index) => <Tag color={ record.status ===  'available' ?'green' : 'red'}>{record.status}</Tag>
     },
     {
       title: 'Room type',

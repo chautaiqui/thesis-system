@@ -373,3 +373,20 @@ tr.ant-table-expanded-row, tr.ant-table-expanded-row:hover{
     border-radius: 10px;
     cursor: pointer;
 }
+
+.carousel-button-prev {
+    position: absolute;
+    height: fit-content;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+}
+.carousel-button-next {
+    position: absolute;
+    height: fit-content;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+}

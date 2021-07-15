@@ -51,7 +51,7 @@ export const ManagerItem = (props) => {
         {
           manager.hotel ? 
             <div>Hotel: {manager.hotel.name}</div> 
-            : <Button type="primary" className="btn-box-shawdow" onClick={setHotel}>No hotel</Button>
+            : <Button type="primary" className="btn-box-shawdow" onClick={setHotel}>Set hotel</Button>
         }
       </div>
     </div>
