@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { DatePicker, Row, Col, Button, Form, Input, InputNumber, Tabs, Modal, message } from 'antd';
+import { DatePicker, Row, Col, Button, Form, Input, InputNumber, Tabs, Modal, message, Drawer } from 'antd';
 import { Shift } from '../../commons/shift';
 import { _getRequest } from "@pkg/api";
 import { User } from '@pkg/reducers';
-import { messageError } from '../../commons';
-import { postMethod } from '../../../pkg/api';
-import { PlusCircleOutlined } from '@ant-design/icons';
+import { messageError, messageSuccess } from '../../commons';
+import { postMethod, putMethod } from '../../../pkg/api';
+import { PlusCircleOutlined, FormOutlined } from '@ant-design/icons';
 const formItemLayout = {
   labelCol: {
     xs: {
@@ -36,13 +36,21 @@ const tailFormItemLayout = {
     },
   },
 };
+var calcTime = (timeIn, timeOut) => {
+  var _i = timeIn.split("h").map(item=>Number(item))
+  var _o = timeOut.split("h").map(item=>Number(item))
+  return (_o[0]*60 + _o[1] - (_i[0]*60 + _i[1]))/60 
+}
 const { TabPane } = Tabs;
-const initState = {behavior: 'init', shift: [], employee: []};
-export const HotelShift = props => {
+const initState = { behavior: 'init', shift: [], employee: [] };
+const initSalary = { open: false, data: {}, exist: false, behavior: 'init' };
+export const HotelShift = (props) => {
   const [ user ] = useContext(User.context);
   const [ data, setData ] = useState(initState);
+  const [ salary, setSalary ] = useState(initSalary);
   const [ popup, setPopup ] = useState({open: false});
   const [ form ] = Form.useForm();
+  const [ form_salary ] = Form.useForm();
   const [ multiform ] = Form.useForm();
 
   const getShift = async () => {
@@ -63,16 +71,38 @@ export const HotelShift = props => {
       getShift();
     }
   },[data.behavior])
+  const getSalaryHourly = async () => {
+    const res = await _getRequest(`hourlysalary/hotel/${user.auth.hotel}`); 
+    if(res.success) {
+      if(res.result.hourlySalaries[0]) {
+        setSalary({
+          ...salary, data: res.result.hourlySalaries[0], behavior: 'stall', exist: true
+        })
+      }
+    } else {
+      messageError(res.error);
+    }
+  }
+  useEffect(()=>{
+    if(salary.behavior === 'init') {
+      getSalaryHourly();
+    } 
+    console.log({number: salary.data})
+    form_salary.setFieldsValue({number: salary.data.salary ? salary.data.salary : 0})
+    
+  }, [salary])
   const onFinish = (v) => {
-    if(!v.salaryCoefficient) {
-      messageError("Please input salary coefficient!");
+    if(!v.salaryCoefficient && !salary.data.salary) {
+      messageError("Please input salary coefficient or config salary!");
       return;
     }
-    console.log(v, user.auth.hotel)
+    var timeInOut = v.timeInOut.split("-");
+    var finalSalary = v.salaryCoefficient ? v.salaryCoefficient : salary.data.salary * calcTime(timeInOut[0], timeInOut[1]);
     const createShift = async () => {
       const res = await postMethod(`hotel/${user.auth.hotel}/create-hotel-shift`, {
         shift: [{
           ...v,
+          salaryCoefficient: finalSalary,
           hotel: user.auth.hotel
         }]
       })
@@ -123,8 +153,8 @@ export const HotelShift = props => {
     setPopup({open: true});
   }
   const submitMultiShift = (v) => {
-    if(!v.salaryCoefficient) {
-      messageError("Please input salary coefficient!");
+    if(!v.salaryCoefficient && !salary.data.salary) {
+      messageError("Please input salary coefficient or config salary!");
       return;
     }
     var start = v.time[0];
@@ -133,14 +163,16 @@ export const HotelShift = props => {
     var endplus = end.add(1, 'days')
     var timeOut = `${end.hour()}h${end.minutes() > 30 ? 30 : 0}`;
     var timeInOut = `${timeIn} - ${timeOut}`;
-    var _s = []
+    var _s = [];
+    var finalSalary = v.salaryCoefficient ? v.salaryCoefficient : salary.data.salary * calcTime(timeIn, timeOut);
+    // console.log(finalSalary)
     while (!start.isSame(endplus, 'day')) {
       var _t = {
         hotel: user.auth.hotel,
         date: start.date(),
         month: start.month() + 1,
         year: start.year(),
-        salaryCoefficient: v.salaryCoefficient,
+        salaryCoefficient: finalSalary,
         timeInOut: timeInOut
       }
       _s.push(_t)
@@ -187,16 +219,69 @@ export const HotelShift = props => {
     }
     action();
   }
+  const openPopupSalary = () => {
+    setSalary({
+      ...salary, open: true
+    })
+  }
+  const onNumberChange = (value) => {
+    console.log(salary, value)
+    if(salary.exist && salary.data._id) {
+      // update
+      const updateSalary = async () => {
+        const res = await putMethod("hourlysalary", { salary: Number(value.number)} ,salary.data._id);
+        if(res.success) {
+          console.log(res.result)
+          setSalary({
+            ...salary, data: res.result.hourlySalary, open: false
+          })
+          messageSuccess("Update salary hourly successfully!")
+        } else {
+          messageError(res.error)
+        }
+      }
+      updateSalary();
+    } else {
+      // create
+      const createSalary = async () => {
+        if(!user.auth.hotel) {
+          messageError("Not manage hotel!");
+          return;
+        }
+        const res = await postMethod(`hourlysalary/hotel/${user.auth.hotel}`, { salary: Number(value.number)});
+        if(res.success) {
+          console.log(res.result)
+          setSalary({
+            ...salary, data: res.result.hourlySalary, open: false
+          })
+          messageSuccess("Config salary hourly successfully!")
+        } else {
+          messageError(res.error)
+        }
+      }
+      createSalary();
+    }
+  }
+  console.log(salary)
   return ( 
     <>
       <Row gutter={16,16} >
-        <Col span={24} style={{marginBottom: 10}}>
+        <Col span={24} style={{marginBottom: 10, marginRight: 10}}>
           <Button 
             onClick={addMultiShift}
             type="primary" 
             shape="round" 
             icon={<PlusCircleOutlined/>}
+            style={{marginRight: 20}}
           > Add Multi Shift</Button>
+          <Button 
+            type="primary" 
+            shape="round" 
+            icon={<FormOutlined />}
+            onClick={openPopupSalary}
+          >
+            Config Salary
+          </Button>
         </Col>
         <Col span={24}>
           <Shift data={data.shift} employee={data.employee} formData={formJSX} formControl={form} assign={assignSuccess}/>
@@ -218,17 +303,62 @@ export const HotelShift = props => {
         >
           <Form.Item name="salaryCoefficient" label="Salary Coefficient"
           >
-            <Input addonAfter={"VND"}/>
+            <CustomInput 
+              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              parser={value => value.replace(/\$\s?|(,*)/g, '')}
+              style={{width: "80%"}}
+            />
           </Form.Item>
           <Form.Item name="time" label="Date Time" {...rangeConfig}>
             <DatePicker.RangePicker showTime format="YYYY-MM-DD HH:mm" />
           </Form.Item>
         </Form>
       </Modal>
+      <Drawer
+        title="Config salary"
+        placement={"left"}
+        closable={true}
+        onClose={()=>{
+          setSalary({
+            ...salary, open: false
+          })
+        }}
+        visible={salary.open}
+        key={"top"}
+        width={"50%"}
+      >
+        <Form onFinish={onNumberChange} form={form_salary}>
+          <Form.Item
+            labelCol={{span: 24}}
+            wrapperCol={{span: 24}}
+            label="Salary in hour"
+            name="number"
+          >
+            <CustomInput 
+              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              parser={value => value.replace(/\$\s?|(,*)/g, '')}
+              style={{width: "80%"}}
+            />
+          </Form.Item>
+          <Form.Item
+            wrapperCol={{
+              span: 12,
+              offset: 4
+            }}
+          >
+            <Button className="btn-box-shawdow" type="primary" htmlType="submit" style={{width: "100%"}}>
+              Config
+            </Button>
+          </Form.Item>
+        </Form>
+      </Drawer>
     </>
   )  
 };
 
-class Render{
-  
+const CustomInput = (props) => {
+  return <>
+    <InputNumber {...props}/>
+    <span>VND</span>
+  </>
 }

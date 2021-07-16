@@ -73,3 +73,41 @@ export const MultiTypeChart = (props) => {
     <Bar data={fdata} options={options}/>
   </>
 }
+
+export const MultiTypeChart2 = (props) => {
+  const { data } = props;
+  const pdata = data.reverse().map(item => {
+    return {
+      ...item,
+      month: numtoMonth(item.month)
+    }
+  });
+  const dlabel = pdata.map(item=>item.month);
+  const ddata = pdata.map(item=>item.bookingMoney);
+  const fdata = {
+    labels: dlabel,
+    datasets: [
+      // {
+      //   type: 'line',
+      //   label: 'Total',
+      //   borderColor: 'rgb(54, 162, 235)',
+      //   borderWidth: 2,
+      //   fill: false,
+      //   data: ddata,
+      // },
+      {
+        type: 'bar',
+        label: 'Total',
+        backgroundColor: '#a0d911',
+        data: ddata,
+        borderColor: 'white',
+        borderWidth: 2,
+      }
+    ],
+  }
+  // console.log(pdata)
+  return <>
+    <Bar data={fdata} options={options}/>
+  </>
+}
+

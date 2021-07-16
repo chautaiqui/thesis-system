@@ -7,6 +7,10 @@ import { VerticalBar } from '../../commons/chart';
 import { HorizontalBarChart } from '../../commons/chart/horizontalBarChart';
 import { VNDongIcon } from '../../commons/icon/vnd';
 import { Item } from '../../commons/report-item/item';
+import { MultiTypeChart, MultiTypeChart2 } from '../../commons/chart/multiTypeChart';
+import { EmployeeSalaryChart } from '../../commons/chart/EmployeeSalaryChart';
+import { FacilityReport1 } from '../../commons/facility-report';
+
 import moment from 'moment';
 // import { Horizon }
 const getWeekYearNow = () => {
@@ -16,12 +20,30 @@ const getWeekYearNow = () => {
 const formatNumber = (num, currency = "") => 
   String(num).replace(/(?<!\..*)(\d)(?=(?:\d{3})+(?:\.|$))/g, '$1.') + currency
 ;
+const numtoMonth = (number) => {
+  var  months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  return months[number-1];
+}
 
+const addMonthReport = (arrReport) => {
+  if(!arrReport) return;
+  var lst = arrReport[arrReport.length - 1];
+  var mIndex = Number(lst.month);
+  console.log(mIndex)
+  for (var i = mIndex - 1; i > 0; i--) {
+    arrReport.push({
+      bookingAmount: 0,
+      bookingMoney: 0,
+      month: i
+    })
+  }
+  return arrReport;
+}
 
 export const Report = props => {
   const [month, year] = useMemo(() => getWeekYearNow(), [props]);
   const [ user ] = useContext(User.context);
-  const [query, setQuery] = useState({year: year, month: month});
+  const [query, setQuery] = useState({year: year});
   const [data, setData] = useState({});
   const [ form ] = Form.useForm();
   useEffect(()=>{
@@ -33,6 +55,7 @@ export const Report = props => {
     const getData = async () => {
       const res = await _getRequest(`hotel/${user.auth.hotel}/report`, query);
       const res_salary = await _getRequest(`hotel/${user.auth.hotel}/salary-report`, query);
+      console.log(res)
       console.log(res_salary)
       if(res.success && res_salary.success) {
         setData({...res.result, employeeSalary: res_salary.result.salary});
@@ -49,6 +72,7 @@ export const Report = props => {
     })
   }
   console.log(data, query)
+
   return <div>
     <Form form={form} name="horizontal_login" layout="inline" onFinish={onSearch}>
       <Form.Item
@@ -62,152 +86,114 @@ export const Report = props => {
         </Button>
       </Form.Item>
     </Form>
-    { data.hotel && (<div><Row gutter={[16,16]} style={{marginTop: 20}}>
-      <Col span={6}>
-        <Item value={data.hotel.name} title={"Hotel"}/>
-      </Col>
-      <Col span={6}>
-        <Item value={data.manager.name} title={"Manager"}/>
-      </Col>
-      <Col span={6}>
-        <Item value={data.bookingReport.amount} title={"Amount"}/>
-      </Col>
-      <Col span={6}>
-        <Item value={formatNumber(data.bookingReport.totalMoney, "VND")} title={"Total money"}/>
-      </Col>
-    </Row>
-   
-    <Row gutter={[16,16]}>
-      <Col span={24}>
-        <VerticalBar title={"Rating Hotel Report"} data={
-          {
-            labels: ['One', 'Two', 'Three', 'Four', 'Five'],
-            datasets: [
-              {
-                label: '# of Rating',
-                data: data.ratingReport ? Object.values(data.ratingReport).slice(0,5) : [0,0,0,0,0],
-                backgroundColor: [
-                  'rgba(255, 99, 132, 0.2)',
-                  'rgba(54, 162, 235, 0.2)',
-                  'rgba(255, 206, 86, 0.2)',
-                  'rgba(75, 192, 192, 0.2)',
-                  'rgba(153, 102, 255, 0.2)',
-                ],
-                borderColor: [
-                  'rgba(255, 99, 132, 1)',
-                  'rgba(54, 162, 235, 1)',
-                  'rgba(255, 206, 86, 1)',
-                  'rgba(75, 192, 192, 1)',
-                  'rgba(153, 102, 255, 1)',
-                ],
-                borderWidth: 1,
-              },
-            ],
-          }
-        }/>
-      </Col>
-    </Row>
+    { data.hotelName && (
+      <div>
+        <Row gutter={[16,16]} style={{marginTop: 20}}>
+          <Col span={6}>
+            <Item value={data.hotelName? data.hotelName : "Hotel"} title={"Hotel"}/>
+          </Col>
+          <Col span={6}>
+            <Item value={data.managerName ? data.managerName : "Manager"} title={"Manager"}/>
+          </Col>
+          <Col span={6}>
+            <Item value={data.booking[0] ? data.booking[0].bookingAmount : "0"} title={"Amount"}/>
+          </Col>
+          <Col span={6}>
+            <Item value={ data.booking[0] ? formatNumber(data.booking[0].bookingMoney, "VND") : "VND"} title={"Total money"}/>
+          </Col>
+        </Row>
+        <Row gutter={[16,16]}>
+          <Col span={24}>
+            <h1 style={{textAlign: 'center'}}>Booking Report</h1>
+          </Col>
+          <Col xs={24} sm={12} style={{display: 'flex',justifyContent: 'center', alignItems: 'center'}}>
+            <MultiTypeChart2 data={data.bookingByMonth ? addMonthReport(data.bookingByMonth) : []}/>
+          </Col>
+          <Col xs={24} sm={12}>
+            <Table
+              rowKey='month'
+              tableLayout="auto"
+              size={'small'}
+              bordered
+              dataSource={data.bookingByMonth ? addMonthReport(data.bookingByMonth) : []}
+              pagination={false}
+              columns={[
+                {
+                  title: 'Month',
+                  align: 'center',
+                  key: 'name', 
+                  render: (text, record, index) => numtoMonth(record.month)
+                }, 
+                {
+                  title: 'Booking Amount',
+                  dataIndex: 'bookingAmount',
+                  align: 'center',
+                  key: 'bookingAmount', 
+                }, 
+                {
+                  title: 'Total',
+                  dataIndex: 'bookingMoney',
+                  align: 'center',
+                  key: 'totalMoney', 
+                  render: (text, record, index) => <span>
+                    {record.bookingMoney.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}{" "}
+                  </span>
+                },
+              ]}
+            />
+          </Col>
+        </Row>
 
-    <Row gutter={[16,16]}>
-      <Col span={24}>
-        <div className='ant-descriptions-title'>Room Type Report</div>
-        <Table
-            rowKey='_id'
-            tableLayout="auto"
-            dataSource={data.roomTypeReport}
-            columns={[
-              {
-                title: 'Name',
-                align: 'center',
-                key: 'name', 
-                render: (text, record, index) => record.roomType.name
-              }, 
-              {
-                title: 'Booking Amount',
-                dataIndex: 'bookingAmount',
-                align: 'center',
-                key: 'bookingAmount', 
-              }, 
-              {
-                title: 'Total money',
-                dataIndex: 'totalMoney',
-                align: 'center',
-                key: 'totalMoney', 
-                render: (text, record, index) => <span>
-                  {record.totalMoney.toLocaleString("it-IT", {
-                    style: "currency",
-                    currency: "VND",
-                  })}{" "}
-                </span>
-              },
-            ]}
-          />
-      </Col>
-      <Col span={24}>
-        <div className='ant-descriptions-title'>Employee Report Salary</div>
-        <Table
-            rowKey={(record=>record.employee._id)}
-            tableLayout="auto"
-            dataSource={data.employeeSalary.arr}
-            columns={[
-              {
-                title: 'Email',
-                align: 'center',
-                key: 'email', 
-                render: (text, record, index) => record.employee.email
-              }, 
-              {
-                title: 'Name',
-                align: 'center',
-                key: 'name', 
-                render: (text, record, index) => record.employee.name
-              }, 
-              {
-                title: 'Salary',
-                align: 'center',
-                key: 'salary', 
-                render: (text, record, index) => <span>
-                  {record.salary.toLocaleString("it-IT", {
-                    style: "currency",
-                    currency: "VND",
-                  })}{" "}
-                </span>
-              },
-            ]}
-          />
-      </Col>
-      <Col span={24}>
-          <HorizontalBarChart data={{
-              labels: data.employeeSalary.arr.map(item=>item.employee.name),
-              datasets: [{
-                label: "# Employee",
-                data: data.employeeSalary.arr.map(item=>item.salary),
-                backgroundColor: data.employeeSalary.arr.map(item=>'rgba(54, 162, 235, 0.2)')
-              }]
-            }}
-            options={
-              {
-                indexAxis: 'y',
-                elements: {
-                  bar: {
-                    borderWidth: 2,
-                  },
+        <Row gutter={[16,16]}>
+          <Col span={24}>
+            <h1 style={{textAlign: 'center'}}>Salary Employee Report</h1>
+          </Col>
+          <Col xs={24} sm={12}>
+            <Table
+              rowKey='month'
+              tableLayout="auto"
+              size={'small'}
+              bordered
+              dataSource={data.employeeSalary ? data.employeeSalary : []}
+              pagination={false}
+              columns={[
+                {
+                  title: 'Month',
+                  align: 'center',
+                  key: 'name', 
+                  render: (text, record, index) => numtoMonth(record.month)
+                }, 
+                {
+                  title: 'Total',
+                  dataIndex: 'bookingMoney',
+                  align: 'center',
+                  key: 'totalMoney', 
+                  render: (text, record, index) => <span>
+                    {record.totalSalary.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}{" "}
+                  </span>
                 },
-                responsive: true,
-                plugins: {
-                  legend: {
-                    position: 'right',
-                  },
-                  title: {
-                    display: true,
-                    text: 'Employee report salary',
-                  },
-                },
-              }
-            }
-          />
-      </Col>
-    </Row>
-    </div>)}
+              ]}
+            />
+          </Col>
+          <Col xs={24} sm={12}>
+            <EmployeeSalaryChart data={data.employeeSalary ? data.employeeSalary : []}/>
+          </Col>
+        </Row>
+        <Row gutter={[16,16]}>
+          <Col span={24}>
+            <h1 style={{textAlign: 'center'}}>Facility Report</h1>
+          </Col>
+          <Col span={24}>
+            <FacilityReport1 data={data.facilityReport ? data.facilityReport : []}/>
+          </Col>
+        </Row>
+      </div>
+    )}
   </div>
 }

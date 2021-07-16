@@ -119,11 +119,11 @@ export const InventoryReport = props => {
       <Col span={12}>
         <RankChart data={data.customerBookingReport ? data.customerBookingReport[0].customerTopTen : []}/>
       </Col>
-      <Col span={12}>
+      {/* <Col span={12}>
         <h1 style={{textAlign: 'center'}}>Room Hotel Report</h1>
         <RoomReport data={data.facilityReport ? data.facilityReport : []}/>
-      </Col>
-      <Col span={12}>
+      </Col> */}
+      <Col span={24}>
         <h1 style={{textAlign: 'center'}}>Facility Hotel Report</h1>
         <FacilityReport data={data.facilityReport ? data.facilityReport : []}/>
       </Col>

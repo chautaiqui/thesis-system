@@ -56,11 +56,11 @@ const subPages2 = [
   { path: '/hotelshift', icon: (<AppstoreAddOutlined />), label: "Hotel Shift", component: HotelShift, permissions: 'hotelshift', role: 'manager'},
   { path: '/confirmleave', icon:(<CheckCircleOutlined />), label: "Confirm Leave", component: ConfirmLeave, permissions: 'confirmleave', role: 'manager'},
   { path: '/qrcode', icon:(<QrcodeOutlined />), label: "Qr Code", component: Qrcode, permissions: 'qrcode', role: 'manager'},
+  { path: '/room', icon: (<HomeOutlined />), label: "Room", component: Room, permissions: 'room', role: 'manager' },
+  { path: '/facility',icon: (<GroupOutlined />), label: "Facility", component: Facility, permissions: 'facility', role: 'manager' },
   { path: '/account', icon: (<UserOutlined  rotate={45}/>), label: "Account", component: Account, permissions: 'account', role: 'manager'},
 ];
 const subPages3 = [
-  { path: '/room', icon: (<HomeOutlined />), label: "Room", component: Room, permissions: 'room', role: 'manager' },
-  { path: '/facility',icon: (<GroupOutlined />), label: "Facility", component: Facility, permissions: 'facility', role: 'manager' },
   { path: '/workingshift', icon: (<RocketOutlined />), label: "Working Shift", component: WorkingShift, permissions: 'working_shift' , role: 'employee'},
   { path: '/attendance', icon: (<BarcodeOutlined />), label: "Attendance", component: Attendance, permissions: 'attendance', role: 'employee'},
   { path: '/booking', icon: (<SelectOutlined />), label: "Booking", component: Booking, permissions: 'booking', role: 'employee'},

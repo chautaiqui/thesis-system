@@ -90,7 +90,7 @@ export const FacilityType = props => {
             <Input />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" shape="round" loading={loading}>
+            <Button type="primary" htmlType="submit" shape="round" loading={loading} icon={<PlusCircleOutlined/>}>
               Add facility type
             </Button>
           </Form.Item>
@@ -114,11 +114,16 @@ export const FacilityType = props => {
           />)}
       </Col>
       <Col xs={24} sm={24} md={16} lg={16} xl={16}>
-        <Button 
+      <Button 
           type="primary" shape="round" icon={<PlusCircleOutlined/>}
           onClick={()=>{
             dispatch({type: 'TOOGLE_POPUP_FACILITY', facs: {open: true, data: {}}, behavior: 'stall'})
             form_facility.resetFields();
+          }}
+          style={{
+            float: "right",
+            marginBottom: 10,
+            zIndex: 2
           }}
           >Add Facility
         </Button>

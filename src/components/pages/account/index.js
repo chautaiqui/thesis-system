@@ -159,7 +159,7 @@ export const Account = props => {
                 <CustomUploadImg/>
               </Form.Item>
               <Form.Item {...tailFormItemLayout}>
-                <Button type="primary" htmlType="submit" loading={loading} shape={'round'}>
+                <Button type="primary" htmlType="submit" loading={loading} className="btn-box-shawdow">
                   Update
                 </Button>
               </Form.Item>
@@ -226,7 +226,7 @@ export const Account = props => {
                 <Input.Password />
               </Form.Item>
               <Form.Item {...tailFormItemLayout}>
-                <Button type="primary" htmlType="submit" loading={loading} shape="round">
+                <Button type="primary" htmlType="submit" loading={loading} className="btn-box-shawdow">
                   Change
                 </Button>
               </Form.Item>

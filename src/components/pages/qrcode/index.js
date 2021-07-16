@@ -88,10 +88,28 @@ export const Qrcode = props => {
           render: (text, record, index) => moment({date: record.date, month: record.month - 1, year: record.year}).format("DD-MM-YYYY"),
         },
         {
-          title: 'timeInOut',
-          dataIndex: 'timeInOut',
+          title: 'Time In',
           align: 'center',
-          key: 'timeInOut', 
+          key: 'timeIn', 
+          render: (text, record, index) => {
+            if(record.timeInOut){
+              var _t = record.timeInOut.split("-");
+              var _min = _t[0].split("h");
+              return Number(_min[1]) >= 30 ? _min[0] + "h30" : _min[0] + "h00"
+            }
+          }
+        },
+        {
+          title: 'Time Out',
+          align: 'center',
+          key: 'timeOut', 
+          render: (text, record, index) => {
+            if(record.timeInOut){
+              var _t = record.timeInOut.split("-");
+              var _min = _t[1].split("h");
+              return Number(_min[1]) >= 30 ? _min[0] + "h30" : _min[0] + "h00"
+            }
+          }
         },
         {
           title: 'QrCode',

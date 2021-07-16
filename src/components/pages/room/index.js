@@ -379,10 +379,10 @@ export const Room = props => {
       keyboard
       footer={
         <div>
-          <Button shape='round' type='primary' onClick={()=>{
+          <Button className="btn-box-shawdow" type='primary' onClick={()=>{
             form.submit();
           }} loading={loading}>Confirm</Button>
-          <Button shape='round' onClick={()=>{
+          <Button className="btn-box-shawdow" onClick={()=>{
             dispatch({type: 'TOOGLE_POPUP', popup: {open:false, data:{}}})
             form.resetFields();
           }}>Close</Button>

@@ -52,6 +52,15 @@ const randomColor = (number) => {
   return arrColor[number];
 }
 
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
+
+const randomColor1 = () => {
+  const arrColor = ['#1890ff', '#36cfc9', '#c41d7f', '#1d39c4', '#ff4d4f', '#ffbb96', '#fa8c16', '#7cb305', '#fadb14', '#434343'];
+  return arrColor[getRandomInt(10)];
+}
+
 export const HorizontalBarChart = (props) => {
   const { data, options } = props;
   
@@ -74,6 +83,32 @@ export const CustomHorizontalBarChart = (props) => {
         label: '# of Rating',
         data: ddata,
         backgroundColor: dlabel.map((item, index)=> randomColor(index)),
+        borderColor: dlabel.map(item=> "white"),
+        borderWidth: 1,
+      },
+    ],
+  }
+  console.log(dlabel, ddata)
+  return (
+    <>
+      <Bar data={fdata} options={def_options} />
+    </>
+  )
+};
+
+export const CustomHorizontalBarChart1 = (props) => {
+  const { data } = props;
+  console.log(data)
+  if(data.length === 0 ) return <></>;
+  const dlabel = data.map(item => item.employee.name);
+  const ddata = data.map(item => item.salary);
+  const fdata = {
+    labels: dlabel,
+    datasets: [
+      {
+        label: '# Salary',
+        data: ddata,
+        backgroundColor: dlabel.map((item, index)=> randomColor1(index)),
         borderColor: dlabel.map(item=> "white"),
         borderWidth: 1,
       },

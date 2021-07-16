@@ -51,3 +51,41 @@ export const FacilityReport = (props) => {
     size={'small'}
   />
 }
+
+export const FacilityReport1 = (props) => {
+  const { data } = props;
+  const columns = [
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      align: 'center',
+      key: 'name',
+    },
+    {
+      title: 'Amount',
+      dataIndex: 'amount',
+      align: 'center',
+      key: 'amount',
+    },
+    {
+      title: 'availableAmount',
+      dataIndex: 'availableAmount',
+      align: 'center',
+      key: 'availableAmount',
+    },
+    {
+      title: 'Used',
+      dataIndex: 'usedAmount',
+      align: 'center',
+      key: 'usedAmount',
+    },
+  ];
+  return <Table 
+    rowKey={"_id"}
+    columns={columns}
+    dataSource={data}
+    pagination={false}
+    bordered={true}
+    size={'small'}
+  />
+}
