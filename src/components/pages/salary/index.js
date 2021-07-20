@@ -47,7 +47,7 @@ export const Salary = props => {
       year: _n.year()
     }
     form.setFieldsValue({month: _n});
-    onFinish(_n);
+    onFinish({month: _n});
   },[props])
 
   const onFinish = (v)=>{
@@ -70,12 +70,12 @@ export const Salary = props => {
     console.log(v)
     const getSalary = async () => {
       const res_salary = await postMethod(`employee/${_user.auth._id}/view-salary`, {
-        year: Number(v.year()), 
-        month:v.month() + 1
+        year: Number(v.month.year()), 
+        month: v.month.month() + 1
       });
       const res_history = await postMethod(`employee/${_user.auth._id}/attendance-by-month-year`, {
-        year: Number(v.year()), 
-        month:v.month() + 1
+        year: Number(v.month.year()), 
+        month:v.month.month() + 1
       })
       if(res_salary.success && res_history.success) {
         message.success("Successfull");
