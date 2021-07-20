@@ -116,6 +116,7 @@ export const Voucher = () => {
 							startDate: moment(record.startDate, 'DD-MM-YYYY'),
 							endDate: moment(record.endDate, 'DD-MM-YYYY'),
 							discount: record.discount,
+							discountLimit: record.discountLimit,
 							amount: record.amount,
 							img: record.img,
 							description: record.description,
@@ -179,6 +180,7 @@ export const Voucher = () => {
 			startDate: moment(values.startDate).format('DD-MM-YYYY HH:mm'),
 			endDate: moment(values.endDate).format('DD-MM-YYYY HH:mm'),
 			discount: values.discount,
+			discountLimit: values.discountLimit,
 			amount: values.amount,
 		}
 		setLoading(true);
@@ -338,6 +340,14 @@ export const Voucher = () => {
 						style={{width: '50%'}}
 					/>
 				</Form.Item>
+				<Form.Item name="discountLimit" label="Limit">
+					<CustomInput 
+						formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+						parser={value => value.replace(/\$\s?|(,*)/g, '')}
+						style={{width: "80%"}}
+					/>
+					{/* <Input disabled/> */}
+				</Form.Item>
 				<Form.Item name='amount' label="Amount" 
 					rules={[{ required: true, message: 'Please input amount of voucher!'}]}
 				>
@@ -356,4 +366,10 @@ export const Voucher = () => {
 			</Form>
 		</Modal>
 	</>
+}
+const CustomInput = (props) => {
+  return <>
+    <InputNumber {...props}/>
+    <span>VND</span>
+  </>
 }

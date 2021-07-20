@@ -112,8 +112,10 @@ export const InventoryReport = props => {
       </Col>
     </Row>
     <Row gutter={[16,16]}>
-      <Col span={12}>
+      <Col span={24}>
         <h1 style={{textAlign: 'center'}}>Detail Booking Hotel Report</h1>
+      </Col>
+      <Col span={12} style={{display: 'flex',justifyContent: 'center', alignItems: 'center'}}>
         <TableReport data={data.hotelsReport? data.hotelsReport[0].hotel : []}/>
       </Col>
       <Col span={12}>
