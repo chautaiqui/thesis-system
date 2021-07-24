@@ -26,7 +26,7 @@ const numtoMonth = (number) => {
 }
 
 const addMonthReport = (arrReport) => {
-  if(!arrReport) return;
+  if(!arrReport || arrReport.length === 0) return;
   var lst = arrReport[arrReport.length - 1];
   var mIndex = Number(lst.month);
   console.log(mIndex)

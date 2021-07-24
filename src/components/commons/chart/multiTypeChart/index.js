@@ -75,7 +75,7 @@ export const MultiTypeChart = (props) => {
 }
 
 export const MultiTypeChart2 = (props) => {
-  const { data } = props;
+  const { data = []} = props;
   const pdata = data.reverse().map(item => {
     return {
       ...item,
