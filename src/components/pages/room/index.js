@@ -125,6 +125,7 @@ export const Room = props => {
       key: 'update',
       render: (t,r,i) => <Button
         // style={{display: 'inline-block',marginLeft:4,borderRadius:'50%',background: 'white'}}
+        className="btn-color"
         size='small'
         type="primary" shape="circle" icon={<HighlightOutlined />}
         onClick={()=>{
@@ -261,6 +262,7 @@ export const Room = props => {
     <Tabs defaultActiveKey="1">
       <Tabs.TabPane tab="Room" key="1">
         <Button 
+          className="btn-color"
           type="primary" 
           shape="round" 
           icon={<PlusCircleOutlined/>}
@@ -311,6 +313,7 @@ export const Room = props => {
       </Tabs.TabPane>
       <Tabs.TabPane tab="Room type" key="2">
         <Button 
+          className="btn-color"
           type="primary" 
           shape="round" 
           icon={<PlusCircleOutlined/>}
@@ -379,7 +382,7 @@ export const Room = props => {
       keyboard
       footer={
         <div>
-          <Button className="btn-box-shawdow" type='primary' onClick={()=>{
+          <Button className="btn-box-shawdow btn-color" type='primary' onClick={()=>{
             form.submit();
           }} loading={loading}>Confirm</Button>
           <Button className="btn-box-shawdow" onClick={()=>{
@@ -508,25 +511,18 @@ export const Room = props => {
       keyboard
       footer={
         <div>
-          <Button shape='round' type='primary' onClick={()=>{
+          <Button className="btn-box-shawdow btn-color" shape='round' type='primary' onClick={()=>{
             rt_form.submit();
             // dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}} )
           }} loading={loading}>Confirm</Button>
-          <Button shape='round' onClick={()=>{
+          <Button className="btn-box-shawdow" shape='round' onClick={()=>{
             setLoading(false);
             dispatch({type: 'TOOGLE_POPUP_ROOMTYPE', roomType: {open:false, data:{}}})
             rt_form.resetFields();
           }}>Close</Button>
         </div>
       }
-      onOk={()=>{
-          
-        }
-      }
       cancelText='Close'
-      onCancel={() => {
-          // roomType.resetFields();
-      }} 
     >
       <Form 
         {...layout}

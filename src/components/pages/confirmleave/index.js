@@ -86,7 +86,6 @@ export const ConfirmLeave = props => {
     }
     action();
   }
-  console.log(state)
   return <>
     <Table 
       rowKey='_id'
@@ -169,6 +168,10 @@ export const ConfirmLeave = props => {
             },
           ],
           onFilter: (value, record) => record.status.indexOf(value) === 0,
+          render: (text, record, index) => {
+            const color = record.status === "accepted" ? "#a0d911" : record.status === "unaccepted" ? "#cf1322" : "#722ed1"
+            return <p style={{color}}>{record.status}</p>
+          }
         },
         {
           title: 'Action',
@@ -176,8 +179,8 @@ export const ConfirmLeave = props => {
           key: 'action',
           render: (text, record, index) => {
             return (record.status === "accepted" || record.status === "unaccepted") ? <div></div> :<Space size={[16, 16]}>
-              <Button size="small" shape="round" style={{background: "lightgreen"}} onClick={()=>confirm(record)}>Accpet</Button>
-              <Button size="small" shape="round" style={{background: "orangered"}} onClick={()=>reject(record)}>Reject</Button>
+              <Button size="small" shape="round" style={{background: "#a0d911"}} onClick={()=>confirm(record)}>Accpet</Button>
+              <Button size="small" shape="round" style={{background: "#cf1322"}} onClick={()=>reject(record)}>Reject</Button>
             </Space>
           }
         },

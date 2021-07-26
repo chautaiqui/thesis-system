@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { DatePicker, Row, Col, Button, Form, Input, InputNumber, Tabs, Modal, message, Drawer } from 'antd';
+import { DatePicker, Row, Col, Button, Form, Input, InputNumber, Tabs, Modal, message, Drawer, Collapse, Switch } from 'antd';
 import { Shift } from '../../commons/shift';
 import { _getRequest } from "@pkg/api";
 import { User } from '@pkg/reducers';
@@ -92,6 +92,9 @@ export const HotelShift = (props) => {
     
   }, [salary])
   const onFinish = (v) => {
+    if(v.check) {
+      v = clearProps(v, "check");
+    }
     if(!v.salaryCoefficient && !salary.data.salary) {
       messageError("Please input salary coefficient or config salary!");
       return;
@@ -121,12 +124,38 @@ export const HotelShift = (props) => {
   const formJSX = <Form
     form={form}
     onFinish={onFinish}
-    {...formItemLayout}
+    // {...formItemLayout}
+    labelAlign="left"
+    labelCol={24}
   >
-    <Form.Item name="salaryCoefficient" label="Salary Coefficient"
+    <Form.Item name="check" label="Do you want to change salary/hour:" valuePropName="checked">
+        <Switch />
+      </Form.Item>
+    <Form.Item
+      noStyle
+      shouldUpdate={(prevValues, currentValues) => prevValues.check !== currentValues.check}
     >
-      <Input addonAfter={"VND"}/>
+      {({ getFieldValue }) =>
+        getFieldValue('check') ? (
+          <Form.Item name="salaryCoefficient" label="Salary Coefficient"
+          >
+            <CustomInput 
+              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              parser={value => value.replace(/\$\s?|(,*)/g, '')}
+              style={{width: "80%"}}
+            />
+          </Form.Item>
+        ) : null
+      }
     </Form.Item>
+    {/* <Form.Item name="salaryCoefficient" label="Salary Coefficient"
+    >
+      <CustomInput 
+        formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+        parser={value => value.replace(/\$\s?|(,*)/g, '')}
+        style={{width: "80%"}}
+      />
+    </Form.Item> */}
     <Form.Item name="date" hidden>
       <Input />
     </Form.Item>
@@ -268,6 +297,7 @@ export const HotelShift = (props) => {
       <Row gutter={16,16} >
         <Col span={24} style={{marginBottom: 10, marginRight: 10}}>
           <Button 
+            className="btn-color"
             onClick={addMultiShift}
             type="primary" 
             shape="round" 
@@ -275,6 +305,7 @@ export const HotelShift = (props) => {
             style={{marginRight: 20}}
           > Add Multi Shift</Button>
           <Button 
+            className="btn-color"
             type="primary" 
             shape="round" 
             icon={<FormOutlined />}
@@ -295,6 +326,16 @@ export const HotelShift = (props) => {
           multiform.submit()
         }}
         onCancel={() => setPopup({open: false})}
+        footer={
+          <div>
+            <Button className="btn-box-shawdow" onClick={()=>{
+              setPopup({open: false})
+            }}>Cancel</Button>
+            <Button className="btn-box-shawdow btn-color" type='primary' onClick={()=>{
+              multiform.submit()
+            }}>Confirm</Button>
+          </div>
+        }
       >
         <Form
           form={multiform}
@@ -346,7 +387,7 @@ export const HotelShift = (props) => {
               offset: 4
             }}
           >
-            <Button className="btn-box-shawdow" type="primary" htmlType="submit" style={{width: "100%"}}>
+            <Button className="btn-box-shawdow btn-color" type="primary" htmlType="submit" style={{width: "100%"}}>
               Config
             </Button>
           </Form.Item>
@@ -361,4 +402,29 @@ const CustomInput = (props) => {
     <InputNumber {...props}/>
     <span>VND</span>
   </>
+}
+const CustomInputTooltip = (props) => {
+  return <>
+    <Collapse>
+      <Collapse.Panel header="Do you want to change salary/hour" key="1">
+        <InputNumber {...props}
+          formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+          parser={value => value.replace(/\$\s?|(,*)/g, '')}
+          style={{width: "80%"}}
+        />
+      </Collapse.Panel>
+    </Collapse>
+    
+    <span>VND</span>
+  </>
+}
+
+const clearProps = (obj, props) => {
+  var temp = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if(key !== props) {
+      temp[key] = value;
+    }
+  }
+  return temp;
 }

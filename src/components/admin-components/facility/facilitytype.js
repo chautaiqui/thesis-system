@@ -126,7 +126,7 @@ export const FacilityType = props => {
             <Input placeholder="Facility type name"/>
           </Form.Item>
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Button type="primary" htmlType="submit" shape="round" loading={loading} style={{float: "right"}} icon={<PlusCircleOutlined/>}>
+            <Button className="btn-color" type="primary" htmlType="submit" shape="round" loading={loading} style={{float: "right"}} icon={<PlusCircleOutlined/>}>
               Add facility type
             </Button>
           </Form.Item>
@@ -140,7 +140,7 @@ export const FacilityType = props => {
                 title={item.name}
               />
               <div style={{marginRight: 20}}>{item.amount}</div>
-              <Button type="primary" shape="circle" icon={<HighlightOutlined />} onClick={()=>{
+              <Button className="btn-color" type="primary" shape="circle" icon={<HighlightOutlined />} onClick={()=>{
                   form_update.setFieldsValue({name: item.name});
                   dispatch({type: 'TOOGLE_POPUP', facility: {open: true, data: item}, behavior: 'stall'});
                 }}
@@ -150,7 +150,8 @@ export const FacilityType = props => {
           />)}
       </Col>
       <Col xs={24} sm={24} md={16} lg={16} xl={16}>
-        <Button 
+        <Button
+          className="btn-color" 
           type="primary" shape="round" icon={<PlusCircleOutlined/>}
           onClick={()=>{
             dispatch({type: 'TOOGLE_POPUP_FACILITY', facs: {open: true, data: {}}, behavior: 'stall'})
@@ -206,6 +207,7 @@ export const FacilityType = props => {
               align: 'center',
               key: 'update',
               render: (t,r,i) => <Button
+              className="btn-color"
               type="primary"
               // style={{display: 'inline-block',marginLeft:4,borderRadius:'50%',background: 'white'}}
               size='small'
@@ -246,7 +248,7 @@ export const FacilityType = props => {
       }} 
       footer={
 				<div>
-					<Button className="btn-box-shawdow" type='primary' loading={load} onClick={()=>{
+					<Button className="btn-box-shawdow btn-color" type='primary' loading={load} onClick={()=>{
             form_update.submit();
           }} loading={loading}>Update</Button>
 					<Button className="btn-box-shawdow" onClick={()=>{

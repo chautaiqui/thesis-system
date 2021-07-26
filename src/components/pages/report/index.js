@@ -81,7 +81,7 @@ export const Report = props => {
         <DatePicker picker="year" />
       </Form.Item>
       <Form.Item>
-        <Button type="primary" htmlType="submit" shape="round">
+        <Button className="btn-color" type="primary" htmlType="submit" shape="round">
           View
         </Button>
       </Form.Item>

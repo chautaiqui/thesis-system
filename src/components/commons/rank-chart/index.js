@@ -16,7 +16,6 @@ const number = [
 const rank = (index) => number[index];
 export const RankChart = (props) => {
   const { data } = props;
-  console.log(data)
   return <div>
     <h1 style={{textAlign: 'center'}}>Top Rank User</h1>
     <List
@@ -33,7 +32,7 @@ export const RankChart = (props) => {
               </div>
             }
             avatar={
-              <Avatar src={rank(index)} />
+              <img src={rank(index)} style={{maxWidth: 30}}/>
             }
           />
           {/* <div style={{marginRight: 5}}>{item.bookingAmount}</div> */}

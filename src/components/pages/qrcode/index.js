@@ -64,7 +64,7 @@ export const Qrcode = props => {
   return <>
     <Row gutter={[16,16]} style={{margin: "0px 0px 10px", background: "#fff"}}>
       <Col span={12}>
-        <Button shape="round" type="primary"> 
+        <Button className="btn-color" shape="round" type="primary"> 
           Filter
           <DatePicker className="qrcode-filter-date" allowClear={false}
             onChange={filterDate}
@@ -115,7 +115,7 @@ export const Qrcode = props => {
           title: 'QrCode',
           align: 'center',
           key: 'qrcode',
-          render: (text, record, index) => <Button type="primary" shape="circle" icon={<QrcodeOutlined />} 
+          render: (text, record, index) => <Button className="btn-color" type="primary" shape="circle" icon={<QrcodeOutlined />} 
             onClick={()=>{
               const generateQrCode = async () => {
                 try {

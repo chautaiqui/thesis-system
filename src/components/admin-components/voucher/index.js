@@ -106,6 +106,7 @@ export const Voucher = ({hotelId}) => {
 			align: 'center',
 			key: 'edit',
 			render: (text, record, index) => <Button
+				className="btn-color"
 				size='small'
 				type="primary" shape="circle" icon={<HighlightOutlined />}
 				onClick={()=>{
@@ -252,6 +253,7 @@ export const Voucher = ({hotelId}) => {
 	console.log(data)
 	return  <>
 		<Button 
+		  className="btn-color"
 			type="primary" 
 			shape="round" 
 			icon={<PlusCircleOutlined/>}
@@ -287,7 +289,7 @@ export const Voucher = ({hotelId}) => {
 			visible={popup.open} 
 			footer={
 				<div>
-					<Button className="btn-box-shawdow" type='primary' onClick={()=>{
+					<Button className="btn-box-shawdow btn-color" type='primary' onClick={()=>{
 						showConfirm();
 					}} loading={loading}>Confirm</Button>
 					<Button className="btn-box-shawdow" onClick={()=>{

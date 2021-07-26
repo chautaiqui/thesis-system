@@ -126,6 +126,7 @@ export const Room = ({hotelId}) => {
       render: (t,r,i) => <Button
         // style={{display: 'inline-block',marginLeft:4,borderRadius:'50%',background: 'white'}}
         size='small'
+        className="btn-color"
         type="primary" shape="circle" icon={<HighlightOutlined />}
         onClick={()=>{
             dispatch({type: 'TOOGLE_POPUP', popup: {open: true, data:r}})
@@ -234,6 +235,7 @@ export const Room = ({hotelId}) => {
       <Tabs defaultActiveKey="1">
         <Tabs.TabPane tab="Room" key="1">
           <Button 
+            className="btn-color"
             type="primary" 
             shape="round" 
             icon={<PlusCircleOutlined/>}
@@ -291,6 +293,7 @@ export const Room = ({hotelId}) => {
         </Tabs.TabPane>
         <Tabs.TabPane tab="Room type" key="2">
           <Button 
+            className="btn-color"
             type="primary" 
             shape="round" 
             icon={<PlusCircleOutlined/>}
@@ -332,16 +335,16 @@ export const Room = ({hotelId}) => {
               align: 'center',
               key: 'edit', 
               render: (text, record, index) => <Button type="primary" shape="circle" icon={<HighlightOutlined />}
+                className="btn-color"  
                 onClick={()=>{
-                  rt_form.setFieldsValue({
-                    name: record.name,
-                    capacity: record.capacity,
-                    price: record.price,
-                  })
-                  console.log(record)
-                  dispatch({type: 'TOOGLE_POPUP_ROOMTYPE', roomType: {open: true, data:record}})
-                }}
-              ></Button>
+                    rt_form.setFieldsValue({
+                      name: record.name,
+                      capacity: record.capacity,
+                      price: record.price,
+                    })
+                    dispatch({type: 'TOOGLE_POPUP_ROOMTYPE', roomType: {open: true, data:record}})
+                  }}
+                ></Button>
             }
             ]}
             style={{marginTop: 10}}
@@ -363,7 +366,7 @@ export const Room = ({hotelId}) => {
         keyboard
         footer={
           <div>
-            <Button className="btn-box-shawdow" type='primary' onClick={()=>{
+            <Button className="btn-box-shawdow btn-color" type='primary' onClick={()=>{
               form.submit();
             }} loading={loading}>Confirm</Button>
             <Button className="btn-box-shawdow" onClick={()=>{
@@ -492,7 +495,7 @@ export const Room = ({hotelId}) => {
         keyboard
         footer={
           <div>
-            <Button className="btn-box-shawdow" type='primary' onClick={()=>{
+            <Button className="btn-box-shawdow btn-color" type='primary' onClick={()=>{
               rt_form.submit();
               // dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}} )
             }} loading={loading}>Confirm</Button>

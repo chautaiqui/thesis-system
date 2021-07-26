@@ -189,7 +189,7 @@ export const AdminInfo = (props) => {
             <Input.Password />
           </Form.Item>
           <Form.Item {...tailFormItemLayout}>
-            <Button className="btn-box-shawdow" type="primary" htmlType="submit" loading={loading1}>
+            <Button className="btn-box-shawdow btn-color" type="primary" htmlType="submit" loading={loading1}>
               Change
             </Button>
           </Form.Item>
@@ -222,7 +222,7 @@ export const AdminInfo = (props) => {
             <CustomUploadImg />
           </Form.Item>
           <Form.Item {...tailFormItemLayout}>
-            <Button className="btn-box-shawdow" type="primary" htmlType="submit" loading={loading2}>
+            <Button className="btn-box-shawdow btn-color" type="primary" htmlType="submit" loading={loading2}>
               Update
             </Button>
           </Form.Item>
@@ -255,7 +255,7 @@ export const AdminInfo = (props) => {
             <CustomUploadImg />
           </Form.Item>
           <Form.Item {...tailFormItemLayout}>
-            <Button className="btn-box-shawdow" type="primary" htmlType="submit" loading={loading}>
+            <Button className="btn-box-shawdow btn-color" type="primary" htmlType="submit" loading={loading}>
               Add admin
             </Button>
           </Form.Item>

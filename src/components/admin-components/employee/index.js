@@ -122,7 +122,9 @@ export const Employee = ({hotelId}) => {
 			key: 'action',
 			render: (text, record, index)=>{
 				return [
-					<Button key="1"
+					<Button
+						className="btn-color" 
+						key="1"
 						size='small'
 						type="primary" shape="circle" icon={<HighlightOutlined />}
 						onClick={()=>{
@@ -297,7 +299,7 @@ export const Employee = ({hotelId}) => {
 						<Input placeholder="Name"/>
 					</Form.Item>
 					<Form.Item>
-						<Button type="primary" htmlType="submit" shape="round">
+						<Button className="btn-color" type="primary" htmlType="submit" shape="round">
 							Search
 						</Button>
 					</Form.Item>
@@ -313,6 +315,7 @@ export const Employee = ({hotelId}) => {
 			title={() => <div className="title-table">
 				<div>Employee</div>
 				<Button 
+					className="btn-color"
 					type="primary" 
 					shape="round" 
 					// style={{float: "right"}}
@@ -364,7 +367,7 @@ export const Employee = ({hotelId}) => {
 			visible={popup.open} 
 			footer={
 				<div>
-					<Button className="btn-box-shawdow" type='primary' onClick={()=>{
+					<Button className="btn-box-shawdow btn-color" type='primary' onClick={()=>{
 						console.log('click');
 						showConfirm()
 					}} loading={loading}>Confirm</Button>

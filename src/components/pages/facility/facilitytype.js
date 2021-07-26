@@ -90,7 +90,7 @@ export const FacilityType = props => {
             <Input />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" shape="round" loading={loading} icon={<PlusCircleOutlined/>}>
+            <Button className="btn-color" type="primary" htmlType="submit" shape="round" loading={loading} icon={<PlusCircleOutlined/>}>
               Add facility type
             </Button>
           </Form.Item>
@@ -104,7 +104,7 @@ export const FacilityType = props => {
                 title={item.name}
               />
               <div style={{marginRight: 20}}>{item.amount}</div>
-              <Button type="primary" shape="circle" icon={<HighlightOutlined />} onClick={()=>{
+              <Button className="btn-color" type="primary" shape="circle" icon={<HighlightOutlined />} onClick={()=>{
                   form_update.setFieldsValue({name: item.name});
                   dispatch({type: 'TOOGLE_POPUP', facility: {open: true, data: item}, behavior: 'stall'});
                 }}
@@ -115,6 +115,7 @@ export const FacilityType = props => {
       </Col>
       <Col xs={24} sm={24} md={16} lg={16} xl={16}>
       <Button 
+          className="btn-color"
           type="primary" shape="round" icon={<PlusCircleOutlined/>}
           onClick={()=>{
             dispatch({type: 'TOOGLE_POPUP_FACILITY', facs: {open: true, data: {}}, behavior: 'stall'})
@@ -167,6 +168,7 @@ export const FacilityType = props => {
               type="primary"
               // style={{display: 'inline-block',marginLeft:4,borderRadius:'50%',background: 'white'}}
               size='small'
+              className="btn-color"
               onClick={()=>{
                   dispatch({type: 'TOOGLE_POPUP_FACILITY', facs: {open: true, data: r}, behavior: 'stall'})
                   form_facility.setFieldsValue({
@@ -202,6 +204,18 @@ export const FacilityType = props => {
           dispatch({type: 'TOOGLE_POPUP', facility: {open:false, data:{}}, behavior: 'init'})
           form_update.resetFields();
       }} 
+      footer={
+        <div>
+          <Button className="btn-box-shawdow btn-color" shape='round' type='primary' onClick={()=>{
+            form_update.submit();
+            // dispatch({type: 'RELOAD', popup:{open:false, data:{}}, roomType: {open:false, data:{}}} )
+          }} loading={loading}>Confirm</Button>
+          <Button className="btn-box-shawdow" shape='round' onClick={()=>{
+            dispatch({type: 'TOOGLE_POPUP', facility: {open:false, data:{}}, behavior: 'init'})
+            form_update.resetFields();
+          }}>Close</Button>
+        </div>
+      }
     >
       <Form
         form={form_update}
@@ -242,10 +256,10 @@ export const FacilityType = props => {
       keyboard
       footer={
 				<div>
-					<Button shape='round' type='primary' loading={load} onClick={()=>{
+					<Button className="btn-box-shawdow btn-color" shape='round' type='primary' loading={load} onClick={()=>{
             form_facility.submit();
           }} loading={loading}>Confirm</Button>
-					<Button shape='round' onClick={()=>{
+					<Button className="btn-box-shawdow" shape='round' onClick={()=>{
 						setLoad(false);
 						dispatch({type: 'TOOGLE_POPUP_FACILITY', facs: {open:false, data:{}}, behavior: 'init'})
             form_facility.resetFields();

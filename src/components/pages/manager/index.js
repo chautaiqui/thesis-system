@@ -154,6 +154,7 @@ export const Manager = (props) => {
 			render: (text, record, index)=>{
 				return [
 					<Button key="1" icon={<EditOutlined />}
+					 	className="btn-color"
 						onClick={()=>{
 							dispatch({type: 'TOOGLE_POPUP', popup: {open: true, data:record}})
 							form.setFieldsValue({
@@ -354,7 +355,7 @@ export const Manager = (props) => {
 						<Input placeholder="Name"/>
 					</Form.Item>
 					<Form.Item>
-						<Button type="primary" htmlType="submit" shape="round">
+						<Button className="btn-color" type="primary" htmlType="submit" shape="round">
 							Search
 						</Button>
 					</Form.Item>
@@ -365,6 +366,7 @@ export const Manager = (props) => {
 			</Col>
 		</Row>
 		<Button 
+		  className="btn-color"
 			type="primary" 
 			shape="round" 
 			icon={<PlusCircleOutlined/>}
@@ -440,7 +442,7 @@ export const Manager = (props) => {
 			}}
 			footer={
 				<div>
-					<Button className="btn-box-shawdow" type='primary' onClick={showConfirm} loading={loading}>Confirm</Button>
+					<Button className="btn-box-shawdow btn-color" type='primary' onClick={showConfirm} loading={loading}>Confirm</Button>
 					<Button className="btn-box-shawdow" onClick={()=>{
 						setLoading(false);
 						dispatch({type: 'TOOGLE_POPUP', popup: {open:false, data:{}}})
@@ -529,7 +531,7 @@ export const Manager = (props) => {
 			key={'left'}
 			width={300}
 			footer={
-				<Button className="btn-box-shawdow" onClick={()=>{
+				<Button className="btn-box-shawdow btn-color" onClick={()=>{
 					dispatch({
 						type: 'TOOGLE_VIEW', view: {open:false, data: {}}
 					})
@@ -576,7 +578,7 @@ export const Manager = (props) => {
 				/>
 				</Form.Item>
 				<Form.Item {...tailFormItemLayout}>
-					<Button className="btn-box-shawdow" type="primary" htmlType="submit" loading={loading}>
+					<Button className="btn-box-shawdow btn-color" type="primary" htmlType="submit" loading={loading}>
 						Set
 					</Button>
 				</Form.Item>

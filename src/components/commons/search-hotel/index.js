@@ -33,12 +33,12 @@ export const SearchHotel = props => {
         <Input placeholder="Search text"/>
       </Form.Item>
       <Form.Item>
-        <Button type="primary" htmlType="submit" shape="round">
+        <Button type="primary" htmlType="submit" shape="round" className="btn-color">
           Search
         </Button>
       </Form.Item>
       {hotel.search && (<Form.Item>
-        <Tag closable onClose={closeTag} color="#1890ff">{hotel.text}</Tag>
+        <Tag closable onClose={closeTag} color="#1eaae7">{hotel.text}</Tag>
       </Form.Item>)}
     </Form>
   )

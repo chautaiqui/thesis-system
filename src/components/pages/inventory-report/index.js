@@ -67,7 +67,7 @@ export const InventoryReport = props => {
             <DatePicker picker="year" disabledDate={disabledDate}/>
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" style={{boxShadow: '0px 1px 3px 0px #000000', borderRadius: 5}}>
+            <Button className="btn-color" type="primary" htmlType="submit" style={{boxShadow: '0px 1px 3px 0px #000000', borderRadius: 5}}>
               View
             </Button>
           </Form.Item>
@@ -108,15 +108,15 @@ export const InventoryReport = props => {
         <MultiTypeChart data={data.hotelsReport ? data.hotelsReport[0].bookingByMonth : []}/>
       </Col>
       <Col xs={24} sm={12}>
-        <CustomHorizontalBarChart data={tophotel}/>
+        <TableReport data={data.hotelsReport? data.hotelsReport[0].hotel : []}/>
       </Col>
     </Row>
     <Row gutter={[16,16]}>
-      <Col span={24}>
+      {/* <Col span={12}>
         <h1 style={{textAlign: 'center'}}>Detail Booking Hotel Report</h1>
-      </Col>
-      <Col span={12} style={{display: 'flex',justifyContent: 'center', alignItems: 'center'}}>
-        <TableReport data={data.hotelsReport? data.hotelsReport[0].hotel : []}/>
+      </Col> */}
+      <Col span={12} style={{display: 'flex',justifyContent: 'center'}}>
+        <CustomHorizontalBarChart data={tophotel}/>
       </Col>
       <Col span={12}>
         <RankChart data={data.customerBookingReport ? data.customerBookingReport[0].customerTopTen : []}/>

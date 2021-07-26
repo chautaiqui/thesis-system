@@ -316,12 +316,13 @@ export const Hotel = (props) => {
 						<Input placeholder="Name"/>
 					</Form.Item>
 					<Form.Item>
-						<Button type="primary" htmlType="submit" shape="round">
+						<Button className="btn-color" type="primary" htmlType="submit" shape="round">
 							Search
 						</Button>
 					</Form.Item>
 					<Form.Item>
 						<Button 
+							className="btn-color"
 							type="primary" 
 							shape="round" 
 							icon={<PlusCircleOutlined/>}
@@ -408,7 +409,7 @@ export const Hotel = (props) => {
 			visible={popup.open} 
 			footer={
 				<div>
-					<Button className="btn-box-shawdow" type='primary' onClick={showConfirm} loading={loading}>Confirm</Button>
+					<Button className="btn-box-shawdow btn-color" type='primary' onClick={showConfirm} loading={loading}>Confirm</Button>
 					<Button className="btn-box-shawdow" onClick={()=>{
 						setLoading(false);
 						dispatch({type: 'TOOGLE_POPUP', popup: {open:false, data:{}}});

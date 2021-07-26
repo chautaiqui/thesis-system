@@ -177,12 +177,12 @@ export const Blog = (props) => {
               <Input />
             </Form.Item>
             <Form.Item>
-              <Button type="primary" htmlType="submit" shape="round">
+              <Button className="btn-color" type="primary" htmlType="submit" shape="round">
                 Search
               </Button>
             </Form.Item>
             <Form.Item>
-              <Button type="primary" shape="round" icon={<PlusCircleOutlined/>} onClick={()=>{setDraw({open:true, data:{}})}}> Add Blog</Button>
+              <Button className="btn-color" type="primary" shape="round" icon={<PlusCircleOutlined/>} onClick={()=>{setDraw({open:true, data:{}})}}> Add Blog</Button>
             </Form.Item>
             {query.title && (<Form.Item>
                 <Tag closable onClose={closeTag} color="#1890ff">Name: {query.title}</Tag>
@@ -245,8 +245,8 @@ export const Blog = (props) => {
         visible={popup.open} 
         footer={
           <div>
-            <Button shape='round' type='primary' onClick={showConfirm} loading={loading}>Confirm</Button>
-            <Button shape='round' onClick={()=>{
+            <Button className="btn-box-shawdow btn-color" shape='round' type='primary' onClick={showConfirm} loading={loading}>Confirm</Button>
+            <Button className="btn-box-shawdow" shape='round' onClick={()=>{
               setLoading(false);
               setPopup({open:false, data:{}})
               form_update.resetFields();
@@ -308,7 +308,7 @@ export const Blog = (props) => {
             <Input.TextArea />
           </Form.Item>
           <Form.Item {...tailFormItemLayout}>
-          <Button type="primary"  onClick={showConfirm_1} shape="round" loading={loading}>
+          <Button className="btn-box-shawdow btn-color" type="primary"  onClick={showConfirm_1} shape="round" loading={loading}>
             Add
           </Button>
         </Form.Item>
