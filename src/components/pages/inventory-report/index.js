@@ -122,16 +122,17 @@ export const InventoryReport = props => {
         <CustomHorizontalBarChart data={tophotel}/>
       </Col>
       <Col span={12}>
-        <RankChart data={data.customerBookingReport ? data.customerBookingReport[0].customerTopTen : []}/>
+        <h1 style={{textAlign: 'center'}}>Facility Hotel Report</h1>
+        <DemoBar data={data.facilityReport ? data.facilityReport : []}/>
       </Col>
       {/* <Col span={12}>
         <h1 style={{textAlign: 'center'}}>Room Hotel Report</h1>
         <RoomReport data={data.facilityReport ? data.facilityReport : []}/>
       </Col> */}
-      <Col span={24}>
-        <h1 style={{textAlign: 'center'}}>Facility Hotel Report</h1>
+      <Col span={16} offset={4}>
+        <RankChart data={data.customerBookingReport ? data.customerBookingReport[0].customerTopTen : []}/>
+
         {/* <FacilityReport data={data.facilityReport ? data.facilityReport : []}/> */}
-        <DemoBar data={data.facilityReport ? data.facilityReport : []}/>
       </Col>
     </Row>
     {/* {

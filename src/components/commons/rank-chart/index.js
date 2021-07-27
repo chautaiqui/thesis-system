@@ -45,5 +45,5 @@ export const RankChart = (props) => {
         </List.Item>
     )}
     />
-    </div>
+  </div>
 }
