@@ -129,7 +129,7 @@ export const FormResquest = props => {
             <Input.TextArea placeholder="Reason"/>
           </Form.Item>
           <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
-            <Button className="btn-box-shawdow" type="primary" htmlType="submit" type="primary" loading={loading}>
+            <Button className="btn-box-shawdow btn-color" type="primary" htmlType="submit" type="primary" loading={loading}>
               Submit
             </Button>
           </Form.Item>
@@ -200,13 +200,15 @@ export const FormResquest = props => {
               render: (text, record, index) => {
                 const _icon = record.status === 'accepted' ? <CheckCircleTwoTone twoToneColor="#52c41a" /> : (record.status === 'pending' ? <SyncOutlined style={{color: '#40a9ff'}}/> : <CloseCircleOutlined style={{color: 'red'}}/>);
                 // <CloseCircleOutlined />
-                return <Button
-                  size='small'
-                  shape="circle" icon={_icon}
-                  onClick={()=>{
-                    
-                  }}
-                ></Button>
+                if(record.status === 'accepted') {
+                  return <p style={{color: "#389e0d"}}>Success</p>
+                }
+                if(record.status === 'pending') {
+                  return <p style={{color: "#391085"}}>Pending</p>
+                }
+                else {
+                  return <p style={{color: "#000"}}>Reject</p>
+                }
               }
             },
           ]}

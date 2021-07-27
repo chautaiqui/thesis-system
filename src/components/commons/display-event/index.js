@@ -54,7 +54,7 @@ const DisplayEvent = ({localizer, data}) => {
         keyboard
         footer={
           <div>
-            <Button shape='round' type='primary' onClick={()=>{
+            <Button className="btn-color btn-box-shawdow" shape='round' type='primary' onClick={()=>{
               setAshift({open: false, event: {}})
             }}>Close</Button>
           </div>
@@ -64,8 +64,11 @@ const DisplayEvent = ({localizer, data}) => {
         }} 
       >
         <Form
+          labelCol={{span: 8}}
+          wrapperCol={{span: 16}}
+          labelAlign="left"
         >
-          <Form.Item label="Salary Coefficient">
+          <Form.Item label="Total salary" className="font-title">
             <span>
               { ashift.event.salaryCoefficient ? ashift.event.salaryCoefficient.toLocaleString("it-IT", {
                 style: "currency",
@@ -73,7 +76,7 @@ const DisplayEvent = ({localizer, data}) => {
               }) : ""}{" "}
             </span>
           </Form.Item>
-          <Form.Item label="Date">
+          <Form.Item label="Date" className="font-title">
             <span>{(function(){
               var _d = new Date(ashift.event.year, ashift.event.month, ashift.event.date);
               console.log(_d)
@@ -81,7 +84,7 @@ const DisplayEvent = ({localizer, data}) => {
               return _d.toLocaleDateString('en-EN', options)
             })()}</span>
           </Form.Item>
-          <Form.Item label="Time In">
+          <Form.Item label="Time In" className="font-title">
             <span>{(function(){
               if(ashift.event.timeInOut){
                 var _t = ashift.event.timeInOut.split("-");
@@ -90,7 +93,7 @@ const DisplayEvent = ({localizer, data}) => {
               }
             })()}</span>
           </Form.Item>
-          <Form.Item label="Time Out">
+          <Form.Item label="Time Out" className="font-title">
           <span>{(function(){
               if(ashift.event.timeInOut){
                 var _t = ashift.event.timeInOut.split("-");
@@ -99,7 +102,7 @@ const DisplayEvent = ({localizer, data}) => {
               }
             })()}</span>
           </Form.Item>
-          <Form.Item label="Employee">
+          <Form.Item label="Employee" className="font-title">
             <Radio.Group>
               {
                 ashift.event.employeeList && ashift.event.employeeList.map((item, index)=>{

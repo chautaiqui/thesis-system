@@ -28,6 +28,7 @@ import { AdminEmployee } from './admin-employee';
 import { AdminRoom } from './admin-room';
 import { AdminFacility } from './admin-facility';
 import { AdminVoucher } from './admin-voucher';
+import { AdminReport } from './admin-report';
 const IconFont = createFromIconfontCN({
   scriptUrl: '//at.alicdn.com/t/font_8d5l8fzk5b87iudi.js',
 });
@@ -46,6 +47,7 @@ const subPages1 = [
   { path: '/hotelroom', icon:(<HomeOutlined />), label: "Hotel Room", component: AdminRoom, permissions: 'hotelroom', role: 'admin' },
   { path: '/hotel-facility', icon:(<GroupOutlined />), label: "Hotel Facility", component: AdminFacility, permissions: 'hotel-facility', role: 'admin' },
   { path: '/hotel-voucher', icon:(<GiftOutlined />), label: "Hotel Voucher", component: AdminVoucher, permissions: 'hotel-voucher', role: 'admin' },
+  { path: '/hotel-report', icon:(<LineChartOutlined />), label: "Hotel Report", component: AdminReport, permissions: 'hotel-voucher', role: 'admin' },
   { path: '/blog', icon: (<ContainerOutlined />), label: "Blog", component: Blog, permissions: 'blog', role: 'admin' },
   { path: '/admin', icon: (<FontColorsOutlined />), label: "Admin", component: AdminInfo, permissions: 'admin', role: 'admin' },
 ];                              

@@ -88,6 +88,7 @@
     "swr": "^0.5.6",
     "terser-webpack-plugin": "2.3.5",
     "ts-pnp": "1.1.6",
+    "tslib": "^2.3.0",
     "url-loader": "2.3.0",
     "use-smooth-scroll": "^1.1.1",
     "use-supercluster": "^0.3.0",

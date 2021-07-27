@@ -117,7 +117,7 @@ export const Salary = props => {
             <DatePicker picker="month" />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" shape="round">
+            <Button className="btn-color" type="primary" htmlType="submit" shape="round">
               View
             </Button>
           </Form.Item>
@@ -142,6 +142,7 @@ export const Salary = props => {
             </div>
           </Col>
           <Col xs={24} sm={24}>
+            <h2 style={{textAlign: "center"}}>History Shift</h2>
             <Table 
               rowKey='_id'
               tableLayout="auto"

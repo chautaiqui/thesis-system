@@ -88,9 +88,9 @@ export const Attendance = props => {
       </a>) : null
     } */}
     <History employeeid={_user.auth._id} f5={attendence}/>
-    { !attendence && (<Row gutter={[16,16]}>
+    { !attendence && (<Row gutter={[16,16]} style={{marginTop: 20}}>
       <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-        <Button className="btn" type="primary" onClick={onScanFile}>Scan Qr Code</Button>
+        <Button className="btn-box-shawdow btn-color" type="primary" onClick={onScanFile}>Scan Qr Code</Button>
         <QrReader
           ref={qrRef}
           delay={300}
@@ -101,7 +101,12 @@ export const Attendance = props => {
         />
       </Col>
       <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-        <Button className="btn" type="primary" onClick={()=>{setScan(!scan)}}>Toogle Camera</Button>
+        <Button className="btn-box-shawdow btn-color" type="primary" onClick={()=>{setScan(!scan)}}>Toogle Camera</Button>
+        {
+          !scan && <div onClick={()=>{setScan(!scan)}}>
+            <img src="https://ads-cdn.fptplay.net/static/banner/2021/07/27_61003077b04a67000134c26d.png" style={{width: "100%", cursor: "pointer"}}/>
+          </div>
+        }
         { scan && (<QrReader
           delay={300}
           style={{width: '100%'}}

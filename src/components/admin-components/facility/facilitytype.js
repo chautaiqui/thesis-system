@@ -297,7 +297,7 @@ export const FacilityType = props => {
       keyboard
       footer={
 				<div>
-					<Button className="btn-box-shawdow" type='primary' loading={load} onClick={()=>{
+					<Button className="btn-box-shawdow btn-color" type='primary' loading={load} onClick={()=>{
             form_facility.submit();
           }} loading={loading}>Confirm</Button>
 					<Button className="btn-box-shawdow" onClick={()=>{

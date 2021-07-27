@@ -11,6 +11,8 @@ import { GoogleMap } from '../../commons/google-map';
 import { RankChart } from '../../commons/rank-chart';
 import { FacilityReport } from '../../commons/facility-report';
 import { RoomReport } from '../../commons/room-report';
+import DemoDualAxes from '../../commons/chart/dualChart';
+import DemoBar from '../../commons/chart/stackChart';
 const getWeekYearNow = () => {
   const n = new Date();
   return [n.getMonth() + 1, n.getFullYear()];
@@ -105,13 +107,14 @@ export const InventoryReport = props => {
     </Row>
     <Row gutter={[16,16]}>
       <Col xs={24} sm={12}>
-        <MultiTypeChart data={data.hotelsReport ? data.hotelsReport[0].bookingByMonth : []}/>
+        {/* <MultiTypeChart data={data.hotelsReport ? data.hotelsReport[0].bookingByMonth : []}/> */}
+        <DemoDualAxes data={data.hotelsReport ? data.hotelsReport[0].bookingByMonth : []}/>
       </Col>
       <Col xs={24} sm={12}>
         <TableReport data={data.hotelsReport? data.hotelsReport[0].hotel : []}/>
       </Col>
     </Row>
-    <Row gutter={[16,16]}>
+    <Row gutter={[16,16]} style={{marginBottom: 50}}>
       {/* <Col span={12}>
         <h1 style={{textAlign: 'center'}}>Detail Booking Hotel Report</h1>
       </Col> */}
@@ -127,7 +130,8 @@ export const InventoryReport = props => {
       </Col> */}
       <Col span={24}>
         <h1 style={{textAlign: 'center'}}>Facility Hotel Report</h1>
-        <FacilityReport data={data.facilityReport ? data.facilityReport : []}/>
+        {/* <FacilityReport data={data.facilityReport ? data.facilityReport : []}/> */}
+        <DemoBar data={data.facilityReport ? data.facilityReport : []}/>
       </Col>
     </Row>
     {/* {

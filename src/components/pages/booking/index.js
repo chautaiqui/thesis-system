@@ -131,16 +131,20 @@ export const Booking = props => {
       dataIndex: 'isPaid',
       align: 'center',
       key: 'isPaid',
-      render: (text, record, index) => <Button 
-        size='small'
-        shape="circle" icon={record.isPaid ? <CheckCircleTwoTone twoToneColor="#52c41a" /> : <NodeExpandOutlined />}
-        onClick={()=>{
-          if(record.isPaid){
-            return;
-          } 
-          confirm(record);
-        }}
-      ></Button>
+      render: (text, record, index) => {
+        return !record.isPaid ?
+          <Button 
+          size='small'
+          className="btn-color btn-box-shawdow btn-payment"
+          icon={record.isPaid ? <CheckCircleTwoTone twoToneColor="#52c41a" /> : <NodeExpandOutlined />}
+          onClick={()=>{
+            if(record.isPaid){
+              return;
+            } 
+            confirm(record);
+          }}
+        >Payment</Button> : <p style={{color: "#389e0d"}}>Paid</p>
+      }
     },
   ];
 

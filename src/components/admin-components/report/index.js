@@ -41,23 +41,20 @@ const addMonthReport = (arrReport) => {
   return arrReport;
 }
 
-export const Report = props => {
+export const Report = (props) => {
+  const { hotelId } = props;
   const [month, year] = useMemo(() => getWeekYearNow(), [props]);
-  const [ user ] = useContext(User.context);
   const [query, setQuery] = useState({year: year});
   const [data, setData] = useState({});
   const [ form ] = Form.useForm();
   useEffect(()=>{
     form.setFieldsValue({year: moment({...query, date: 1, month: 1})});
-    if(!user.auth.hotel){
-      message.error('You no manage hotel');
+    if(!hotelId){
       return;
     }
     const getData = async () => {
-      const res = await _getRequest(`hotel/${user.auth.hotel}/report`, query);
-      const res_salary = await _getRequest(`hotel/${user.auth.hotel}/salary-report`, query);
-      console.log(res)
-      console.log(res_salary)
+      const res = await _getRequest(`hotel/${hotelId}/report`, query);
+      const res_salary = await _getRequest(`hotel/${hotelId}/salary-report`, query);
       if(res.success && res_salary.success) {
         setData({...res.result, employeeSalary: res_salary.result.salary});
         return;
@@ -66,15 +63,14 @@ export const Report = props => {
       }
     }
     getData();
-  },[query])
+  },[query, props])
   const onSearch = values => {
     setQuery({
       year: values.year.year()
     })
   }
-  console.log(data, query)
 
-  return <div>
+  return hotelId && <div>
     <Form form={form} name="horizontal_login" layout="inline" onFinish={onSearch}>
       <Form.Item
         name="year" label="Year"

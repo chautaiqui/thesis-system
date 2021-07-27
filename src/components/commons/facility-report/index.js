@@ -54,6 +54,7 @@ export const FacilityReport = (props) => {
 
 export const FacilityReport1 = (props) => {
   const { data } = props;
+  console.log(data)
   const columns = [
     {
       title: 'Name',
