@@ -33,6 +33,7 @@ https://thesis-systemhotel.herokuapp.com/
 Method 1: push code to Github and then connect repo with heroku
 
 Method 2: using Heroku Git
+
     1. heroku login
 
     2. heroku git:clone -a thesis-systemhotel
