@@ -31,11 +31,17 @@ https://thesis-systemhotel.herokuapp.com/
 
 ### How to deploy
 Method 1: push code to Github and then connect repo with heroku
+
 Method 2: using Heroku Git
     1. heroku login
+
     2. heroku git:clone -a thesis-systemhotel
+
     3. cd thesis-systemhotel
+
     4. git add .
+
     5. git commit -am "make it better"
+    
     6. git push heroku master
 
