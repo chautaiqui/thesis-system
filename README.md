@@ -20,7 +20,7 @@ Notice: `Node version <= 14`
 
 ### Hotel api login
 
-Account: admin (admin@gmail.com-aaaa4444), employee(emp1@gmail.com), manager (quict@gmail.com) in Database
+Account: admin (admin@gmail.com-aaaa4444), employee(emp1@gmail.com-aaaa4444), manager (quict@gmail.com-aaaa4444) in Database
 
 
 ### Nvm for windows
