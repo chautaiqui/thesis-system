@@ -144,7 +144,18 @@ export const Booking = props => {
             confirm(record);
           }}
         >Payment</Button> : <p style={{color: "#389e0d"}}>Paid</p>
-      }
+      },
+      filters: [
+        {
+          text: 'Paid',
+          value: true,
+        },
+        {
+          text: 'Payment',
+          value: false,
+        },
+      ],
+      onFilter: (value, record) => record.isPaid === value,
     },
   ];
 

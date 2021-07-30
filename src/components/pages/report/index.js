@@ -13,6 +13,7 @@ import { FacilityReport1 } from '../../commons/facility-report';
 
 import moment from 'moment';
 import DemoBar from '../../commons/chart/stackChart/temp';
+import DemoDualAxes, { DemoDualAxes1 } from '../../commons/chart/dualChart';
 // import { Horizon }
 const getWeekYearNow = () => {
   const n = new Date();
@@ -107,8 +108,9 @@ export const Report = props => {
           <Col span={24}>
             <h1 style={{textAlign: 'center'}}>Booking Report</h1>
           </Col>
-          <Col xs={24} sm={12} style={{display: 'flex',justifyContent: 'center', alignItems: 'center'}}>
-            <MultiTypeChart2 data={data.bookingByMonth ? addMonthReport(data.bookingByMonth) : []}/>
+          <Col xs={24} sm={12}>
+            {/* <MultiTypeChart2 data={data.bookingByMonth ? addMonthReport(data.bookingByMonth) : []}/> */}
+            <DemoDualAxes1 data={data.bookingByMonth ? addMonthReport(data.bookingByMonth) : []}/>
           </Col>
           <Col xs={24} sm={12}>
             <Table

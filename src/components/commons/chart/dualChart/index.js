@@ -87,4 +87,63 @@ const DemoDualAxes = (props) => {
   return <DualAxes {...config} />;
 };
 
+export const DemoDualAxes1 = (props) => {
+  const { data = []} = props;
+  const pdata = data.reverse().map(item => {
+    return {
+      ...item,
+      month: numtoMonth(item.month)
+    }
+  });
+  console.log(pdata)
+  var config = {
+    data: [pdata, pdata],
+    xField: 'month',
+    yField: ['bookingMoney', 'bookingAmount'],
+    geometryOptions: [
+      {
+        geometry: 'column',
+        color: '#52c41a',
+      },
+      {
+        geometry: 'line',
+        color: '#096dd9',
+      },
+    ],
+    xAxis: {
+      label: {
+        autoRotate: true,
+        autoHide: false,
+        autoEllipsis: false,
+      },
+      // tickCount: data.length / 2,
+    },
+    yAxis: {
+      bookingMoney: {
+        label: {
+          formatter: function formatter(v) {
+            var t = new Intl.NumberFormat('de-DE').format(v);
+            return ''.concat(t, " VND");
+          },
+        },
+      },
+      totalAmount: {
+        label: {
+          formatter: function formatter(v) {
+            return ''.concat(v);
+          },
+        },
+      },
+    },
+    legend: {
+      itemName: {
+        formatter: function formatter(text, item) {
+          return item.value === 'totalMoney' ? 'Total booking' : 'Amount booking';
+        },
+      },
+    },
+  };
+  return <DualAxes {...config} />;
+};
+
 export default DemoDualAxes;
