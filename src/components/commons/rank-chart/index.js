@@ -1,5 +1,5 @@
 import React from 'react';
-import { List, Avatar, Button, Skeleton } from 'antd';
+import { List, Avatar, Button, Skeleton, Row, Col } from 'antd';
 
 const number = [
   "https://ads-cdn.fptplay.net/static/banner/2021/07/07_60e4a1c377de060001c63a8e.png",
@@ -13,12 +13,22 @@ const number = [
   "https://ads-cdn.fptplay.net/static/banner/2021/07/07_60e4a28a77de0600017aed94.png",
   "https://ads-cdn.fptplay.net/static/banner/2021/07/07_60e4a29a77de06000136a8e6.png"
 ]
+const _style={
+  width: "100%",
+  borderRadius: 5,
+  // marginTop: 20,
+  // marginBottom: 20,
+  padding: 5,
+  // border: "1px solid #DDDDDD",
+  // boxShadow: "0px 6px 16px rgb(0 0 0 / 12%)"
+};
 const rank = (index) => number[index];
 export const RankChart = (props) => {
   const { data } = props;
+  console.log(data)
   return <div>
     <h1 style={{textAlign: 'center'}}>Top Rank User</h1>
-    <List
+    {/* <List
       className="top-rank-user"
       itemLayout="horizontal"
       dataSource={data}
@@ -35,7 +45,6 @@ export const RankChart = (props) => {
               <img src={rank(index)} style={{maxWidth: 30}}/>
             }
           />
-          {/* <div style={{marginRight: 5}}>{item.bookingAmount}</div> */}
           <span>
             {item.totalMoney.toLocaleString("it-IT", {
               style: "currency",
@@ -44,6 +53,48 @@ export const RankChart = (props) => {
           </span>
         </List.Item>
     )}
-    />
+    /> */}
+    <Row 
+      style={{
+        borderBottom: "1px solid"
+    }}>
+      <Col span={4} style={{textAlign: 'center'}}>
+        <span style={{
+          color: "#000",
+          fontWeight: 700
+        }}>Rank</span>
+      </Col>
+      <Col span={4} style={{textAlign: 'center'}}>
+      </Col>
+      <Col span={8} style={{textAlign: 'center'}}><span style={{
+          color: "#000",
+          fontWeight: 700
+        }}>User</span></Col>
+      <Col span={8} style={{textAlign: 'center'}}>
+        <span style={{
+          color: "#000",
+          fontWeight: 700
+        }}>Total</span>
+      </Col>
+    </Row>
+    {
+      data.map((item, index)=> {
+        return <Row style={_style}>
+          <Col span={4} style={{textAlign: 'center'}}>
+            <img src={rank(index)} style={{maxWidth: 30}}/>
+          </Col>
+          <Col span={4} style={{textAlign: 'center'}}>
+            <Avatar src={item.customerImg[0]} />
+          </Col>
+          <Col span={8} style={{textAlign: 'center'}}>{item.customerName[0]}</Col>
+          <Col span={8} style={{textAlign: 'center'}}>
+            {item.totalMoney.toLocaleString("it-IT", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </Col>
+        </Row>
+      })
+    }
   </div>
 }

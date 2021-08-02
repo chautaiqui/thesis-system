@@ -1,7 +1,7 @@
 import React, {useContext, useReducer, useEffect} from 'react';
 import { useHistory } from "react-router-dom";
 import { Button, Table, Modal, Form, Input, Row, Col, Select, Popover, message, TimePicker, Pagination, Tag } from 'antd';
-import { PlusCircleOutlined, PlayCircleOutlined, EditOutlined, CheckOutlined } from '@ant-design/icons';
+import { PlusCircleOutlined, PlayCircleOutlined, EditOutlined, CheckOutlined, DribbbleOutlined } from '@ant-design/icons';
 // import {Carousel} from '3d-react-carousal';
 import { User } from '@pkg/reducers';
 import { cities } from '../../commons/city';
@@ -208,11 +208,15 @@ export const Hotel = (props) => {
 			data.append('province', _p.name)
 		}
 		if(values.district && typeof values.district === 'number') {
-			var _dd = cities.district.find(item=>Number(item.idDistrict) === values.district)
-			console.log(_dd)
+			var _dd = cities.district.find(item=>Number(item.idDistrict) === values.district);
 			data.append('district', _dd.name)
 		}
-		var temp = {...values, imgs: undefined, time: undefined, province: undefined, district: undefined}
+		if(values.conveniences) {
+			values.conveniences.map(item=>{
+				data.append("conveniences", item);
+			})
+		}
+		var temp = {...values, imgs: undefined, time: undefined, province: undefined, district: undefined, conveniences: undefined}
 		for (const [key, value] of Object.entries(temp)){
 			if(value) {
 				data.append(key, value)
@@ -283,6 +287,7 @@ export const Hotel = (props) => {
 			averagePrice: record.averagePrice,
 			phone: record.phone,
 			description: record.description,
+			conveniences: record.conveniences,
 			province: record.province,
 			district: record.district,
 			street: record.street,
@@ -446,6 +451,26 @@ export const Hotel = (props) => {
 						>
 							<TimePicker.RangePicker  format="HH:mm"/>
 						</Form.Item>)}
+						<Form.Item name='conveniences' label="Conveniences"
+						>
+							<Select
+								mode="multiple"
+								style={{ width: '100%' }}
+    						placeholder="Select conveniences"
+								maxTagCount={3}
+							>
+								{
+									[
+										'sân bóng đá', 'bar', 'tennis', 'buffet', 'bồn tắm', 'ban công', 'tv', 'máy giặt', 'bãi giữ xe', 'khu vực bếp'
+									].map((item, index)=> <Select.Option value={item} label={item} key={index}>
+									<div className="demo-option-label-item">
+										{item}
+									</div>
+								</Select.Option>)
+								}
+								
+							</Select>
+						</Form.Item>
 						<Form.Item name='description' label="Description"
 							rules={[{ required: true, message: 'Description empty!' }]}
 						>
