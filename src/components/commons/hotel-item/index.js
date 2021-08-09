@@ -10,7 +10,7 @@ export const HotelItem = props => {
   }
   return <>
     <div style={{width: "200px", cursor: 'pointer'}} onMouseOver={()=>MouseEvent(true)} onMouseOut={()=>MouseEvent(false)} onClick={()=>onSelect(props.hotel)}>
-      <img src={imgs ? imgs[0] : url} style={{height: "100px"}}/>
+      <img src={imgs ? imgs[0] : url} style={{height: "100px", opacity: ishover ? "0.5" : 1}}/>
       <h1 className={selected ? 'hotel-item-choose' : 'hotel-item'} style={{color: ishover ? 'green' : 'black'}}>{name}</h1>
     </div>
   </>

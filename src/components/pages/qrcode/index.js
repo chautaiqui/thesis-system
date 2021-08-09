@@ -79,12 +79,14 @@ export const Qrcode = props => {
       rowKey='_id'
       tableLayout="auto"
       title={() => 'Qr Code'}
+      scroll={{ x: 576 }}
       dataSource={data.data}
       columns={[
         {
           title: 'Date',
           align: 'center',
           key: 'date', 
+          fixed: 'left',
           render: (text, record, index) => moment({date: record.date, month: record.month - 1, year: record.year}).format("DD-MM-YYYY"),
         },
         {
@@ -115,6 +117,7 @@ export const Qrcode = props => {
           title: 'QrCode',
           align: 'center',
           key: 'qrcode',
+          fixed: 'right',
           render: (text, record, index) => <Button className="btn-color" type="primary" shape="circle" icon={<QrcodeOutlined />} 
             onClick={()=>{
               const generateQrCode = async () => {

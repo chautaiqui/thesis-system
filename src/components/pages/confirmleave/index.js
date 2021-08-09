@@ -91,11 +91,13 @@ export const ConfirmLeave = props => {
       rowKey='_id'
       title={() => 'Confirm leave'}
       dataSource={state.data} 
+      scroll={{ x: 992 }}
       columns={[
         {
           title: 'Employee',
           align: 'center',
           key: 'employee', 
+          fixed: 'left',
           render: (text, record, index) => <div>{record.employee.email}</div>
         },
         {

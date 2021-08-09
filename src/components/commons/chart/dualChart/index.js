@@ -86,16 +86,41 @@ const DemoDualAxes = (props) => {
   };
   return <DualAxes {...config} />;
 };
-
+const deleleMonthReport = (arrReport) => {
+  console.log('.....----:', arrReport)
+  if(!arrReport || arrReport.length === 0) return;
+  var temp2 = [];
+  for(var i = 0; i<arrReport.length;i++){
+    if(arrReport[i].bookingAmount !== 0) temp2.push(arrReport[i])
+  }
+  return temp2.sort(function(a, b){return a.month - b.month});
+}
+const addMonthReport = (arrReport) => {
+  if(!arrReport || arrReport.length === 0) return;
+  var lst = arrReport[0];
+  var mIndex = Number(lst.month);
+  console.log(mIndex)
+  for (var i = mIndex - 1; i > 0; i--) {
+    arrReport.push({
+      bookingAmount: 0,
+      bookingMoney: 0,
+      month: i
+    })
+  }
+  return arrReport;
+}
 export const DemoDualAxes1 = (props) => {
   const { data = []} = props;
-  const pdata = data.reverse().map(item => {
+  
+  var temp1 = deleleMonthReport(data);
+  var temp2 = addMonthReport(temp1);
+  const pdata = temp2.reverse().map(item => {
     return {
       ...item,
       month: numtoMonth(item.month)
     }
   });
-  console.log(pdata)
+
   var config = {
     data: [pdata, pdata],
     xField: 'month',

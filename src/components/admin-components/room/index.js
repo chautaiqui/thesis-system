@@ -80,6 +80,7 @@ export const Room = ({hotelId}) => {
       dataIndex: 'name',
       align: 'center',
       key: 'name',
+      fixed: 'left',
       ...filerColumn([], 'name'),
       onFilter: (value, record) =>
           record.name
@@ -249,6 +250,7 @@ export const Room = ({hotelId}) => {
             rowKey='_id'
             bordered
             // loading={data.length === 0}
+            scroll={{ x: 992 }}
             tableLayout="auto"
             title={() => 'Room'}
             dataSource={data} 
@@ -307,6 +309,7 @@ export const Room = ({hotelId}) => {
             rowKey='_id'
             bordered
             tableLayout="auto"
+            scroll={{ x: 992 }}
             title={() => 'Room Type'}
             dataSource={data_room_type}
             columns={[{
@@ -314,6 +317,7 @@ export const Room = ({hotelId}) => {
               dataIndex: 'name',
               align: 'center',
               key: 'name', 
+              fixed: 'left'
             }, {
               title: 'Capacity',
               dataIndex: 'capacity',

@@ -81,6 +81,7 @@ export const Room = props => {
       dataIndex: 'name',
       align: 'center',
       key: 'name',
+      fixed: 'left',
       ...filerColumn([], 'name'),
       onFilter: (value, record) =>
           record.name
@@ -276,6 +277,7 @@ export const Room = props => {
           rowKey='_id'
           // loading={data.length === 0}
           title={() => 'Room'}
+          scroll={{ x: 992 }}
           dataSource={data} 
           columns={tCol} 
           style={{marginTop: 10}}
@@ -327,11 +329,13 @@ export const Room = props => {
           rowKey='_id'
           tableLayout="auto"
           title={() => 'Room Type'}
+          scroll={{ x: 576 }}
           dataSource={data_room_type}
           columns={[{
             title: 'Name',
             dataIndex: 'name',
             align: 'center',
+            fixed: 'left',
             key: 'name', 
           }, {
             title: 'Capacity',

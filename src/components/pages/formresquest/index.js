@@ -78,7 +78,7 @@ export const FormResquest = props => {
   console.log(query)
   return <>
     <Row gutter={[16,16]}>
-      <Col xs={24} xs={8}>
+      <Col xs={24} sm={24} md={8}>
         <Divider orientation="left">Form Request</Divider>
         <Form 
           form={form}
@@ -135,7 +135,7 @@ export const FormResquest = props => {
           </Form.Item>
         </Form>
       </Col>
-      <Col xs={24} xs={16}>
+      <Col xs={24} sm={24} md={16}>
         <Divider orientation="left">History</Divider>
         {
           query.date && <Tag 
@@ -153,6 +153,7 @@ export const FormResquest = props => {
           rowKey='_id'
           tableLayout="auto"
           style={{marginTop: 10}}
+          scroll={{ x: 992 }}
           dataSource={data.form}
           columns={[
             {
@@ -160,6 +161,7 @@ export const FormResquest = props => {
               dataIndex: 'title',
               align: 'center',
               key: 'title', 
+              fixed: 'left'
             },
             {
               title: 'Reason',

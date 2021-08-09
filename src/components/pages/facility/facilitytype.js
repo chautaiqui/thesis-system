@@ -131,6 +131,7 @@ export const FacilityType = props => {
         <Table
           style={{marginTop: 10}} 
           rowKey="_id"
+          scroll={{ x: 576 }}
           dataSource={state.data.map(item => {
             return item.facilities.map(i => ({...i, facilititype: item.name}))
             // return item.facilities
@@ -140,6 +141,7 @@ export const FacilityType = props => {
               title: 'Name',
               dataIndex: 'name',
               align: 'center',
+              fixed: 'left',
               key: 'name',
             },
             {

@@ -136,9 +136,9 @@ export const TableReport = (props) => {
     },
     {
       title: 'Rating',
-      dataIndex: 'ratingAvg',
       align: 'center',
-      key: 'ratingAvg'
+      key: 'ratingAvg',
+      render: (text, record, index) => <span>{record.ratingAvg.toFixed(2)}</span>
     },
   ];
   return <Table 

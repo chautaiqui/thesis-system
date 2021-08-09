@@ -2,8 +2,8 @@ import React, {useState, useMemo, useEffect, useContext } from 'react';
 import { _getRequest} from '@api';
 import { User } from '@pkg/reducers';
 import { message, Form, Input, Button, Descriptions, Row, Col, Statistic, Table, DatePicker } from 'antd';
-import { NumberOutlined, DollarOutlined } from '@ant-design/icons';
-import { VerticalBar } from '../../commons/chart';
+// import { NumberOutlined, DollarOutlined } from '@ant-design/icons';
+// import { VerticalBar } from '../../commons/chart';
 import { HorizontalBarChart } from '../../commons/chart/horizontalBarChart';
 import { VNDongIcon } from '../../commons/icon/vnd';
 import { Item } from '../../commons/report-item/item';
@@ -41,6 +41,15 @@ const addMonthReport = (arrReport) => {
   }
   return arrReport;
 }
+const deleleMonthReport = (arrReport) => {
+  console.log('.....----:', arrReport)
+  if(!arrReport || arrReport.length === 0) return;
+  arrReport.filter(item => {
+    return item.bookingAmount !== 0 || item.bookingMoney !== 0 
+  })
+  console.log('.....---- after:', arrReport)
+  return arrReport
+}
 
 export const Report = props => {
   const [month, year] = useMemo(() => getWeekYearNow(), [props]);
@@ -57,7 +66,7 @@ export const Report = props => {
     const getData = async () => {
       const res = await _getRequest(`hotel/${user.auth.hotel}/report`, query);
       const res_salary = await _getRequest(`hotel/${user.auth.hotel}/salary-report`, query);
-      console.log(res)
+      console.log(res.result)
       console.log(res_salary)
       if(res.success && res_salary.success) {
         setData({...res.result, employeeSalary: res_salary.result.salary});
@@ -108,11 +117,11 @@ export const Report = props => {
           <Col span={24}>
             <h1 style={{textAlign: 'center'}}>Booking Report</h1>
           </Col>
-          <Col xs={24} sm={12}>
+          <Col xs={24} sm={24} md={12}>
             {/* <MultiTypeChart2 data={data.bookingByMonth ? addMonthReport(data.bookingByMonth) : []}/> */}
-            <DemoDualAxes1 data={data.bookingByMonth ? addMonthReport(data.bookingByMonth) : []}/>
+            <DemoDualAxes1 data={data.bookingByMonth ? data.bookingByMonth : []}/>
           </Col>
-          <Col xs={24} sm={12}>
+          <Col xs={24} sm={24} md={12}>
             <Table
               rowKey='month'
               tableLayout="auto"
@@ -154,7 +163,7 @@ export const Report = props => {
           <Col span={24}>
             <h1 style={{textAlign: 'center'}}>Salary Employee Report</h1>
           </Col>
-          <Col xs={24} sm={12}>
+          <Col xs={24} sm={24} md={12}>
             <Table
               rowKey='month'
               tableLayout="auto"
@@ -184,7 +193,7 @@ export const Report = props => {
               ]}
             />
           </Col>
-          <Col xs={24} sm={12}>
+          <Col xs={24} sm={24} md={12}>
             <EmployeeSalaryChart data={data.employeeSalary ? data.employeeSalary : []}/>
           </Col>
         </Row>

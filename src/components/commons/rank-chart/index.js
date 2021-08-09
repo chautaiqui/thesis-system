@@ -86,7 +86,7 @@ export const RankChart = (props) => {
           <Col span={4} style={{textAlign: 'center'}}>
             <Avatar src={item.customerImg[0]} />
           </Col>
-          <Col span={8} style={{textAlign: 'center'}}>{item.customerName[0]}</Col>
+          <Col span={8} style={{overflow: "hidden", textOverflow: "ellipsis"}}>{item.customerName[0]}</Col>
           <Col span={8} style={{textAlign: 'center'}}>
             {item.totalMoney.toLocaleString("it-IT", {
               style: "currency",

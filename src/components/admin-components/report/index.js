@@ -1,15 +1,16 @@
-import React, {useState, useMemo, useEffect, useContext } from 'react';
+import React, {useState, useMemo, useEffect } from 'react';
 import { _getRequest} from '@api';
-import { User } from '@pkg/reducers';
-import { message, Form, Input, Button, Descriptions, Row, Col, Statistic, Table, DatePicker } from 'antd';
-import { NumberOutlined, DollarOutlined } from '@ant-design/icons';
-import { VerticalBar } from '../../commons/chart';
-import { HorizontalBarChart } from '../../commons/chart/horizontalBarChart';
-import { VNDongIcon } from '../../commons/icon/vnd';
+// import { User } from '@pkg/reducers';
+import { message, Form, Button, Row, Col, Table, DatePicker } from 'antd';
+// import { NumberOutlined, DollarOutlined } from '@ant-design/icons';
+// import { VerticalBar } from '../../commons/chart';
+// import { HorizontalBarChart } from '../../commons/chart/horizontalBarChart';
+// import { VNDongIcon } from '../../commons/icon/vnd';
 import { Item } from '../../commons/report-item/item';
 import { MultiTypeChart, MultiTypeChart2 } from '../../commons/chart/multiTypeChart';
 import { EmployeeSalaryChart } from '../../commons/chart/EmployeeSalaryChart';
-import { FacilityReport1 } from '../../commons/facility-report';
+// import { FacilityReport1 } from '../../commons/facility-report';
+import { DemoDualAxes1 } from '../../commons/chart/dualChart';
 
 import moment from 'moment';
 import DemoBar from '../../commons/chart/stackChart/temp';
@@ -103,10 +104,11 @@ export const Report = (props) => {
           <Col span={24}>
             <h1 style={{textAlign: 'center'}}>Booking Report</h1>
           </Col>
-          <Col xs={24} sm={12} style={{display: 'flex',justifyContent: 'center', alignItems: 'center'}}>
-            <MultiTypeChart2 data={data.bookingByMonth ? addMonthReport(data.bookingByMonth) : []}/>
+          <Col xs={24} sm={24} md={12} style={{display: 'flex',justifyContent: 'center', alignItems: 'center'}}>
+            <DemoDualAxes1 data={data.bookingByMonth ? data.bookingByMonth : []}/>
+            {/* <MultiTypeChart2 data={data.bookingByMonth ? addMonthReport(data.bookingByMonth) : []}/> */}
           </Col>
-          <Col xs={24} sm={12}>
+          <Col xs={24} sm={24} md={12}>
             <Table
               rowKey='month'
               tableLayout="auto"
@@ -148,7 +150,7 @@ export const Report = (props) => {
           <Col span={24}>
             <h1 style={{textAlign: 'center'}}>Salary Employee Report</h1>
           </Col>
-          <Col xs={24} sm={12}>
+          <Col xs={24} sm={24} md={12}>
             <Table
               rowKey='month'
               tableLayout="auto"
@@ -178,7 +180,7 @@ export const Report = (props) => {
               ]}
             />
           </Col>
-          <Col xs={24} sm={12}>
+          <Col xs={24} sm={24} md={12}>
             <EmployeeSalaryChart data={data.employeeSalary ? data.employeeSalary : []}/>
           </Col>
         </Row>

@@ -106,11 +106,11 @@ export const InventoryReport = props => {
       
     </Row>
     <Row gutter={[16,16]}>
-      <Col xs={24} sm={12}>
+      <Col xs={24} sm={24} md={12}>
         {/* <MultiTypeChart data={data.hotelsReport ? data.hotelsReport[0].bookingByMonth : []}/> */}
         <DemoDualAxes data={data.hotelsReport ? data.hotelsReport[0].bookingByMonth : []}/>
       </Col>
-      <Col xs={24} sm={12}>
+      <Col xs={24} sm={24} md={12}>
         <TableReport data={data.hotelsReport? data.hotelsReport[0].hotel : []}/>
       </Col>
     </Row>
@@ -118,10 +118,10 @@ export const InventoryReport = props => {
       {/* <Col span={12}>
         <h1 style={{textAlign: 'center'}}>Detail Booking Hotel Report</h1>
       </Col> */}
-      <Col span={12} style={{display: 'flex',justifyContent: 'center'}}>
+      <Col xs={24} sm={24} md={12} style={{display: 'flex',justifyContent: 'center'}}>
         <CustomHorizontalBarChart data={tophotel}/>
       </Col>
-      <Col span={12}>
+      <Col xs={24} sm={24} md={12}>
         <h1 style={{textAlign: 'center'}}>Facility Hotel Report</h1>
         <DemoBar data={data.facilityReport ? data.facilityReport : []}/>
       </Col>

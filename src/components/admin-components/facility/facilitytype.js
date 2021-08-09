@@ -126,7 +126,7 @@ export const FacilityType = props => {
             <Input placeholder="Facility type name"/>
           </Form.Item>
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Button className="btn-color" type="primary" htmlType="submit" shape="round" loading={loading} style={{float: "right"}} icon={<PlusCircleOutlined/>}>
+            <Button className="btn-color" type="primary" htmlType="submit" shape="round" loading={loading} icon={<PlusCircleOutlined/>}>
               Add facility type
             </Button>
           </Form.Item>
@@ -168,6 +168,7 @@ export const FacilityType = props => {
           style={{marginTop: 10}} 
           rowKey="_id"
           bordered
+          scroll={{ x: 992 }}
           dataSource={state.data.map(item => {
             return item.facilities.map(i => ({...i, facilititype: item.name}))
             // return item.facilities
@@ -178,6 +179,7 @@ export const FacilityType = props => {
               dataIndex: 'name',
               align: 'center',
               key: 'name',
+              fixed: 'left',
               ...filerColumn([], 'name'),
               onFilter: (value, record) =>
                   record.name
